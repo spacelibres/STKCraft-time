@@ -1,4 +1,6 @@
-![STKCraft — Albatross](https://raw.githubusercontent.com/spacelibres/STKCraft_web/main/public/brand/albatross.png)
+<p align="center">
+  <img src="https://raw.githubusercontent.com/spacelibres/STKCraft_web/main/public/brand/albatross.png" alt="STKCraft — Albatross" width="180">
+</p>
 
 # STKCraft-time
 
