@@ -95,7 +95,16 @@ impl EopTable {
             return Err(TimeError::EopMissing);
         }
 
-        samples.sort_by(|a, b| a.mjd.partial_cmp(&b.mjd).unwrap());
+        // NaN and infinity cannot be ordered, and a non-finite `UT1 - UTC`
+        // would silently poison every interpolation that uses it.
+        if samples
+            .iter()
+            .any(|sample| !sample.mjd.is_finite() || !sample.ut1_minus_utc.is_finite())
+        {
+            return Err(TimeError::EopParse);
+        }
+
+        samples.sort_by(|a, b| a.mjd.total_cmp(&b.mjd));
         samples.dedup_by(|a, b| math::abs(a.mjd - b.mjd) < 1e-9);
 
         Ok(Self { samples })

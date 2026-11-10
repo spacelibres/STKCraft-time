@@ -30,17 +30,20 @@ It does not link CSPICE and does not port CSPICE source code.
 3. **UTC conversion uses the day-length table, not the `DeltaET` formula.**
    For every UTC day affected by a leap second, the day is 86400, 86401
    or 86399 seconds long. `23:59:60.x` is legal only on a 86401-second
-   day. The `TDB - UTC = 32.184 + DeltaAT + K*sin(E)` expression is *not*
+   day; conversely `23:59:59.x` does not exist on a 86399-second day.
+   The `TDB - UTC = 32.184 + DeltaAT + K*sin(E)` expression is *not*
    used to convert across a leap-second instant.
 
 4. **Scales are distinct types.**
    UTC, TAI, TT, TDB/ET and GPS are never interchangeable. Conversion is
    only possible through explicit constructors.
 
-5. **No future leap-second policy is encoded.**
-   Leap seconds are data. The library follows the supplied LSK. To model
-   a policy assumption, construct a table whose entries reflect that
-   assumption. The crate never infers a policy from a date.
+5. **No future leap-second policy is inferred by default.**
+   Leap seconds are data. The default `TableDriven` policy follows the
+   supplied LSK and freezes `TAI - UTC` after its last entry. A caller
+   that wants to model an explicit assumption can select
+   `LeapSecondPolicy::FrozenAfter`; the crate never infers a policy from
+   a date on its own.
 
 ## Kernel selection
 

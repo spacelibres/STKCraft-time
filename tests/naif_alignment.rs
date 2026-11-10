@@ -5,7 +5,7 @@ use stkcraft_time::convert::{
     et_to_tai, et_to_utc, gps_to_tai, tai_to_et, tai_to_gps, tai_to_tt, tai_to_utc, tt_to_tai,
     utc_to_et, utc_to_tai,
 };
-use stkcraft_time::{Calendar, LeapSecondTable, TimeError, UtcDateTime};
+use stkcraft_time::{Calendar, LeapEntry, LeapSecondTable, TimeError, UtcDateTime};
 
 fn lsk() -> LeapSecondTable {
     LeapSecondTable::builtin().expect("bundled naif0012.tls must parse")
@@ -77,6 +77,61 @@ fn true_leap_second_is_rejected() {
     assert_eq!(
         utc_to_tai(&dt, Calendar::Gregorian, &table),
         Err(TimeError::InvalidLeapSecond)
+    );
+}
+
+/// A table with a negative leap second at the end of 2017: that UTC day
+/// is 86399 seconds long and `23:59:59` does not exist.
+fn negative_leap_table() -> LeapSecondTable {
+    LeapSecondTable::new(vec![
+        LeapEntry {
+            jdn: gregorian_to_jdn(1972, 1, 1),
+            delta_at: 10,
+        },
+        LeapEntry {
+            jdn: gregorian_to_jdn(2017, 1, 1),
+            delta_at: 36,
+        },
+        LeapEntry {
+            jdn: gregorian_to_jdn(2018, 1, 1),
+            delta_at: 35,
+        },
+    ])
+    .expect("custom LSK must parse")
+}
+
+#[test]
+fn negative_leap_second_removes_the_last_second_of_the_day() {
+    let table = negative_leap_table();
+    let day = (2017, 12, 31);
+
+    for second in [59.0, 59.5, 59.999_999] {
+        let dt = UtcDateTime::new(day.0, day.1, day.2, 23, 59, second);
+        assert_eq!(
+            utc_to_tai(&dt, Calendar::Gregorian, &table),
+            Err(TimeError::InvalidLeapSecond),
+            "23:59:{second} must not exist on a 86399-second day"
+        );
+    }
+
+    // The last existing second is 23:59:58, exactly one second before
+    // midnight; it must not alias the next day's 00:00:00.
+    let last = UtcDateTime::new(day.0, day.1, day.2, 23, 59, 58.0);
+    let last_tai = utc_to_tai(&last, Calendar::Gregorian, &table).expect("valid UTC");
+    let midnight = UtcDateTime::new(2018, 1, 1, 0, 0, 0.0);
+    let midnight_tai = utc_to_tai(&midnight, Calendar::Gregorian, &table).expect("valid UTC");
+
+    assert!((midnight_tai.tai_seconds() - last_tai.tai_seconds() - 1.0).abs() < 1e-9);
+
+    let back = tai_to_utc(last_tai, Calendar::Gregorian, &table).expect("valid TAI");
+    assert_eq!((back.year, back.month, back.day), day);
+    assert_eq!((back.hour, back.minute), (23, 59));
+    assert!((back.second - 58.0).abs() < 1e-9);
+
+    let midnight_back = tai_to_utc(midnight_tai, Calendar::Gregorian, &table).expect("valid TAI");
+    assert_eq!(
+        (midnight_back.year, midnight_back.month, midnight_back.day),
+        (2018, 1, 1)
     );
 }
 

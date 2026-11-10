@@ -69,6 +69,19 @@ pub fn utc_to_tai(
         }
     }
 
+    // A negative leap second removes `23:59:59` from the end of the
+    // preceding UTC day, which is then only 86399 seconds long. Accepting
+    // that label would alias it with the following day's `00:00:00`.
+    if jdn >= JDN_1972 && dt.hour == 23 && dt.minute == 59 && dt.second >= 59.0 {
+        let current = lsk.delta_at_for_jdn(jdn).ok_or(TimeError::UtcOutOfRange)?;
+        let next = lsk
+            .delta_at_for_jdn(jdn + 1)
+            .ok_or(TimeError::InvalidLeapSecond)?;
+        if next < current {
+            return Err(TimeError::InvalidLeapSecond);
+        }
+    }
+
     let whole_seconds = math::floor(dt.second);
     let time_of_day = dt.hour as i64 * 3_600 + dt.minute as i64 * 60 + whole_seconds as i64;
     let nominal = (jdn - J2000_JDN) * 86_400 + time_of_day;

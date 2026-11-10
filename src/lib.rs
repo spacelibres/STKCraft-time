@@ -50,9 +50,10 @@
 //! # Leap-second policy
 //!
 //! Leap seconds are data, not code. [`LeapSecondTable`] follows the LSK
-//! it was built from. To model an explicit policy assumption, construct a
-//! table whose entries reflect that assumption; the crate never infers
-//! one from a date.
+//! it was built from. The default [`LeapSecondPolicy::TableDriven`] keeps
+//! the last entry in force; a caller may select
+//! [`LeapSecondPolicy::FrozenAfter`] to model an explicit assumption. The
+//! crate never infers a policy from a date.
 
 #![cfg_attr(not(feature = "std"), no_std)]
 #![forbid(unsafe_code)]

@@ -4,6 +4,35 @@ All notable changes to `stkcraft-time` are documented here.
 
 The format follows Keep a Changelog. This crate uses semantic versioning.
 
+## [0.1.1] - 2026-11-10
+
+### Added
+
+- GitHub Actions CI (`.github/workflows/ci.yml`) running the test suite,
+  Clippy with `-D warnings`, and the `--no-default-features` (`no_std`)
+  build on every push and pull request.
+- `AGENTS.md` documenting the mandatory changelog and semantic-version
+  rules.
+
+### Fixed
+
+- `convert::utc_to_tai` now rejects `23:59:59.x` on a shortened
+  (86399-second) UTC day instead of mapping it to the same TAI epoch as
+  the following day's `00:00:00`. Round trips through TAI are therefore
+  no longer ambiguous at a negative leap second.
+- `eop::EopTable::new` rejects non-finite MJD or `UT1 - UTC` samples with
+  `TimeError::EopParse`. Sorting now uses `f64::total_cmp` instead of
+  `partial_cmp(...).unwrap()`, so malformed input cannot panic.
+- `TimeError::InvalidLeapSecond` now documents and reports both positive
+  and negative leap-second boundary cases.
+
+### Changed
+
+- The README now states that the default leap-second policy infers
+  nothing from a date, while `LeapSecondPolicy::FrozenAfter` is an
+  explicit caller choice.
+- Verification commands are documented as required checks in `AGENTS.md`.
+
 ## [0.1.0] - 2026-11-10
 
 Initial release. NAIF/SPICE-aligned time scales for the STKCraft project.

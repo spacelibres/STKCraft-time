@@ -90,6 +90,32 @@ fn out_of_range_lookup_is_an_error() {
 }
 
 #[test]
+fn non_finite_samples_are_rejected() {
+    let nan_mjd = EopTable::new(vec![EopSample {
+        mjd: f64::NAN,
+        ut1_minus_utc: 0.0,
+        observed: true,
+    }]);
+    assert_eq!(nan_mjd.unwrap_err(), TimeError::EopParse);
+
+    let infinite_ut1 = EopTable::new(vec![EopSample {
+        mjd: 51_544.0,
+        ut1_minus_utc: f64::INFINITY,
+        observed: true,
+    }]);
+    assert_eq!(infinite_ut1.unwrap_err(), TimeError::EopParse);
+}
+
+#[test]
+fn parser_rejects_non_finite_values() {
+    let text = format!("{}\n", sample_line("NaN", "0.1", ""));
+    assert_eq!(
+        EopTable::from_finals2000a(&text).unwrap_err(),
+        TimeError::EopParse
+    );
+}
+
+#[test]
 fn parses_fixed_columns_even_when_month_and_day_merge() {
     let table = EopTable::from_finals2000a(FINALS_SNIPPET).unwrap();
     assert_eq!(table.len(), 3);

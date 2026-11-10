@@ -25,8 +25,9 @@ pub enum TimeError {
     SclkUnsupported,
     /// The requested epoch lies outside the EOP table.
     Ut1OutOfRange,
-    /// A `23:59:60.x` UTC time was used on a day that has no positive leap
-    /// second.
+    /// A UTC time that does not exist at a leap-second boundary:
+    /// `23:59:60.x` on a day without a positive leap second, or
+    /// `23:59:59.x` on a shortened (86399-second) day.
     InvalidLeapSecond,
     /// The requested UTC epoch lies before the first LSK entry.
     UtcOutOfRange,
@@ -65,7 +66,7 @@ impl fmt::Display for TimeError {
                 write!(f, "requested epoch lies outside the EOP table")
             }
             TimeError::InvalidLeapSecond => {
-                write!(f, "23:59:60 is only legal on a positive-leap-second day")
+                write!(f, "UTC time does not exist at this leap-second boundary")
             }
             TimeError::UtcOutOfRange => {
                 write!(f, "UTC epoch lies outside the supplied leap-second table")
