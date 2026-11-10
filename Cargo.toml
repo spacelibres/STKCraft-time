@@ -1,0 +1,46 @@
+[package]
+name = "stkcraft-time"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.75"
+description = "NAIF/SPICE-aligned astronomical time scales for STKCraft"
+license = "MIT"
+repository = "https://github.com/spacelibres/STKCraft-time"
+homepage = "https://www.stkcraft.com"
+documentation = "https://docs.rs/stkcraft-time"
+readme = "README.md"
+keywords = ["time", "spice", "naif", "astronomy", "utc"]
+categories = ["science", "no-std"]
+
+[dependencies]
+libm = "0.2"
+
+[features]
+default = ["std"]
+std = []
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ["cfg(kani)"] }
+
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+name = "wgc-compare"
+path = "src/bin/wgc_compare.rs"
+required-features = ["std"]
+
+[[bin]]
+name = "ut1-check"
+path = "src/bin/ut1_check.rs"
+required-features = ["std"]
+
+[[bin]]
+name = "tdb-compare"
+path = "src/bin/tdb_compare.rs"
+required-features = ["std"]
+
+[[bin]]
+name = "sclk-check"
+path = "src/bin/sclk_check.rs"
+required-features = ["std"]

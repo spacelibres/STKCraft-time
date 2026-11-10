@@ -1,0 +1,17 @@
+name: Kani
+
+on:
+  # Optional: not a release gate. Kani is unavailable on Windows, so this
+  # workflow is dispatched manually on a Linux runner when desired.
+  workflow_dispatch:
+
+jobs:
+  kani:
+    # Kani ships binaries only for Linux and macOS; Windows is unsupported.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Kani proofs
+        uses: model-checking/kani-github-action@v1
+        with:
+          args: ""
