@@ -16,7 +16,13 @@ jobs:
           components: clippy
       - name: Run tests
         run: cargo test --locked --all-targets
+      - name: Run tests with MCP feature
+        run: cargo test --locked --all-targets --features mcp
       - name: Run Clippy
         run: cargo clippy --locked --all-targets -- -D warnings
+      - name: Run Clippy with MCP feature
+        run: cargo clippy --locked --all-targets --features mcp -- -D warnings
       - name: Build without default features
         run: cargo build --locked --no-default-features
+      - name: Build MCP server
+        run: cargo build --locked --features mcp --bin stkcraft-mcp

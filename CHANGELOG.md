@@ -4,6 +4,38 @@ All notable changes to `stkcraft-time` are documented here.
 
 The format follows Keep a Changelog. This crate uses semantic versioning.
 
+## [0.1.2] - 2026-11-10
+
+### Added
+
+- `docs/API.md`: a task-oriented API guide covering LSK/SCLK/EOP kernel
+  loading, WebGeocalc kernel parity, time-scale conversions, formatting
+  and error handling.
+- `examples/api_tour.rs`: a runnable example of the documented calls.
+- Optional `mcp` feature and `stkcraft-mcp` stdio MCP server exposing
+  UTC/TAI/TT/ET/GPS/UT1/SCLK conversions as JSON-RPC tools. The feature
+  enables `serde_json` and is not part of the `no_std` build.
+- `docs/MCP.md`: MCP client setup, protocol flow, tool schemas and
+  examples.
+- Project skills in `.agents/skills/stkcraft-time` and
+  `.agents/skills/stkcraft-mcp` for API and MCP workflows.
+
+### Changed
+
+- The README **Kernel selection** section now explains what WebGeocalc
+  calls a kernel, maps each kernel type to the corresponding
+  `stkcraft-time` API, and links to the new API guide. A new MCP section
+  documents the optional server.
+- `AGENTS.md` now requires every update to increment the patch version and
+  record a dated `CHANGELOG.md` section; `[Unreleased]` is no longer used.
+- CI now also runs tests and Clippy with `--features mcp` and builds the
+  MCP server.
+
+### Fixed
+
+- The `sclk-check` binary's usage comment no longer produces rustdoc
+  invalid-HTML warnings.
+
 ## [0.1.1] - 2026-11-10
 
 ### Added

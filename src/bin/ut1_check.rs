@@ -2,7 +2,10 @@
 //! `utc,ut1_minus_utc` using this crate and an IERS EOP file.
 //!
 //! Usage:
-//!     ut1-check <path-to-finals2000A.all>
+//!
+//! ```text
+//! ut1-check <path-to-finals2000A.all>
+//! ```
 //!
 //! Used by `tools/validate_ut1.py`.
 

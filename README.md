@@ -14,6 +14,12 @@ Navigation and Ancillary Information Facility (NAIF) in the **SPICE Time
 Subsystem Required Reading** and driven by a **Leapseconds Kernel (LSK)**.
 It does not link CSPICE and does not port CSPICE source code.
 
+- **API guide:** [`docs/API.md`](docs/API.md)
+- **MCP server:** [`docs/MCP.md`](docs/MCP.md)
+- **Runnable tour:** [`examples/api_tour.rs`](examples/api_tour.rs)
+- **Agent skills:** [`.agents/skills/`](.agents/skills/)
+- **Reference:** `cargo doc --open`
+
 ## Design rules
 
 1. **The LSK is the only source of truth.**
@@ -69,6 +75,43 @@ after a leap second if two kernels disagree about that leap second.
 
 Two kernels that differ in `DELTET/DELTA_AT` therefore give different
 results; `tests/kernel_selection.rs` asserts this explicitly.
+
+### Kernel types in WebGeocalc and in this crate
+
+In WebGeocalc's **Kernel selection**, a "kernel" is a SPICE data file,
+not an operating-system kernel. Only some of the loaded files participate
+in time conversion:
+
+| WebGeocalc item | Kernel | Purpose | `stkcraft-time` API |
+|---|---|---|---|
+| 最新闰秒内核 | LSK | UTC–TAI leap seconds, `DELTET` constants | `LeapSecondTable::builtin()` / `from_lsk()` |
+| 航天器时钟 | SCLK | Mission clock ticks/strings ↔ ET/TAI | `SclkKernel::parse()` |
+| IERS EOP (not shown on that screen) | `finals2000A.all` | `UT1 - UTC` | `EopTable::from_finals2000a*()` |
+| 太阳系内核 | SPK/PCK | Trajectories and planetary constants | Not used for time conversion |
+| 地面站内核集 | Station kernels | Station locations | Not used for time conversion |
+| `SPK/MK` | MK (meta-kernel) | A list of files to load | Not loaded; it is only a manifest |
+
+UTC/TT/TDB/GPS conversions share the **LSK**; only the spacecraft-clock
+encoding needs a mission-specific **SCLK**. UT1 is the exception: it needs
+an independent **EOP** table because it measures the actual rotation of
+the Earth. SPK/PCK/FK/IK contain geometry and trajectory data and are not
+needed by a pure time conversion.
+
+```rust
+use stkcraft_time::convert::{tai_to_et, utc_to_tai};
+use stkcraft_time::{Calendar, LeapSecondTable, UtcDateTime};
+
+let text = std::fs::read_to_string("naif0012.tls").expect("read LSK");
+let lsk = LeapSecondTable::from_lsk(&text).expect("parse LSK");
+
+let utc = UtcDateTime::new(2016, 12, 31, 23, 59, 60.5);
+let tai = utc_to_tai(&utc, Calendar::Gregorian, &lsk).expect("valid UTC");
+let et = tai_to_et(tai, &lsk);
+```
+
+For complete call examples, including SCLK and EOP/UT1, see
+[`docs/API.md`](docs/API.md) and the runnable
+[`examples/api_tour.rs`](examples/api_tour.rs).
 
 ### Measured against the live WGC2 API
 
@@ -459,6 +502,31 @@ assert_eq!(back.second, 60.5);
 # Ok::<(), stkcraft_time::TimeError>(())
 ```
 
+## MCP server
+
+The optional `mcp` feature builds a stdio MCP server that exposes the
+conversion API as JSON-RPC tools:
+
+```sh
+cargo build --features mcp --bin stkcraft-mcp
+```
+
+Example client configuration:
+
+```json
+{
+  "mcpServers": {
+    "stkcraft-time": {
+      "command": "/absolute/path/to/target/debug/stkcraft-mcp",
+      "args": []
+    }
+  }
+}
+```
+
+See [`docs/MCP.md`](docs/MCP.md) for the tool list and schemas. Agent
+skills are in [`.agents/skills/`](.agents/skills/).
+
 ## References
 
 - NAIF, *SPICE Time Subsystem Required Reading* (`time.req`)
@@ -472,9 +540,13 @@ assert_eq!(back.second, 60.5);
 
 ```bash
 cargo test                          # unit and integration tests
+cargo test --features mcp           # MCP protocol tests
 cargo test --test spice_golden      # 82 CSPICE reference vectors
 cargo build --no-default-features   # no_std + alloc build
+cargo build --features mcp --bin stkcraft-mcp
 cargo clippy --all-targets -- -D warnings
+cargo clippy --all-targets --features mcp -- -D warnings
+RUSTDOCFLAGS="-D warnings" cargo doc --no-deps
 python tools/wgc2_compare.py        # live WGC2 (CSPICE front-end) check
 ```
 

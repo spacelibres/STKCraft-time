@@ -2,7 +2,10 @@
 //! `ticks,et` using this crate and the bundled LSK.
 //!
 //! Usage:
-//!     sclk-check <path-to-sclk-kernel> <spacecraft-id>
+//!
+//! ```text
+//! sclk-check <path-to-sclk-kernel> <spacecraft-id>
+//! ```
 //!
 //! Used by `tools/validate_sclk.py`.
 

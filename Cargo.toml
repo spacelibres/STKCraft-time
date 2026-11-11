@@ -1,6 +1,6 @@
 [package]
 name = "stkcraft-time"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 rust-version = "1.75"
 description = "NAIF/SPICE-aligned astronomical time scales for STKCraft"
@@ -14,10 +14,12 @@ categories = ["science", "no-std"]
 
 [dependencies]
 libm = "0.2"
+serde_json = { version = "1", optional = true }
 
 [features]
 default = ["std"]
 std = []
+mcp = ["std", "dep:serde_json"]
 
 [lints.rust]
 unexpected_cfgs = { level = "warn", check-cfg = ["cfg(kani)"] }
@@ -44,3 +46,8 @@ required-features = ["std"]
 name = "sclk-check"
 path = "src/bin/sclk_check.rs"
 required-features = ["std"]
+
+[[bin]]
+name = "stkcraft-mcp"
+path = "src/bin/mcp_server.rs"
+required-features = ["std", "mcp"]

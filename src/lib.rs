@@ -74,6 +74,8 @@ pub mod error;
 pub mod format;
 pub mod leap;
 pub mod lsk;
+#[cfg(feature = "mcp")]
+pub mod mcp;
 pub mod sclk;
 pub mod series;
 pub mod tdb;
