@@ -4,6 +4,17 @@ All notable changes to `stkcraft-time` are documented here.
 
 The format follows Keep a Changelog. This crate uses semantic versioning.
 
+## [0.1.12] - 2026-11-11
+
+### Fixed
+
+- The leap-second day length was applied to every minute of the day, so
+  `2016-12-31T12:34:59.9999` at precision 3 printed `12:34:60.000` and
+  `23:58:59.9999` printed `23:58:60.000`. Only `23:59` can run past 59 s;
+  every other minute now ends at `59.999` and rounds into the next
+  minute. The same over-eager limit ended ordinary minutes early on a
+  shortened (86 399-second) day.
+
 ## [0.1.11] - 2026-11-11
 
 ### Fixed

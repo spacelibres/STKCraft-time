@@ -1,6 +1,6 @@
 # `stkcraft-time` API guide
 
-This guide shows how to call the public API of `stkcraft-time` 0.1.11. It
+This guide shows how to call the public API of `stkcraft-time` 0.1.12. It
 is task-oriented: each section answers "which function do I call, and what
 data do I need to load first?" For item-level reference documentation,
 run:
@@ -34,13 +34,13 @@ I/O and does not bundle mission data. The caller supplies the data files
 
 ```toml
 [dependencies]
-stkcraft-time = "0.1.11"
+stkcraft-time = "0.1.12"
 
 # no_std + alloc:
-# stkcraft-time = { version = "0.1.11", default-features = false }
+# stkcraft-time = { version = "0.1.12", default-features = false }
 
 # or pin the repository:
-# stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.11" }
+# stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.12" }
 ```
 
 The internal epoch representation is integer seconds plus nanoseconds;
@@ -512,10 +512,12 @@ Whether a carry crosses a leap second or moves to the next day depends on
 the length of the day, so [`FormatOptions`] takes an optional
 `LeapSecondTable`. With the table, `23:59:59.9999` on a 86 401-second day
 formats as `23:59:60.000`; without it, a 86 400-second day is assumed,
-unless the value already has `second >= 60`. The same options select the
-calendar used for the day carry, so a Julian date rolls from
-`1500-02-28` to `1500-02-29` rather than to `1500-03-01`. `%j` and `%a`
-use the selected calendar as well.
+unless the value already has `second >= 60`. Only the final minute of the
+day is affected: every other minute still ends at `59.999`, so
+`12:34:59.9999` on a leap-second day rounds to `12:35:00.000`. The same
+options select the calendar used for the day carry, so a Julian date
+rolls from `1500-02-28` to `1500-02-29` rather than to `1500-03-01`. `%j`
+and `%a` use the selected calendar as well.
 
 Supported `strftime` tokens: `%Y %y %m %d %e %H %M %S %j %a %A %b %B %z
 %Z %f %%`. `%f` is nanoseconds; `%z` is `+0000`; `%Z` is `UTC`. An

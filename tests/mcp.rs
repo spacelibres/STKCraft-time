@@ -158,6 +158,31 @@ fn format_utc_rounds_onto_a_leap_second() {
 
     assert_eq!(value["text"], "2016-12-31T23:59:60.000Z");
     assert_eq!(value["utc"]["iso8601"], "2016-12-31T23:59:59.999900000Z");
+
+    // Only 23:59 may run past 59 s on a leap-second day.
+    let response = request(json!({
+        "jsonrpc": "2.0",
+        "id": 42,
+        "method": "tools/call",
+        "params": {
+            "name": "format_utc",
+            "arguments": {
+                "year": 2016,
+                "month": 12,
+                "day": 31,
+                "hour": 12,
+                "minute": 34,
+                "second": 59.9999,
+                "precision": 3
+            }
+        }
+    }));
+
+    let text = response["result"]["content"][0]["text"]
+        .as_str()
+        .expect("text content");
+    let value: Value = serde_json::from_str(text).expect("tool result JSON");
+    assert_eq!(value["text"], "2016-12-31T12:35:00.000Z");
 }
 
 #[test]

@@ -97,8 +97,9 @@ EOP tools also accept `eop_series` (`a`, `b`, `final`) and
 `format_utc` accepts `calendar` (`gregorian`, `julian`, `mixed`) and
 `lsk_path`. Rounding uses that kernel's day lengths, so
 `2016-12-31T23:59:59.9999` with `precision: 3` returns
-`2016-12-31T23:59:60.000Z` instead of the next day. Without `lsk_path`
-the bundled `naif0012.tls` is used.
+`2016-12-31T23:59:60.000Z` instead of the next day. Only the final minute
+of a leap-second day is affected; `12:34:59.9999` still rounds to
+`12:35:00.000`. Without `lsk_path` the bundled `naif0012.tls` is used.
 
 `precision` is limited to `0..=9`. `tai_seconds` may be replaced by an
 integer `sec` plus `nanos` for exact epoch exchange. SCLK tools accept

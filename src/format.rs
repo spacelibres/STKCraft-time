@@ -454,8 +454,15 @@ fn normalize_datetime(dt: &UtcDateTime, options: &FormatOptions<'_>) -> UtcDateT
 /// Largest expressible second (exclusive) on the day of `dt`.
 ///
 /// Rounding at or above this value belongs to the next minute, and on
-/// `23:59` to the next day.
+/// `23:59` to the next day. Only the final minute of the day can be
+/// affected by a leap second.
 fn second_limit(dt: &UtcDateTime, options: &FormatOptions<'_>) -> f64 {
+    // A leap second can only be inserted or removed in the final minute of
+    // the day, so every other minute always ends at 59.999.
+    if dt.hour != 23 || dt.minute != 59 {
+        return 60.0;
+    }
+
     if let Some(day_length) = day_length(dt, options) {
         if day_length >= SECONDS_PER_DAY + 1.0 {
             return 61.0;

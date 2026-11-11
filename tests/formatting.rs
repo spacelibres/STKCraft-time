@@ -1,9 +1,10 @@
 //! RFC 3339, RFC 2822 and C89-style formatting tests.
 
-use stkcraft_time::calendar::Calendar;
+use stkcraft_time::calendar::{calendar_to_jdn, Calendar};
 use stkcraft_time::format::{
     etcal, iso8601, iso8601_with, rfc2822, rfc3339, strftime, strftime_with, FormatOptions,
 };
+use stkcraft_time::leap::LeapEntry;
 use stkcraft_time::{LeapSecondTable, UtcDateTime};
 
 #[test]
@@ -95,6 +96,43 @@ fn rounding_onto_a_leap_second_uses_the_day_length() {
     // The next day is normal, so the same instant carries into the day.
     let normal = UtcDateTime::new(2017, 1, 1, 23, 59, 59.9999);
     assert_eq!(iso8601_with(&normal, &options), "2017-01-02T00:00:00.000Z");
+
+    // Only 23:59 may run past 59 s; every other minute on a leap-second
+    // day still ends at 59.999.
+    let midday = UtcDateTime::new(2016, 12, 31, 12, 34, 59.9999);
+    assert_eq!(iso8601_with(&midday, &options), "2016-12-31T12:35:00.000Z");
+
+    let late = UtcDateTime::new(2016, 12, 31, 23, 58, 59.9999);
+    assert_eq!(iso8601_with(&late, &options), "2016-12-31T23:59:00.000Z");
+}
+
+#[test]
+fn negative_leap_second_shortens_only_the_last_minute() {
+    let start = calendar_to_jdn(1972, 1, 1, Calendar::Gregorian).unwrap();
+    let switch = calendar_to_jdn(1972, 7, 1, Calendar::Gregorian).unwrap();
+    let table = LeapSecondTable::new(vec![
+        LeapEntry {
+            jdn: start,
+            delta_at: 10,
+        },
+        LeapEntry {
+            jdn: switch,
+            delta_at: 9,
+        },
+    ])
+    .unwrap();
+    let options = FormatOptions::new(3).with_leap_seconds(&table);
+
+    // 1972-06-30 is 86 399 s long, so 23:59:59 does not exist, but the
+    // ordinary minutes of that day still end at 59.999.
+    let ordinary = UtcDateTime::new(1972, 6, 30, 12, 0, 58.9999);
+    assert_eq!(
+        iso8601_with(&ordinary, &options),
+        "1972-06-30T12:00:59.000Z"
+    );
+
+    let end = UtcDateTime::new(1972, 6, 30, 23, 59, 58.9999);
+    assert_eq!(iso8601_with(&end, &options), "1972-07-01T00:00:00.000Z");
 }
 
 #[test]
