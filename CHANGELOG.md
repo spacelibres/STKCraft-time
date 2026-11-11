@@ -4,6 +4,22 @@ All notable changes to `stkcraft-time` are documented here.
 
 The format follows Keep a Changelog. This crate uses semantic versioning.
 
+## [0.1.13] - 2026-11-11
+
+### Added
+
+- The `Release` workflow publishes each tag to crates.io with
+  `cargo publish` when the `CARGO_REGISTRY_TOKEN` repository secret is
+  configured. The job skips itself when the secret is absent and when the
+  version is already on the registry, so a re-run or a tag that was
+  published by hand is still green.
+
+### Changed
+
+- `README.md` states the install command directly below the badge and
+  link block, and the installation section puts `cargo add stkcraft-time`
+  before the manifest snippet.
+
 ## [0.1.12] - 2026-11-11
 
 ### Fixed

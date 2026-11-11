@@ -53,19 +53,21 @@ Every update is released. See the "Automatic release and push" section in
 
 ## crates.io publication
 
-The crate is published under the same version as the Git tag. Publishing
-is not part of CI; it needs an API token from
-<https://crates.io/settings/tokens>.
+The crate is published under the same version as the Git tag. The
+`Release` workflow runs `cargo publish` when the
+`CARGO_REGISTRY_TOKEN` repository secret is set, and skips the job when
+it is not or when that version already exists on the registry.
+
+To publish by hand:
 
 ```sh
-cargo login          # once per machine
-cargo publish --dry-run
-cargo publish
+cargo login          # once per machine, or set CARGO_REGISTRY_TOKEN
+cargo publish --locked
 ```
 
-`cargo publish` requires a clean working tree and the `vX.Y.Z` tag.
-Verify the result on <https://crates.io/crates/stkcraft-time> and wait
-for the docs.rs build at <https://docs.rs/stkcraft-time>.
+`cargo publish` requires a clean working tree. Verify the result on
+<https://crates.io/crates/stkcraft-time> and wait for the docs.rs build
+at <https://docs.rs/stkcraft-time>.
 
 ## Commit messages
 

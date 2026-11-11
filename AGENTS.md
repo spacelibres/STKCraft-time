@@ -72,13 +72,18 @@ failures before declaring a change complete.
   7. Confirm the `Release` workflow publishes a GitHub Release with
      release-mode binaries for Linux, macOS and Windows and
      `SHA256SUMS.txt`.
-  8. Publish the same version to crates.io with `cargo publish` once the
-     tag CI is green, then confirm the crate page and the docs.rs build.
+  8. Confirm crates.io. The `Release` workflow publishes the tagged
+     version with `cargo publish` when the `CARGO_REGISTRY_TOKEN`
+     repository secret is set; without the secret it skips that job, and
+     it skips as well when the version is already on the registry. If the
+     job is skipped, run `cargo publish` by hand and then check the crate
+     page and the docs.rs build.
 - Every release adds `docs/releases/vX.Y.Z.md`; the `Release` workflow
   uses it as the release body.
-- crates.io needs a registry token. If `cargo publish` reports that no
-  token is configured, report the blocker and the exact commands
-  (`cargo login`) instead of skipping the step silently.
+- crates.io needs a registry token. Store it as the
+  `CARGO_REGISTRY_TOKEN` repository secret so the `Release` workflow can
+  publish; for a manual run use `cargo login` or the
+  `CARGO_REGISTRY_TOKEN` environment variable. Never commit the token.
 - Do not leave the working tree with uncommitted changes when the task is
   complete.
 - Skip only when the user explicitly says not to commit, not to push, or
