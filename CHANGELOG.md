@@ -4,6 +4,16 @@ All notable changes to `stkcraft-time` are documented here.
 
 The format follows Keep a Changelog. This crate uses semantic versioning.
 
+## [0.1.15] - 2026-11-11
+
+### Added
+
+- `tests/version_sync.rs` fails the build when `README.md`, `docs/API.md`,
+  `CITATION.cff` or the bug report template references any version other
+  than the one in `Cargo.toml`, and when an install snippet stops pinning
+  that exact version. Release bookkeeping can no longer silently leave a
+  page advertising the previous version.
+
 ## [0.1.14] - 2026-11-11
 
 ### Fixed
