@@ -1,6 +1,6 @@
 # `stkcraft-time` API guide
 
-This guide shows how to call the public API of `stkcraft-time` 0.1.2. It
+This guide shows how to call the public API of `stkcraft-time` 0.1.3. It
 is task-oriented: each section answers "which function do I call, and what
 data do I need to load first?" For item-level reference documentation,
 run:
@@ -34,10 +34,10 @@ I/O and does not bundle mission data. The caller supplies the data files
 
 ```toml
 [dependencies]
-stkcraft-time = "0.1.2"
+stkcraft-time = "0.1.3"
 
 # no_std + alloc:
-# stkcraft-time = { version = "0.1.2", default-features = false }
+# stkcraft-time = { version = "0.1.3", default-features = false }
 ```
 
 The internal epoch representation is integer seconds plus nanoseconds;
@@ -51,11 +51,11 @@ operating-system kernel. Only a subset participates in time conversion:
 
 | WebGeocalc item | Kernel type | Purpose | `stkcraft-time` API |
 |---|---|---|---|
-| 最新闰秒内核 | LSK (`KPL/LSK`) | UTC–TAI leap seconds, `DELTET` constants | `LeapSecondTable::builtin` / `LeapSecondTable::from_lsk` |
-| 航天器时钟 | SCLK (`KPL/SCLK`) | Mission clock ticks/strings ↔ ET/TAI | `SclkKernel::parse` |
+| Latest leap-seconds kernel | LSK (`KPL/LSK`) | UTC–TAI leap seconds, `DELTET` constants | `LeapSecondTable::builtin` / `LeapSecondTable::from_lsk` |
+| Spacecraft clock | SCLK (`KPL/SCLK`) | Mission clock ticks/strings ↔ ET/TAI | `SclkKernel::parse` |
 | IERS EOP (not shown on that screen) | `finals2000A.all` | `UT1 - UTC` | `EopTable::from_finals2000a*` |
-| 太阳系内核 | SPK/PCK | Trajectories and planetary constants | Not used for time conversion |
-| 地面站内核集 | Station kernels | Station locations | Not used for time conversion |
+| Solar-system kernels | SPK/PCK | Trajectories and planetary constants | Not used for time conversion |
+| Ground-station kernel set | Station kernels | Station locations | Not used for time conversion |
 | `SPK/MK` | MK (meta-kernel) | A manifest listing other kernels | Not loaded; it is only a file list |
 
 So the statement "each time system has its own kernel" is not quite right:

@@ -8,6 +8,8 @@ description: Use when changing the STKCraft-time Rust crate or converting UTC, T
 ## Mandatory update workflow
 
 Every update is a release. Do not leave changes under `[Unreleased]`.
+Keep every repository file in English; do not add Chinese prose or
+Chinese-localized UI labels.
 
 1. Increment the **patch** component in `Cargo.toml`
    (`0.1.1` -> `0.1.2` -> ...). Use a minor bump only for a new

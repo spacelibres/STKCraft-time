@@ -84,11 +84,11 @@ in time conversion:
 
 | WebGeocalc item | Kernel | Purpose | `stkcraft-time` API |
 |---|---|---|---|
-| 最新闰秒内核 | LSK | UTC–TAI leap seconds, `DELTET` constants | `LeapSecondTable::builtin()` / `from_lsk()` |
-| 航天器时钟 | SCLK | Mission clock ticks/strings ↔ ET/TAI | `SclkKernel::parse()` |
+| Latest leap-seconds kernel | LSK | UTC–TAI leap seconds, `DELTET` constants | `LeapSecondTable::builtin()` / `from_lsk()` |
+| Spacecraft clock | SCLK | Mission clock ticks/strings ↔ ET/TAI | `SclkKernel::parse()` |
 | IERS EOP (not shown on that screen) | `finals2000A.all` | `UT1 - UTC` | `EopTable::from_finals2000a*()` |
-| 太阳系内核 | SPK/PCK | Trajectories and planetary constants | Not used for time conversion |
-| 地面站内核集 | Station kernels | Station locations | Not used for time conversion |
+| Solar-system kernels | SPK/PCK | Trajectories and planetary constants | Not used for time conversion |
+| Ground-station kernel set | Station kernels | Station locations | Not used for time conversion |
 | `SPK/MK` | MK (meta-kernel) | A list of files to load | Not loaded; it is only a manifest |
 
 UTC/TT/TDB/GPS conversions share the **LSK**; only the spacecraft-clock

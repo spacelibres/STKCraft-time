@@ -2,6 +2,13 @@
 
 These rules apply to every change made in this repository.
 
+## Language
+
+- All repository content must be in English: code, comments,
+  documentation, changelog entries, commit messages, skills and example
+  output.
+- Do not add Chinese text or Chinese-localized UI labels.
+
 ## Changelog is mandatory
 
 - Every update must add an entry to `CHANGELOG.md` in the same commit.

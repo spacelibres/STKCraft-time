@@ -4,6 +4,14 @@ All notable changes to `stkcraft-time` are documented here.
 
 The format follows Keep a Changelog. This crate uses semantic versioning.
 
+## [0.1.3] - 2026-11-10
+
+### Changed
+
+- Replace the Chinese-localized WebGeocalc UI labels in `README.md` and
+  `docs/API.md` with their English equivalents. Repository content is now
+  English-only, and `AGENTS.md` records that rule.
+
 ## [0.1.2] - 2026-11-10
 
 ### Added
