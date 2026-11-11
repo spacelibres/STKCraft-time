@@ -1,7 +1,10 @@
 //! RFC 3339, RFC 2822 and C89-style formatting tests.
 
-use stkcraft_time::format::{etcal, iso8601, rfc2822, rfc3339, strftime};
-use stkcraft_time::UtcDateTime;
+use stkcraft_time::calendar::Calendar;
+use stkcraft_time::format::{
+    etcal, iso8601, iso8601_with, rfc2822, rfc3339, strftime, strftime_with, FormatOptions,
+};
+use stkcraft_time::{LeapSecondTable, UtcDateTime};
 
 #[test]
 fn rfc3339_formatting() {
@@ -70,6 +73,41 @@ fn rounding_carries_to_minute_and_day() {
 fn precision_is_clamped_to_nanoseconds() {
     let dt = UtcDateTime::new(2000, 1, 1, 12, 0, 0.0);
     assert_eq!(iso8601(&dt, 100), "2000-01-01T12:00:00.000000000Z");
+}
+
+#[test]
+fn rounding_onto_a_leap_second_uses_the_day_length() {
+    let lsk = LeapSecondTable::builtin().unwrap();
+    let options = FormatOptions::new(3).with_leap_seconds(&lsk);
+
+    // 2016-12-31 is 86 401 s long, so this rounds to the leap second and
+    // not to the following day.
+    let dt = UtcDateTime::new(2016, 12, 31, 23, 59, 59.9999);
+    assert_eq!(iso8601_with(&dt, &options), "2016-12-31T23:59:60.000Z");
+    assert_eq!(
+        strftime_with(&dt, "%Y-%m-%dT%H:%M:%S", &options).unwrap(),
+        "2016-12-31T23:59:60"
+    );
+
+    // The plain formatter documents a 86 400-second day.
+    assert_eq!(iso8601(&dt, 3), "2017-01-01T00:00:00.000Z");
+
+    // The next day is normal, so the same instant carries into the day.
+    let normal = UtcDateTime::new(2017, 1, 1, 23, 59, 59.9999);
+    assert_eq!(iso8601_with(&normal, &options), "2017-01-02T00:00:00.000Z");
+}
+
+#[test]
+fn day_carry_follows_the_selected_calendar() {
+    // 1500 is a Julian leap year but not a Gregorian one.
+    let dt = UtcDateTime::new(1500, 2, 28, 23, 59, 59.9999);
+    let julian = FormatOptions::new(3).with_calendar(Calendar::Julian);
+
+    assert_eq!(iso8601_with(&dt, &julian), "1500-02-29T00:00:00.000Z");
+    assert_eq!(iso8601(&dt, 3), "1500-03-01T00:00:00.000Z");
+
+    let leap_day = UtcDateTime::new(1500, 2, 29, 12, 0, 0.0);
+    assert_eq!(strftime_with(&leap_day, "%j", &julian).unwrap(), "060");
 }
 
 #[test]

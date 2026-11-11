@@ -75,3 +75,54 @@ fn sclk_rejects_non_finite_coefficients() {
     let text = MULTI_BLOCK_SCLK.replace("0 0 1", "0 0 NaN");
     assert!(SclkKernel::parse(&text, -999).is_err());
 }
+
+/// Two blocks that both assign the complete table: the second `=` must
+/// replace the first, not append to it (which would duplicate dates).
+const LSK_REASSIGNED: &str = r#"
+KPL/LSK
+
+\begindata
+DELTET/DELTA_AT = ( 10 @1972-JAN-01, 11 @1972-JUL-01 )
+\begintext
+
+\begindata
+DELTET/DELTA_AT = ( 10 @1972-JAN-01, 11 @1972-JUL-01, 12 @1973-JAN-01 )
+\begintext
+"#;
+
+/// A later block that extends the table with `+=`.
+const LSK_EXTENDED: &str = r#"
+KPL/LSK
+
+\begindata
+DELTET/DELTA_AT = ( 10 @1972-JAN-01 )
+\begintext
+
+\begindata
+DELTET/DELTA_AT += ( 11 @1972-JUL-01 )
+\begintext
+"#;
+
+#[test]
+fn lsk_reassignment_replaces_the_earlier_table() {
+    let table = parse_lsk(LSK_REASSIGNED).unwrap();
+    let entries = table.entries();
+
+    assert_eq!(entries.len(), 3);
+    assert_eq!(entries[2].delta_at, 12);
+}
+
+#[test]
+fn lsk_accumulation_appends_to_the_table() {
+    let table = parse_lsk(LSK_EXTENDED).unwrap();
+    let entries = table.entries();
+
+    assert_eq!(entries.len(), 2);
+    assert_eq!(entries[1].delta_at, 11);
+}
+
+#[test]
+fn lsk_rejects_unsupported_assignment_operator() {
+    let text = LSK_EXTENDED.replace("+=", "-=");
+    assert_eq!(parse_lsk(&text).unwrap_err(), TimeError::LskParse);
+}

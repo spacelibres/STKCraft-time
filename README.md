@@ -35,9 +35,9 @@ It does not link CSPICE and does not port CSPICE source code.
 
 ## Project status
 
-- Latest release: **v0.1.9** on GitHub Releases, including release-mode
+- Latest release: **v0.1.10** on GitHub Releases, including release-mode
   binaries for Linux, macOS (x86_64 and arm64) and Windows.
-- Published on crates.io as **`stkcraft-time` 0.1.9**, with API docs on
+- Published on crates.io as **`stkcraft-time` 0.1.10**, with API docs on
   [docs.rs](https://docs.rs/stkcraft-time).
 - Minimum supported Rust version: **1.75**.
 - The library is `no_std` compatible with `alloc`; the optional MCP server
@@ -47,7 +47,7 @@ It does not link CSPICE and does not port CSPICE source code.
 
 ```toml
 [dependencies]
-stkcraft-time = "0.1.9"
+stkcraft-time = "0.1.10"
 ```
 
 ```sh
@@ -57,7 +57,7 @@ cargo add stkcraft-time
 `no_std` plus `alloc`:
 
 ```toml
-stkcraft-time = { version = "0.1.9", default-features = false }
+stkcraft-time = { version = "0.1.10", default-features = false }
 ```
 
 The MCP server and the validation binaries are optional:
@@ -69,7 +69,7 @@ cargo install stkcraft-time --features mcp --bin stkcraft-mcp
 To track the repository instead of a crates.io release, pin a tag:
 
 ```toml
-stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.9" }
+stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.10" }
 ```
 
 ## Releases
@@ -352,15 +352,16 @@ python tools/validate_sclk.py --sclk target/mro_sclk.tsc --id -74
 ```
 
 Scope: encoded-tick conversions and field/string encoding are exact
-within one partition. Partition boundaries are parsed but not applied;
-a partition-aware reformatting layer is future work. Only clock type 1
-is supported.
+within one partition. Partition boundaries are parsed and validated per
+partition (a reset may start lower than the previous partition ended) but
+are not applied; a partition-aware reformatting layer is future work.
+Only clock type 1 is supported.
 
 ## Formatting
 
 ```rust
-use stkcraft_time::format::{rfc2822, rfc3339, strftime};
-use stkcraft_time::UtcDateTime;
+use stkcraft_time::format::{iso8601_with, rfc2822, rfc3339, strftime, FormatOptions};
+use stkcraft_time::{LeapSecondTable, UtcDateTime};
 
 let dt = UtcDateTime::new(2000, 2, 29, 14, 57, 29.000_000_037);
 assert_eq!(rfc3339(&dt, 9), "2000-02-29T14:57:29.000000037+00:00");
@@ -369,9 +370,20 @@ assert_eq!(
     strftime(&dt, "%Y-%m-%d %H:%M:%S").unwrap(),
     "2000-02-29 14:57:29"
 );
+
+// Rounding that reaches a leap second needs the day length.
+let lsk = LeapSecondTable::builtin().unwrap();
+let options = FormatOptions::new(3).with_leap_seconds(&lsk);
+let last_second = UtcDateTime::new(2016, 12, 31, 23, 59, 59.9999);
+assert_eq!(
+    iso8601_with(&last_second, &options),
+    "2016-12-31T23:59:60.000Z"
+);
 ```
 
 Supported C89 tokens: `%Y %y %m %d %e %H %M %S %j %a %A %b %B %z %Z %f %%`.
+`FormatOptions` also selects the calendar used when a carry moves the
+date, so Julian dates roll into `1500-02-29` rather than `1500-03-01`.
 
 ## Leap-second policy note
 
@@ -640,7 +652,7 @@ python tools/wgc2_compare.py        # live WGC2 (CSPICE front-end) check
 The library is `no_std` compatible with `alloc`:
 
 ```toml
-stkcraft-time = { version = "0.1.9", default-features = false }
+stkcraft-time = { version = "0.1.10", default-features = false }
 ```
 
 In `no_std` builds, `libm` supplies `sin`, `floor`, `round` and `fmod`;

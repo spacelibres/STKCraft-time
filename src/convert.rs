@@ -429,15 +429,56 @@ pub fn ut1_to_tai(ut1: f64, lsk: &LeapSecondTable, eop: &EopTable) -> Result<Epo
 }
 
 /// Clamps the first fixed-point guess to the EOP-supported TAI interval.
+///
+/// `ut1_minus_utc` interpolates between two consecutive samples, so the
+/// last usable instant is the start of the final sample day: that day is
+/// only reachable through the interval that ends there. The guess also
+/// uses the measured `UT1 - UTC` offset instead of a fixed 32 s fudge, so
+/// a target near either end of the table is not clamped onto an instant
+/// the interpolation rejects.
 fn initial_tai_guess(ut1: f64, lsk: &LeapSecondTable, eop: &EopTable) -> Option<f64> {
-    let (first_mjd, last_mjd) = eop.range();
-    if !first_mjd.is_finite() || !last_mjd.is_finite() || first_mjd > last_mjd {
+    let samples = eop.samples();
+    if samples.len() < 2 {
         return None;
     }
 
-    let first_tai = tai_at_utc_day_start(mjd_to_jdn(first_mjd), lsk)? as f64;
-    let last_tai = tai_at_utc_day_start(mjd_to_jdn(last_mjd), lsk)? as f64 + 86_400.0;
-    Some((ut1 + 32.0).clamp(first_tai, last_tai))
+    let first = samples[0];
+    let last = samples[samples.len() - 1];
+    let first_tai = tai_at_utc_day_start(mjd_to_jdn(first.mjd), lsk)? as f64;
+    let last_tai = tai_at_utc_day_start(mjd_to_jdn(last.mjd), lsk)? as f64;
+    if !last_tai.is_finite() || !first_tai.is_finite() || last_tai <= first_tai {
+        return None;
+    }
+
+    // UT1 stays within a second of UTC, so this selects the nearby sample
+    // without solving for the epoch itself.
+    let approx_mjd = 51_544.5 + ut1 / 86_400.0;
+    let index = samples.partition_point(|sample| sample.mjd < approx_mjd);
+    let nearest = if index == 0 {
+        first
+    } else if index >= samples.len() {
+        last
+    } else {
+        let before = samples[index - 1];
+        let after = samples[index];
+        if approx_mjd - before.mjd <= after.mjd - approx_mjd {
+            before
+        } else {
+            after
+        }
+    };
+
+    let delta_at = lsk.delta_at_for_jdn(mjd_to_jdn(nearest.mjd))? as f64;
+    let guess = ut1 - nearest.ut1_minus_utc + delta_at;
+
+    // Stay strictly inside the interpolated interval: the final sample
+    // date only closes the preceding day.
+    let lower = first_tai;
+    let upper = last_tai - 1e-3;
+    if upper < lower {
+        return None;
+    }
+    Some(guess.clamp(lower, upper))
 }
 
 /// Converts a daily EOP MJD to its Julian Day Number.

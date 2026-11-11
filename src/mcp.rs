@@ -20,7 +20,7 @@ use crate::convert::{
 };
 use crate::eop::{EopSeries, EopTable};
 use crate::epoch::{Epoch, UtcDateTime};
-use crate::format;
+use crate::format::{self, FormatOptions};
 use crate::leap::LeapSecondTable;
 use crate::sclk::SclkKernel;
 
@@ -322,7 +322,7 @@ fn tool_definitions() -> Value {
         },
         {
             "name": "format_utc",
-            "description": "Format a civil UTC date/time as ISO 8601, RFC 3339, RFC 2822, SPICE calendar or strftime.",
+            "description": "Format a civil UTC date/time as ISO 8601, RFC 3339, RFC 2822, SPICE calendar or strftime. Rounding uses the leap-second table, so 23:59:59.9999 on a leap-second day becomes 23:59:60.000 instead of the next day.",
             "inputSchema": {
                 "type": "object",
                 "properties": {
@@ -332,6 +332,8 @@ fn tool_definitions() -> Value {
                     "hour": { "type": "integer", "minimum": 0, "maximum": 23 },
                     "minute": { "type": "integer", "minimum": 0, "maximum": 59 },
                     "second": { "type": "number", "minimum": 0, "exclusiveMaximum": 61 },
+                    "calendar": { "type": "string", "enum": ["gregorian", "julian", "mixed"], "description": "Calendar used for day carries; default gregorian" },
+                    "lsk_path": { "type": "string", "description": "Path to a KPL/LSK kernel; omit for the bundled naif0012.tls" },
                     "kind": { "type": "string", "enum": ["iso8601", "rfc3339", "rfc2822", "spice", "strftime"] },
                     "precision": { "type": "integer", "minimum": 0, "maximum": 9, "description": "Fractional digits for ISO/RFC 3339/SPICE" },
                     "pattern": { "type": "string", "description": "strftime pattern when kind=strftime" }
@@ -493,7 +495,7 @@ fn call_tool(name: &str, args: &Value) -> Result<Value, String> {
             let calendar = calendar_arg(args)?;
             let tai = utc_to_tai(&utc, calendar, &lsk).map_err(|error| error.to_string())?;
             Ok(json!({
-                "utc": utc_json(&utc),
+                "utc": utc_json(&utc, &lsk, calendar),
                 "tai": epoch_json(tai)
             }))
         }
@@ -504,7 +506,7 @@ fn call_tool(name: &str, args: &Value) -> Result<Value, String> {
             let utc = tai_to_utc(tai, calendar, &lsk).map_err(|error| error.to_string())?;
             Ok(json!({
                 "tai": epoch_json(tai),
-                "utc": utc_json(&utc)
+                "utc": utc_json(&utc, &lsk, calendar)
             }))
         }
         "utc_to_et" => {
@@ -513,7 +515,7 @@ fn call_tool(name: &str, args: &Value) -> Result<Value, String> {
             let calendar = calendar_arg(args)?;
             let et = utc_to_et(&utc, calendar, &lsk).map_err(|error| error.to_string())?;
             Ok(json!({
-                "utc": utc_json(&utc),
+                "utc": utc_json(&utc, &lsk, calendar),
                 "et": et
             }))
         }
@@ -524,7 +526,7 @@ fn call_tool(name: &str, args: &Value) -> Result<Value, String> {
             let utc = et_to_utc(et, calendar, &lsk).map_err(|error| error.to_string())?;
             Ok(json!({
                 "et": et,
-                "utc": utc_json(&utc)
+                "utc": utc_json(&utc, &lsk, calendar)
             }))
         }
         "tai_to_tt" => {
@@ -557,7 +559,7 @@ fn call_tool(name: &str, args: &Value) -> Result<Value, String> {
             let calendar = calendar_arg(args)?;
             let ut1 = utc_to_ut1(&utc, calendar, &lsk, &eop).map_err(|error| error.to_string())?;
             Ok(json!({
-                "utc": utc_json(&utc),
+                "utc": utc_json(&utc, &lsk, calendar),
                 "ut1_seconds": ut1
             }))
         }
@@ -569,7 +571,7 @@ fn call_tool(name: &str, args: &Value) -> Result<Value, String> {
             let utc = ut1_to_utc(ut1, calendar, &lsk, &eop).map_err(|error| error.to_string())?;
             Ok(json!({
                 "ut1_seconds": ut1,
-                "utc": utc_json(&utc)
+                "utc": utc_json(&utc, &lsk, calendar)
             }))
         }
         "sclk_to_et" => {
@@ -612,22 +614,28 @@ fn call_tool(name: &str, args: &Value) -> Result<Value, String> {
         "format_utc" => {
             let utc = utc_arg(args)?;
             let precision = precision_arg(args)?;
+            let calendar = calendar_arg(args)?;
+            let lsk = load_lsk(args)?;
+            let options = FormatOptions::new(precision)
+                .with_calendar(calendar)
+                .with_leap_seconds(&lsk);
             let kind = opt_str(args, "kind")
                 .unwrap_or("iso8601")
                 .to_ascii_lowercase();
             let text = match kind.as_str() {
-                "iso8601" => format::iso8601(&utc, precision),
-                "rfc3339" => format::rfc3339(&utc, precision),
+                "iso8601" => format::iso8601_with(&utc, &options),
+                "rfc3339" => format::rfc3339_with(&utc, &options),
                 "rfc2822" => format::rfc2822(&utc),
-                "spice" | "spice_calendar" => format::spice_calendar(&utc, precision),
+                "spice" | "spice_calendar" => format::spice_calendar_with(&utc, &options),
                 "strftime" => {
                     let pattern = as_str(args, "pattern")?;
-                    format::strftime(&utc, pattern).map_err(|error| error.to_string())?
+                    format::strftime_with(&utc, pattern, &options)
+                        .map_err(|error| error.to_string())?
                 }
                 other => return Err(format!("unknown format kind `{other}`")),
             };
             Ok(json!({
-                "utc": utc_json(&utc),
+                "utc": utc_json(&utc, &lsk, calendar),
                 "text": text
             }))
         }
@@ -782,7 +790,10 @@ fn epoch_json(epoch: Epoch) -> Value {
     })
 }
 
-fn utc_json(dt: &UtcDateTime) -> Value {
+fn utc_json(dt: &UtcDateTime, lsk: &LeapSecondTable, calendar: Calendar) -> Value {
+    let options = FormatOptions::new(9)
+        .with_calendar(calendar)
+        .with_leap_seconds(lsk);
     json!({
         "year": dt.year,
         "month": dt.month,
@@ -790,7 +801,7 @@ fn utc_json(dt: &UtcDateTime) -> Value {
         "hour": dt.hour,
         "minute": dt.minute,
         "second": dt.second,
-        "iso8601": format::iso8601(dt, 9)
+        "iso8601": format::iso8601_with(dt, &options)
     })
 }
 

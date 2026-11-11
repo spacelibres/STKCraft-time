@@ -1,6 +1,6 @@
 # `stkcraft-time` API guide
 
-This guide shows how to call the public API of `stkcraft-time` 0.1.9. It
+This guide shows how to call the public API of `stkcraft-time` 0.1.10. It
 is task-oriented: each section answers "which function do I call, and what
 data do I need to load first?" For item-level reference documentation,
 run:
@@ -34,13 +34,13 @@ I/O and does not bundle mission data. The caller supplies the data files
 
 ```toml
 [dependencies]
-stkcraft-time = "0.1.9"
+stkcraft-time = "0.1.10"
 
 # no_std + alloc:
-# stkcraft-time = { version = "0.1.9", default-features = false }
+# stkcraft-time = { version = "0.1.10", default-features = false }
 
 # or pin the repository:
-# stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.9" }
+# stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.10" }
 ```
 
 The internal epoch representation is integer seconds plus nanoseconds;
@@ -406,6 +406,14 @@ let ticks_from_tai = sclk.tai_to_ticks(tai, &lsk)?;
   nonzero partition start, field and string conversion returns
   `TimeError::SclkPartitionsUnsupported`; encoded ticks↔ET/TAI remain
   available for callers that apply partitions themselves.
+- Only the bounds inside a partition are validated (`start <= end`, both
+  finite). Cross-partition ordering is not required: NAIF lets a clock
+  jump ahead or regress, which is exactly why a new partition starts, and
+  the bounds are not used by any conversion here.
+
+`DELTET/DELTA_AT` follows NAIF assignment rules: `=` replaces the
+accumulated table and `+=` extends it, so a kernel that restates the
+leap-second list in a later data block is valid.
 
 ## 9. Coordinate scales: TCG and TCB
 
@@ -458,10 +466,12 @@ before iteration ends.
 ## 11. Formatting
 
 ```rust
+use stkcraft_time::calendar::Calendar;
 use stkcraft_time::format::{
-    etcal, iso8601, rfc2822, rfc3339, spice_calendar, strftime, Format, Formatter,
+    etcal, iso8601, iso8601_with, rfc2822, rfc3339, spice_calendar, strftime,
+    strftime_with, Format, FormatOptions, Formatter,
 };
-use stkcraft_time::UtcDateTime;
+use stkcraft_time::{LeapSecondTable, UtcDateTime};
 
 let utc = UtcDateTime::new(2000, 1, 1, 12, 0, 0.0);
 
@@ -474,6 +484,22 @@ assert_eq!(etcal(0.0, 3), "2000 JAN 01 12:00:00.000");
 let pattern = strftime(&utc, "%Y-%m-%d %H:%M:%S.%f")?;
 let format = Format::parse("%Y-%m-%dT%H:%M:%SZ")?;
 let rendered = Formatter::new(&utc, &format).to_string();
+
+// Leap-second and calendar aware formatting.
+let lsk = LeapSecondTable::builtin()?;
+let options = FormatOptions::new(3)
+    .with_calendar(Calendar::Gregorian)
+    .with_leap_seconds(&lsk);
+
+let last_second = UtcDateTime::new(2016, 12, 31, 23, 59, 59.9999);
+assert_eq!(
+    iso8601_with(&last_second, &options),
+    "2016-12-31T23:59:60.000Z"
+);
+assert_eq!(
+    strftime_with(&last_second, "%Y-%m-%dT%H:%M:%S", &options)?,
+    "2016-12-31T23:59:60"
+);
 ```
 
 Precision is clamped to 9 fractional digits. Rounding is carry-aware:
@@ -481,6 +507,15 @@ Precision is clamped to 9 fractional digits. Rounding is carry-aware:
 leap second becomes the next day. `etcal` splits ET into whole days and
 seconds before formatting, so microsecond values survive. A non-finite
 ET produces `"INVALID ET"`.
+
+Whether a carry crosses a leap second or moves to the next day depends on
+the length of the day, so [`FormatOptions`] takes an optional
+`LeapSecondTable`. With the table, `23:59:59.9999` on a 86 401-second day
+formats as `23:59:60.000`; without it, a 86 400-second day is assumed,
+unless the value already has `second >= 60`. The same options select the
+calendar used for the day carry, so a Julian date rolls from
+`1500-02-28` to `1500-02-29` rather than to `1500-03-01`. `%j` and `%a`
+use the selected calendar as well.
 
 Supported `strftime` tokens: `%Y %y %m %d %e %H %M %S %j %a %A %b %B %z
 %Z %f %%`. `%f` is nanoseconds; `%z` is `+0000`; `%Z` is `UTC`. An
@@ -801,12 +836,29 @@ impl SclkKernel {
 
 ```rust
 pub fn iso8601(dt: &UtcDateTime, precision: usize) -> String;
+pub fn iso8601_with(dt: &UtcDateTime, options: &FormatOptions<'_>) -> String;
 pub fn spice_calendar(dt: &UtcDateTime, precision: usize) -> String;
+pub fn spice_calendar_with(dt: &UtcDateTime, options: &FormatOptions<'_>) -> String;
 pub fn etcal(et: f64, precision: usize) -> String;
 pub fn jd_to_calendar(jd: f64) -> (i32, u8, u8, u8, u8, f64);
 pub fn rfc3339(dt: &UtcDateTime, precision: usize) -> String;
+pub fn rfc3339_with(dt: &UtcDateTime, options: &FormatOptions<'_>) -> String;
 pub fn rfc2822(dt: &UtcDateTime) -> String;
 pub fn strftime(dt: &UtcDateTime, pattern: &str) -> Result<String, TimeError>;
+pub fn strftime_with(
+    dt: &UtcDateTime,
+    pattern: &str,
+    options: &FormatOptions<'_>,
+) -> Result<String, TimeError>;
+
+pub struct FormatOptions<'a> { /* private fields */ }
+impl<'a> FormatOptions<'a> {
+    pub fn new(precision: usize) -> Self;
+    pub fn with_calendar(self, calendar: Calendar) -> Self;
+    pub fn with_leap_seconds(self, lsk: &'a LeapSecondTable) -> Self;
+    pub fn precision(&self) -> usize;
+    pub fn calendar(&self) -> Calendar;
+}
 
 pub struct Format { /* private fields */ }
 impl Format {

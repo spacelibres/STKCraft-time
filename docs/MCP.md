@@ -88,11 +88,17 @@ UTC tools accept `calendar`: `gregorian` (default), `julian`, or `mixed`.
 | `ut1_to_utc` | `ut1_seconds`, `eop_path` | Civil UTC fields and ISO 8601. |
 | `sclk_to_et` | `sclk_path`, `spacecraft_id`, and `ticks` or `clock_string` | Ticks, optional fields, ET and TAI. |
 | `et_to_sclk` | `sclk_path`, `spacecraft_id`, `et` | Ticks, optional fields and clock string. |
-| `format_utc` | UTC fields, optional `kind`, `precision`, `pattern` | Formatted string. |
+| `format_utc` | UTC fields, optional `kind`, `precision`, `pattern`, `calendar`, `lsk_path` | Formatted string. |
 | `etcal` | `et`, optional `precision` | SPICE calendar string. |
 
 EOP tools also accept `eop_series` (`a`, `b`, `final`) and
 `observed_only` (boolean). `sclk_path` must be a type-1 SCLK kernel.
+
+`format_utc` accepts `calendar` (`gregorian`, `julian`, `mixed`) and
+`lsk_path`. Rounding uses that kernel's day lengths, so
+`2016-12-31T23:59:59.9999` with `precision: 3` returns
+`2016-12-31T23:59:60.000Z` instead of the next day. Without `lsk_path`
+the bundled `naif0012.tls` is used.
 
 `precision` is limited to `0..=9`. `tai_seconds` may be replaced by an
 integer `sec` plus `nanos` for exact epoch exchange. SCLK tools accept

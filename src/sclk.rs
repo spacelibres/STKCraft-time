@@ -176,19 +176,16 @@ impl SclkKernel {
         if partition_start.len() != partition_end.len() {
             return Err(TimeError::SclkParse);
         }
-        let mut previous_start = f64::NEG_INFINITY;
-        let mut previous_end = f64::NEG_INFINITY;
+        // Only per-partition consistency is required. NAIF lets a clock
+        // readout jump ahead or regress, which is exactly why partitions
+        // exist, so a later partition may start at a lower encoded count
+        // than the previous one ended. Partition bounds are not used by any
+        // conversion here, so rejecting such a kernel would only make it
+        // impossible to load.
         for (start, end) in partition_start.iter().zip(partition_end.iter()) {
-            if !start.is_finite()
-                || !end.is_finite()
-                || start > end
-                || *start < previous_start
-                || *end < previous_end
-            {
+            if !start.is_finite() || !end.is_finite() || start > end {
                 return Err(TimeError::SclkParse);
             }
-            previous_start = *start;
-            previous_end = *end;
         }
 
         Ok(Self {

@@ -6,14 +6,68 @@ use alloc::string::ToString;
 use alloc::vec::Vec;
 use core::fmt;
 
-use crate::calendar::{self, J2000_JDN};
+use crate::calendar::{self, Calendar, J2000_JDN};
 use crate::epoch::UtcDateTime;
 use crate::error::TimeError;
+use crate::leap::LeapSecondTable;
 use crate::math;
 
 /// Maximum fractional digits: the internal representation is nanosecond
 /// resolution, and larger values only allocate memory without adding data.
 const MAX_PRECISION: usize = 9;
+
+const SECONDS_PER_DAY: f64 = 86_400.0;
+
+/// Options for calendar formatting.
+///
+/// The leap-second table decides how long the day is when rounding
+/// carries past its last second: a positive-leap-second day ends at
+/// `23:59:60.999`, a normal day at `23:59:59.999`, and a day with a
+/// negative leap second at `23:59:58.999`. The calendar decides how a
+/// carry into the next day moves the date.
+///
+/// Without a table a day is assumed to be 86 400 s, unless the value
+/// already carries `second >= 60`, in which case a 86 401-second day is
+/// assumed so an actual leap second still prints.
+#[derive(Clone, Copy, Debug)]
+pub struct FormatOptions<'a> {
+    precision: usize,
+    calendar: Calendar,
+    leap_seconds: Option<&'a LeapSecondTable>,
+}
+
+impl<'a> FormatOptions<'a> {
+    /// Gregorian calendar, no leap-second table.
+    pub fn new(precision: usize) -> Self {
+        Self {
+            precision,
+            calendar: Calendar::Gregorian,
+            leap_seconds: None,
+        }
+    }
+
+    /// Selects the calendar used when rounding carries into the next day.
+    pub fn with_calendar(mut self, calendar: Calendar) -> Self {
+        self.calendar = calendar;
+        self
+    }
+
+    /// Supplies the leap-second table used to determine the day length.
+    pub fn with_leap_seconds(mut self, lsk: &'a LeapSecondTable) -> Self {
+        self.leap_seconds = Some(lsk);
+        self
+    }
+
+    /// Fractional digits, before clamping to nanoseconds.
+    pub fn precision(&self) -> usize {
+        self.precision
+    }
+
+    /// Calendar used for day carries.
+    pub fn calendar(&self) -> Calendar {
+        self.calendar
+    }
+}
 
 const MONTHS: [&str; 12] = [
     "JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC",
@@ -51,8 +105,16 @@ const WEEKDAY_LONG: [&str; 7] = [
 ];
 
 /// Formats a UTC representation as ISO 8601 with a trailing `Z`.
+///
+/// A day is assumed to be 86 400 s; use [`iso8601_with`] with a
+/// leap-second table when a carry could land on a leap second.
 pub fn iso8601(dt: &UtcDateTime, precision: usize) -> String {
-    let dt = normalize_datetime(dt, precision);
+    iso8601_with(dt, &FormatOptions::new(precision))
+}
+
+/// Formats a UTC representation as ISO 8601 using explicit options.
+pub fn iso8601_with(dt: &UtcDateTime, options: &FormatOptions<'_>) -> String {
+    let dt = normalize_datetime(dt, options);
     format!(
         "{:04}-{:02}-{:02}T{:02}:{:02}:{}Z",
         dt.year,
@@ -60,14 +122,20 @@ pub fn iso8601(dt: &UtcDateTime, precision: usize) -> String {
         dt.day,
         dt.hour,
         dt.minute,
-        pad_seconds(dt.second, precision)
+        pad_seconds(dt.second, options.precision)
     )
 }
 
 /// Formats a representation in the SPICE calendar style,
 /// e.g. `2000 JAN 01 12:00:00.000`.
 pub fn spice_calendar(dt: &UtcDateTime, precision: usize) -> String {
-    let dt = normalize_datetime(dt, precision);
+    spice_calendar_with(dt, &FormatOptions::new(precision))
+}
+
+/// Formats a representation in the SPICE calendar style using explicit
+/// options.
+pub fn spice_calendar_with(dt: &UtcDateTime, options: &FormatOptions<'_>) -> String {
+    let dt = normalize_datetime(dt, options);
     let month = MONTHS[(dt.month.saturating_sub(1) as usize) % 12];
     format!(
         "{:04} {} {:02} {:02}:{:02}:{}",
@@ -76,7 +144,7 @@ pub fn spice_calendar(dt: &UtcDateTime, precision: usize) -> String {
         dt.day,
         dt.hour,
         dt.minute,
-        pad_seconds(dt.second, precision)
+        pad_seconds(dt.second, options.precision)
     )
 }
 
@@ -130,7 +198,12 @@ pub fn jd_to_calendar(jd: f64) -> (i32, u8, u8, u8, u8, f64) {
 /// Formats a UTC representation as RFC 3339 with an explicit `+00:00`
 /// offset.
 pub fn rfc3339(dt: &UtcDateTime, precision: usize) -> String {
-    let dt = normalize_datetime(dt, precision);
+    rfc3339_with(dt, &FormatOptions::new(precision))
+}
+
+/// Formats a UTC representation as RFC 3339 using explicit options.
+pub fn rfc3339_with(dt: &UtcDateTime, options: &FormatOptions<'_>) -> String {
+    let dt = normalize_datetime(dt, options);
     format!(
         "{:04}-{:02}-{:02}T{:02}:{:02}:{}+00:00",
         dt.year,
@@ -138,7 +211,7 @@ pub fn rfc3339(dt: &UtcDateTime, precision: usize) -> String {
         dt.day,
         dt.hour,
         dt.minute,
-        pad_seconds(dt.second, precision)
+        pad_seconds(dt.second, options.precision)
     )
 }
 
@@ -147,7 +220,7 @@ pub fn rfc3339(dt: &UtcDateTime, precision: usize) -> String {
 pub fn rfc2822(dt: &UtcDateTime) -> String {
     format!(
         "{}, {:02} {} {:04} {:02}:{:02}:{:02} +0000",
-        WEEKDAY_SHORT[weekday_index(dt)],
+        WEEKDAY_SHORT[weekday_index(dt, Calendar::Gregorian)],
         dt.day,
         MONTH_SHORT[(dt.month.saturating_sub(1) as usize) % 12],
         dt.year,
@@ -239,19 +312,38 @@ impl Format {
 pub struct Formatter<'a> {
     dt: &'a UtcDateTime,
     format: &'a Format,
+    options: FormatOptions<'a>,
 }
 
 impl<'a> Formatter<'a> {
-    /// Creates a formatter.
+    /// Creates a formatter that assumes a 86 400-second Gregorian day.
     pub fn new(dt: &'a UtcDateTime, format: &'a Format) -> Self {
-        Self { dt, format }
+        Self {
+            dt,
+            format,
+            options: FormatOptions::new(MAX_PRECISION),
+        }
+    }
+
+    /// Creates a formatter with explicit calendar and leap-second options.
+    pub fn with_options(
+        dt: &'a UtcDateTime,
+        format: &'a Format,
+        options: &FormatOptions<'a>,
+    ) -> Self {
+        Self {
+            dt,
+            format,
+            options: *options,
+        }
     }
 }
 
 impl fmt::Display for Formatter<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let normalized = normalize_datetime(self.dt, MAX_PRECISION);
+        let normalized = normalize_datetime(self.dt, &self.options);
         let dt = &normalized;
+        let calendar = self.options.calendar;
 
         for token in &self.format.tokens {
             match token {
@@ -264,9 +356,9 @@ impl fmt::Display for Formatter<'_> {
                 Token::Hour2 => write!(f, "{:02}", dt.hour)?,
                 Token::Minute2 => write!(f, "{:02}", dt.minute)?,
                 Token::Second2 => write!(f, "{:02}", math::floor(dt.second) as u8)?,
-                Token::DayOfYear => write!(f, "{:03}", day_of_year(dt))?,
-                Token::WeekdayShort => f.write_str(WEEKDAY_SHORT[weekday_index(dt)])?,
-                Token::WeekdayLong => f.write_str(WEEKDAY_LONG[weekday_index(dt)])?,
+                Token::DayOfYear => write!(f, "{:03}", day_of_year(dt, calendar))?,
+                Token::WeekdayShort => f.write_str(WEEKDAY_SHORT[weekday_index(dt, calendar)])?,
+                Token::WeekdayLong => f.write_str(WEEKDAY_LONG[weekday_index(dt, calendar)])?,
                 Token::MonthShort => {
                     f.write_str(MONTH_SHORT[(dt.month.saturating_sub(1) as usize) % 12])?
                 }
@@ -286,23 +378,32 @@ impl fmt::Display for Formatter<'_> {
 
 /// Formats a UTC representation with a C89-style pattern.
 pub fn strftime(dt: &UtcDateTime, pattern: &str) -> Result<String, TimeError> {
-    let format = Format::parse(pattern)?;
-    Ok(Formatter::new(dt, &format).to_string())
+    strftime_with(dt, pattern, &FormatOptions::new(MAX_PRECISION))
 }
 
-fn weekday_index(dt: &UtcDateTime) -> usize {
-    let jdn = calendar::gregorian_to_jdn(dt.year, dt.month, dt.day);
+/// Formats a UTC representation with a C89-style pattern and explicit
+/// options.
+pub fn strftime_with(
+    dt: &UtcDateTime,
+    pattern: &str,
+    options: &FormatOptions<'_>,
+) -> Result<String, TimeError> {
+    let format = Format::parse(pattern)?;
+    Ok(Formatter::with_options(dt, &format, options).to_string())
+}
+
+fn weekday_index(dt: &UtcDateTime, calendar: Calendar) -> usize {
+    let jdn = calendar::calendar_to_jdn(dt.year, dt.month, dt.day, calendar)
+        .unwrap_or_else(|_| calendar::gregorian_to_jdn(dt.year, dt.month, dt.day));
     (jdn + 1).rem_euclid(7) as usize
 }
 
-fn day_of_year(dt: &UtcDateTime) -> u16 {
-    const CUMULATIVE: [u16; 13] = [0, 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
-    let index = (dt.month as usize).min(12);
-    let mut day = CUMULATIVE[index] + dt.day as u16;
-    if calendar::is_gregorian_leap(dt.year) && dt.month > 2 {
-        day += 1;
-    }
-    day
+fn day_of_year(dt: &UtcDateTime, calendar: Calendar) -> u16 {
+    let jdn = calendar::calendar_to_jdn(dt.year, dt.month, dt.day, calendar)
+        .unwrap_or_else(|_| calendar::gregorian_to_jdn(dt.year, dt.month, dt.day));
+    let start = calendar::calendar_to_jdn(dt.year, 1, 1, calendar)
+        .unwrap_or_else(|_| calendar::gregorian_to_jdn(dt.year, 1, 1));
+    (jdn - start + 1).clamp(0, u16::MAX as i64) as u16
 }
 
 fn fractional_nanos(dt: &UtcDateTime) -> u32 {
@@ -336,38 +437,69 @@ fn round_seconds(second: f64, precision: usize) -> f64 {
     math::round(second * factor) / factor
 }
 
-fn normalize_datetime(dt: &UtcDateTime, precision: usize) -> UtcDateTime {
+fn normalize_datetime(dt: &UtcDateTime, options: &FormatOptions<'_>) -> UtcDateTime {
+    let second = round_seconds(dt.second, options.precision);
     let mut out = *dt;
-    let mut second = round_seconds(dt.second, precision);
 
-    if second >= 60.0 {
-        if dt.second >= 60.0 && second < 61.0 {
-            // A leap second that still rounds inside 60.x is kept.
-        } else {
-            second = 0.0;
-            increment_minute(&mut out);
-        }
+    if second >= second_limit(dt, options) {
+        out.second = 0.0;
+        increment_minute(&mut out, options.calendar);
+    } else {
+        out.second = second;
     }
 
-    out.second = second;
     out
 }
 
-fn increment_minute(dt: &mut UtcDateTime) {
+/// Largest expressible second (exclusive) on the day of `dt`.
+///
+/// Rounding at or above this value belongs to the next minute, and on
+/// `23:59` to the next day.
+fn second_limit(dt: &UtcDateTime, options: &FormatOptions<'_>) -> f64 {
+    if let Some(day_length) = day_length(dt, options) {
+        if day_length >= SECONDS_PER_DAY + 1.0 {
+            return 61.0;
+        }
+        if day_length <= SECONDS_PER_DAY - 1.0 {
+            return 59.0;
+        }
+        return 60.0;
+    }
+
+    // Without a table, a value that already has `second >= 60` can only be
+    // a leap second, so keep it rather than moving it to the next day.
+    if dt.second >= 60.0 {
+        61.0
+    } else {
+        60.0
+    }
+}
+
+fn day_length(dt: &UtcDateTime, options: &FormatOptions<'_>) -> Option<f64> {
+    let lsk = options.leap_seconds?;
+    let jdn = calendar::calendar_to_jdn(dt.year, dt.month, dt.day, options.calendar).ok()?;
+    let before = lsk.delta_at_for_jdn(jdn)? as f64;
+    let after = lsk.delta_at_for_jdn(jdn + 1)? as f64;
+    Some(SECONDS_PER_DAY + (after - before))
+}
+
+fn increment_minute(dt: &mut UtcDateTime, calendar: Calendar) {
     dt.minute += 1;
     if dt.minute >= 60 {
         dt.minute = 0;
         dt.hour += 1;
         if dt.hour >= 24 {
             dt.hour = 0;
-            increment_day(dt);
+            increment_day(dt, calendar);
         }
     }
 }
 
-fn increment_day(dt: &mut UtcDateTime) {
-    let jdn = calendar::gregorian_to_jdn(dt.year, dt.month, dt.day);
-    let (year, month, day) = calendar::jdn_to_gregorian(jdn + 1);
+fn increment_day(dt: &mut UtcDateTime, calendar: Calendar) {
+    let Ok(jdn) = calendar::calendar_to_jdn(dt.year, dt.month, dt.day, calendar) else {
+        return;
+    };
+    let (year, month, day) = calendar::jdn_to_calendar(jdn + 1, calendar);
     dt.year = year;
     dt.month = month;
     dt.day = day;

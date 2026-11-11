@@ -250,6 +250,69 @@ fn inverse_rejects_ut1_before_the_table() {
     );
 }
 
+/// MJD 41684 is 1973-01-02, so the table covers 1973-01-02 .. 1973-01-04.
+/// The last sample only closes the preceding day, which is the interval a
+/// reverse conversion has to reach.
+fn short_eop() -> EopTable {
+    EopTable::new(vec![
+        EopSample {
+            mjd: 41_684.0,
+            ut1_minus_utc: 0.8,
+            observed: true,
+        },
+        EopSample {
+            mjd: 41_685.0,
+            ut1_minus_utc: 0.8,
+            observed: true,
+        },
+        EopSample {
+            mjd: 41_686.0,
+            ut1_minus_utc: 0.8,
+            observed: true,
+        },
+    ])
+    .unwrap()
+}
+
+#[test]
+fn inverse_works_on_the_last_interpolated_day() {
+    let lsk = LeapSecondTable::builtin().unwrap();
+    let eop = short_eop();
+
+    let last = utc_to_tai(
+        &UtcDateTime::new(1973, 1, 3, 23, 59, 59.0),
+        Calendar::Gregorian,
+        &lsk,
+    )
+    .unwrap();
+    let ut1 = tai_to_ut1(last, &lsk, &eop).unwrap();
+    let back = ut1_to_tai(ut1, &lsk, &eop).unwrap();
+
+    assert_eq!(back, last);
+}
+
+#[test]
+fn table_end_is_exclusive_for_the_final_sample_day() {
+    let lsk = LeapSecondTable::builtin().unwrap();
+    let eop = short_eop();
+
+    let beyond = utc_to_tai(
+        &UtcDateTime::new(1973, 1, 4, 0, 0, 0.0),
+        Calendar::Gregorian,
+        &lsk,
+    )
+    .unwrap();
+
+    assert_eq!(
+        tai_to_ut1(beyond, &lsk, &eop),
+        Err(TimeError::Ut1OutOfRange)
+    );
+    assert_eq!(
+        ut1_minus_utc(beyond, &lsk, &eop),
+        Err(TimeError::Ut1OutOfRange)
+    );
+}
+
 #[test]
 fn sparse_eop_crossing_a_leap_second_is_not_smeared() {
     let lsk = LeapSecondTable::builtin().unwrap();

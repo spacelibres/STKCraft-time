@@ -157,6 +157,44 @@ fn partition_aware_strings_are_rejected_but_ticks_still_work() {
 }
 
 #[test]
+fn clock_reset_partitions_are_accepted() {
+    // A clock reset makes the second partition start below the first one
+    // ended. NAIF allows this; only the per-partition bounds must be sane.
+    let reset = SYNTH.replace(
+        "\\begintext",
+        "SCLK_PARTITION_START_999 = ( 100.0 0.0 )\nSCLK_PARTITION_END_999 = ( 1000.0 1000.0 )\n\n\\begintext",
+    );
+    let kernel = SclkKernel::parse(&reset, -999).unwrap();
+    let lsk = LeapSecondTable::builtin().unwrap();
+
+    assert_eq!(kernel.partitions().0, &[100.0, 0.0]);
+    assert_eq!(kernel.partitions().1, &[1000.0, 1000.0]);
+
+    // The kernel still loads, so encoded ticks remain usable even though
+    // field and string conversion stays unavailable for partitions.
+    assert!(kernel.ticks_to_et(12_345.0, &lsk).is_ok());
+    assert_eq!(
+        kernel.format_string(&[123, 45]),
+        Err(stkcraft_time::TimeError::SclkPartitionsUnsupported)
+    );
+}
+
+#[test]
+fn partition_bounds_are_validated_per_partition() {
+    let inverted = SYNTH.replace(
+        "\\begintext",
+        "SCLK_PARTITION_START_999 = ( 200.0 )\nSCLK_PARTITION_END_999 = ( 100.0 )\n\n\\begintext",
+    );
+    assert!(SclkKernel::parse(&inverted, -999).is_err());
+
+    let mismatched = SYNTH.replace(
+        "\\begintext",
+        "SCLK_PARTITION_START_999 = ( 0.0 10.0 )\nSCLK_PARTITION_END_999 = ( 10.0 )\n\n\\begintext",
+    );
+    assert!(SclkKernel::parse(&mismatched, -999).is_err());
+}
+
+#[test]
 fn minimum_clock_id_does_not_panic() {
     assert!(SclkKernel::parse(SYNTH, i32::MIN).is_err());
 }

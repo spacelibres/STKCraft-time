@@ -4,6 +4,41 @@ All notable changes to `stkcraft-time` are documented here.
 
 The format follows Keep a Changelog. This crate uses semantic versioning.
 
+## [0.1.10] - 2026-11-11
+
+### Added
+
+- `format::FormatOptions` and the matching `iso8601_with`, `rfc3339_with`,
+  `spice_calendar_with`, `strftime_with` and `Formatter::with_options`
+  entry points. They take an optional leap-second table and a calendar,
+  so rounding knows the length of the day and how a day carry moves the
+  date.
+- The MCP `format_utc` tool accepts `calendar` and `lsk_path`, and every
+  conversion result's `iso8601` field is now leap-second aware.
+
+### Fixed
+
+- SCLK partition bounds are validated per partition only. A clock that
+  jumps ahead or regresses - the reason partitions exist - no longer
+  makes the whole kernel fail to load, so encoded ticks↔ET/TAI remain
+  available. Mismatched array lengths and a reversed `start > end` are
+  still rejected.
+- Formatting a value such as `2016-12-31T23:59:59.9999` at precision 3
+  now produces `2016-12-31T23:59:60.000` when a leap-second table says
+  the day is 86 401 s long, instead of the following day. Without a
+  table the documented 86 400-second assumption still applies.
+- Day carries use the calendar selected in `FormatOptions` instead of
+  always Gregorian, so a Julian date rolls from `1500-02-28` to
+  `1500-02-29`. `%j`, `%a` and `%A` follow the selected calendar too.
+- UT1 reverse conversion works on the last interpolated day and at the
+  start of the table. The initial guess uses the measured `UT1 - UTC`
+  value instead of a fixed 32 s offset, and is clamped to the interval
+  the interpolation actually supports.
+- `DELTET/DELTA_AT` follows NAIF assignment rules: `=` replaces the
+  accumulated leap-second table and `+=` appends to it, so a kernel that
+  restates the full table in a later data block is valid instead of
+  failing with duplicate dates. Any other operator is a parse error.
+
 ## [0.1.9] - 2026-11-11
 
 ### Added

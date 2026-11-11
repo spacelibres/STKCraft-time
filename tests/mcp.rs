@@ -112,14 +112,14 @@ fn invalid_leap_second_is_reported_as_a_tool_error() {
         "id": 4,
         "method": "tools/call",
         "params": {
-            "name": "utc_to_tai",
+            "name": "utc_to_et",
             "arguments": {
                 "year": 2016,
                 "month": 12,
                 "day": 30,
                 "hour": 23,
                 "minute": 59,
-                "second": 60.0
+                "second": 60.5
             }
         }
     }));
@@ -129,6 +129,35 @@ fn invalid_leap_second_is_reported_as_a_tool_error() {
         .as_str()
         .expect("text content");
     assert!(text.contains("leap-second"), "error text: {text}");
+}
+
+#[test]
+fn format_utc_rounds_onto_a_leap_second() {
+    let response = request(json!({
+        "jsonrpc": "2.0",
+        "id": 41,
+        "method": "tools/call",
+        "params": {
+            "name": "format_utc",
+            "arguments": {
+                "year": 2016,
+                "month": 12,
+                "day": 31,
+                "hour": 23,
+                "minute": 59,
+                "second": 59.9999,
+                "precision": 3
+            }
+        }
+    }));
+
+    let text = response["result"]["content"][0]["text"]
+        .as_str()
+        .expect("text content");
+    let value: Value = serde_json::from_str(text).expect("tool result JSON");
+
+    assert_eq!(value["text"], "2016-12-31T23:59:60.000Z");
+    assert_eq!(value["utc"]["iso8601"], "2016-12-31T23:59:59.999900000Z");
 }
 
 #[test]

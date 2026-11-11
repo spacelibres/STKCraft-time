@@ -62,10 +62,24 @@ pub fn parse_lsk(text: &str) -> Result<LeapSecondTable, TimeError> {
             }
             "DELTET/DELTA_AT" => {
                 i += 1;
-                expect(&tokens, i, "=")?;
-                i += 1;
+                // NAIF text kernels distinguish assignment from
+                // accumulation: `=` replaces the previous value and `+=`
+                // appends to it. A later block may restate the whole table
+                // or extend an earlier one.
+                let replace = match (tokens.get(i), tokens.get(i + 1)) {
+                    (Some(op), Some(eq)) if op == "+" && eq == "=" => {
+                        i += 2;
+                        false
+                    }
+                    (Some(op), _) if op == "=" => {
+                        i += 1;
+                        true
+                    }
+                    _ => return Err(TimeError::LskParse),
+                };
                 expect(&tokens, i, "(")?;
                 i += 1;
+                let mut parsed = Vec::new();
                 while i < tokens.len() && tokens[i] != ")" {
                     while i < tokens.len() && tokens[i] == "," {
                         i += 1;
@@ -83,10 +97,16 @@ pub fn parse_lsk(text: &str) -> Result<LeapSecondTable, TimeError> {
 
                     let jdn = parse_date_token(token(&tokens, i)?)?;
                     i += 1;
-                    entries.push(LeapEntry { jdn, delta_at });
+                    parsed.push(LeapEntry { jdn, delta_at });
                 }
                 expect(&tokens, i, ")")?;
                 i += 1;
+
+                if replace {
+                    entries = parsed;
+                } else {
+                    entries.extend(parsed);
+                }
             }
             _ => i += 1,
         }
