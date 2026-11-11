@@ -88,6 +88,11 @@ cargo build --locked --no-default-features --target thumbv7em-none-eabi
   `ticks_to_et`, `et_to_ticks`, `ticks_to_tai`, `tai_to_ticks`,
   `parse_string`, `format_string`, `ticks_from_fields`,
   `fields_from_ticks`.
+- Legal SCLK numeric scalars may omit parentheses. TDT `ticks_to_et`
+  and `et_to_ticks` use direct N0067 UNITIM TT/ET arithmetic; do not route
+  those f64 paths through integer TAI. Preserve native reciprocal-rate
+  evaluation and reverse modulus accumulation for bit-exact CK boundaries.
+  `tools/validate_sclk.py` defaults to exact comparisons in both directions.
 - SCLK support is type 1 only. Partition durations bound encoded ticks;
   field/string conversion returns `SclkPartitionsUnsupported` for
   partitioned clocks, while encoded ticks↔ET/TAI remain available.

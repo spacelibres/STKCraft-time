@@ -22,7 +22,7 @@ jobs:
       - name: Run tests with MCP feature
         run: cargo test --locked --all-targets --features mcp
       - name: Test integration validator guards
-        run: python3 -m unittest discover -s tools/tests -p test_geocalc_time.py -v
+        run: python3 -m unittest discover -s tools/tests -p 'test_*.py' -v
       - name: Run Clippy
         run: cargo clippy --locked --all-targets -- -D warnings
       - name: Run Clippy with MCP feature

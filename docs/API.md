@@ -1,6 +1,6 @@
 # `stkcraft-time` API guide
 
-This guide shows how to call the public API of `stkcraft-time` 0.1.17. It
+This guide shows how to call the public API of `stkcraft-time` 0.1.18. It
 is task-oriented: each section answers "which function do I call, and what
 data do I need to load first?" For item-level reference documentation,
 run:
@@ -34,13 +34,13 @@ I/O and does not bundle mission data. The caller supplies the data files
 
 ```toml
 [dependencies]
-stkcraft-time = "0.1.17"
+stkcraft-time = "0.1.18"
 
 # no_std + alloc:
-# stkcraft-time = { version = "0.1.17", default-features = false }
+# stkcraft-time = { version = "0.1.18", default-features = false }
 
 # or pin the repository:
-# stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.17" }
+# stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.18" }
 ```
 
 The internal epoch representation is integer seconds plus nanoseconds;
@@ -364,7 +364,7 @@ reintroducing a leap-second step.
 
 ## 8. Spacecraft clock kernels (SCLK)
 
-Only type-1 clocks are supported. No SCLK is bundled; load the mission
+Only type-1 clocks are supported. No SCLK is embedded at runtime; load the mission
 kernel you need.
 
 ```rust
@@ -408,6 +408,8 @@ let tai = sclk.ticks_to_tai(ticks, &lsk)?;
 let ticks_from_tai = sclk.tai_to_ticks(tai, &lsk)?;
 ```
 
+- Numeric scalar assignments may omit parentheses; single-element moduli,
+  offsets and partition bounds also support this NAIF syntax.
 - `spacecraft_id` may be positive or negative; kernel variables are looked
   up with the magnitude (`-41` and `41` both find the `_41` variables).
 - `SCLK01_OFFSETS` gives the first displayed value of each field. The
@@ -416,7 +418,9 @@ let ticks_from_tai = sclk.tai_to_ticks(tai, &lsk)?;
   `[0, 0, 1]` is encoded tick 0, not tick 2.
 - `SclkTimeSystem::Tdb` coefficients are ET seconds past J2000 directly.
   `SclkTimeSystem::Tdt` coefficients are TT seconds past J2000 and use the
-  LSK for the TT↔ET step.
+  LSK for the direct N0067 UNITIM TT↔ET step. Neither f64-to-f64
+  direction detours through an integer Epoch; explicit TAI APIs retain
+  their documented nanosecond quantization.
 - `parallel_seconds(ticks)` and `ticks_from_parallel(seconds)` stop at the
   parallel time system; `ticks_to_et`/`et_to_ticks` and
   `ticks_to_tai`/`tai_to_ticks` perform the scale conversion. Continuous
@@ -587,7 +591,8 @@ The CLI binaries require the `std` feature:
 | `stkcraft-mcp` | Optional stdio MCP server (`--features mcp`); see `docs/MCP.md`. |
 
 Data-fetching and validation scripts live in `tools/`; the crate itself
-never performs network I/O. No EOP or mission SCLK data is bundled.
+never performs network I/O. No EOP or mission SCLK data is embedded at runtime; original mission
+SCLK files under tests/kernels are independent test fixtures.
 
 Every download is configurable, so a mirror or a local copy can be used
 when the upstream host is slow or blocked:

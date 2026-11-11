@@ -1,10 +1,10 @@
-//! Reads encoded SCLK ticks (one per line) from stdin and prints
-//! `ticks,et` using this crate and the bundled LSK.
+//! Reads numeric inputs and prints lossless `input,output` pairs.
+//! The default maps SCLK ticks to ET; --inverse maps ET to ticks.
 //!
 //! Usage:
 //!
 //! ```text
-//! sclk-check <path-to-sclk-kernel> <spacecraft-id>
+//! sclk-check <path-to-sclk-kernel> <spacecraft-id> [--lsk path] [--inverse]
 //! ```
 //!
 //! Used by `tools/validate_sclk.py`.
@@ -48,7 +48,27 @@ fn main() {
         }
     };
 
-    let lsk = LeapSecondTable::builtin().expect("bundled naif0012.tls");
+    let mut lsk = LeapSecondTable::builtin().expect("bundled naif0012.tls");
+    let mut inverse = false;
+    while let Some(option) = args.next() {
+        match option.as_str() {
+            "--inverse" => inverse = true,
+            "--lsk" => {
+                let selected = args
+                    .next()
+                    .and_then(|path| std::fs::read_to_string(path).ok())
+                    .and_then(|text| LeapSecondTable::from_lsk(&text).ok());
+                lsk = selected.unwrap_or_else(|| {
+                    eprintln!("cannot load selected leap-second kernel");
+                    process::exit(2);
+                });
+            }
+            _ => {
+                eprintln!("unknown option: {option}");
+                process::exit(2);
+            }
+        }
+    }
     let stdout = io::stdout();
     let mut out = io::BufWriter::new(stdout.lock());
 
@@ -74,9 +94,14 @@ fn main() {
             }
         };
 
-        match kernel.ticks_to_et(ticks, &lsk) {
+        let result = if inverse {
+            kernel.et_to_ticks(ticks, &lsk)
+        } else {
+            kernel.ticks_to_et(ticks, &lsk)
+        };
+        match result {
             Ok(et) => {
-                writeln!(out, "{ticks},{et:.12}").ok();
+                writeln!(out, "{ticks},{et}").ok();
             }
             Err(error) => {
                 eprintln!("conversion error for {value}: {error}");

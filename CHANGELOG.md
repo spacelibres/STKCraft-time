@@ -4,6 +4,35 @@ All notable changes to `stkcraft-time` are documented here.
 
 The format follows Keep a Changelog. This crate uses semantic versioning.
 
+## [0.1.18] - 2026-11-11
+
+### Fixed
+
+- SCLK parsing accepts legal numeric scalar assignments with or without
+  parentheses, including one-field moduli, offsets and partition bounds.
+  Kernel integer fields accept NAIF decimal/exponent notation; formatted
+  clock strings retain their integer-field validation.
+- TDT clock conversions preserve original parallel TT and use direct N0067
+  UNITIM arithmetic in both directions. Removing the intermediate integer
+  Epoch eliminates observed subnanosecond and larger rounding discrepancies
+  that could make zero-tolerance CK attitude queries miss valid coverage.
+- SCLK affine conversions preserve native reciprocal-rate evaluation and
+  modulus accumulation order, including nonbinary tick scales.
+
+### Added
+
+- 10,871 independently generated CSPICE forward/inverse SCLK references,
+  original NASA MRO and ESA JUICE test kernels with source hashes, and
+  scalar/malformed-input and rounding-counterexample regressions.
+
+### Changed
+
+- SCLK validation uses lossless numeric output and the selected LSK in both
+  engines, checks both directions, rejects malformed/non-finite/missing
+  output, and defaults to bit-exact comparisons with separate explicit
+  seconds/ticks tolerances. Passing a loose threshold no longer implies
+  zero-difference compatibility.
+
 ## [0.1.17] - 2026-11-11
 
 ### Added

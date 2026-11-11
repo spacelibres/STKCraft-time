@@ -35,7 +35,7 @@
 //! A standalone map without partition metadata has no declared upper
 //! bound. Inputs before the first coefficient are always rejected.
 //!
-//! Only clock type 1 is supported. No SCLK kernel is bundled; load the
+//! Only clock type 1 is supported. No SCLK kernel is embedded at runtime; load the
 //! mission kernel you need at deployment time.
 
 use alloc::format;
@@ -105,7 +105,8 @@ impl SclkKernel {
         let n_fields = n_fields as usize;
 
         let data_type = match find_var(&tokens, "SCLK_DATA_TYPE", spacecraft_id) {
-            Some(index) => parse_i64(first(parse_list(&tokens, index)?)?)? as i32,
+            Some(index) => i32::try_from(parse_i64(first(parse_list(&tokens, index)?)?)?)
+                .map_err(|_| TimeError::SclkParse)?,
             None => 1,
         };
         if data_type != 1 {
@@ -261,7 +262,7 @@ impl SclkKernel {
     /// Number of ticks per count of the most significant field.
     pub fn ticks_per_msb(&self) -> f64 {
         let mut product = 1.0;
-        for &modulus in &self.moduli[1..] {
+        for &modulus in self.moduli[1..].iter().rev() {
             product *= modulus as f64;
         }
         product
@@ -332,7 +333,8 @@ impl SclkKernel {
             return Err(TimeError::SclkParse);
         }
         let segment = self.segment_for_ticks(ticks)?;
-        Ok(segment.seconds + (ticks - segment.ticks) * segment.rate / self.ticks_per_msb())
+        let rate = segment.rate / self.ticks_per_msb();
+        Ok(segment.seconds + rate * (ticks - segment.ticks))
     }
 
     /// Converts a parallel-time value in seconds to encoded ticks.
@@ -344,8 +346,8 @@ impl SclkKernel {
         if segment.rate == 0.0 {
             return Err(TimeError::SclkParse);
         }
-        let ticks =
-            segment.ticks + (seconds - segment.seconds) * self.ticks_per_msb() / segment.rate;
+        let rate = 1.0 / (segment.rate / self.ticks_per_msb());
+        let ticks = segment.ticks + rate * (seconds - segment.seconds);
         self.validate_ticks(ticks)?;
         Ok(ticks)
     }
@@ -355,7 +357,7 @@ impl SclkKernel {
         let parallel = self.parallel_seconds(ticks)?;
         match self.time_system {
             SclkTimeSystem::Tdb => Ok(parallel),
-            SclkTimeSystem::Tdt => Ok(tai_to_et(tt_to_tai(parallel, lsk), lsk)),
+            SclkTimeSystem::Tdt => Ok(crate::naif::tt_to_et(parallel, lsk)),
         }
     }
 
@@ -363,7 +365,7 @@ impl SclkKernel {
     pub fn et_to_ticks(&self, et: f64, lsk: &LeapSecondTable) -> Result<f64, TimeError> {
         match self.time_system {
             SclkTimeSystem::Tdb => self.ticks_from_parallel(et),
-            SclkTimeSystem::Tdt => self.ticks_from_parallel(tai_to_tt(et_to_tai(et, lsk), lsk)),
+            SclkTimeSystem::Tdt => self.ticks_from_parallel(crate::naif::et_to_tt(et, lsk)),
         }
     }
 
@@ -390,7 +392,11 @@ impl SclkKernel {
         self.ensure_partitionless()?;
         let mut fields = Vec::new();
         for part in sclk.split(self.delimiter) {
-            fields.push(parse_i64(part.trim())?);
+            fields.push(
+                part.trim()
+                    .parse::<i64>()
+                    .map_err(|_| TimeError::SclkParse)?,
+            );
         }
         if fields.len() != self.n_fields {
             return Err(TimeError::SclkParse);
@@ -568,16 +574,27 @@ fn find_var(tokens: &[String], base: &str, spacecraft_id: i32) -> Option<usize> 
         .rposition(|token| candidates.iter().any(|candidate| candidate == token))
 }
 
-/// Reads the parenthesised list following `name = (`.
+/// Reads one scalar or the parenthesized list following `name =`.
 fn parse_list(tokens: &[String], name_index: usize) -> Result<Vec<&str>, TimeError> {
     let mut index = name_index + 1;
     expect(tokens, index, "=")?;
     index += 1;
-    expect(tokens, index, "(")?;
+    let value = tokens.get(index).ok_or(TimeError::SclkParse)?;
+    if value != "(" {
+        if matches!(value.as_str(), "=" | ")" | ",")
+            || tokens.get(index + 1).is_some_and(|token| token == "=")
+        {
+            return Err(TimeError::SclkParse);
+        }
+        return Ok(alloc::vec![value.as_str()]);
+    }
     index += 1;
 
     let mut values = Vec::new();
     while index < tokens.len() && tokens[index] != ")" {
+        if matches!(tokens[index].as_str(), "(" | "=") {
+            return Err(TimeError::SclkParse);
+        }
         if tokens[index] != "," {
             values.push(tokens[index].as_str());
         }
@@ -602,7 +619,16 @@ fn first(values: Vec<&str>) -> Result<&str, TimeError> {
 }
 
 fn parse_i64(token: &str) -> Result<i64, TimeError> {
-    token.parse::<i64>().map_err(|_| TimeError::SclkParse)
+    if let Ok(value) = token.parse::<i64>() {
+        return Ok(value);
+    }
+    // Kernel-pool integer retrieval accepts numeric exponents and rounds
+    // to the nearest integer (ties away from zero), as NAIF GIPOOL does.
+    let value = math::round(parse_f64(token)?);
+    if value < i64::MIN as f64 || value >= -(i64::MIN as f64) {
+        return Err(TimeError::SclkParse);
+    }
+    Ok(value as i64)
 }
 
 fn parse_f64(token: &str) -> Result<f64, TimeError> {

@@ -44,6 +44,102 @@ SCLK01_COEFFICIENTS_999  = (
 "#;
 
 #[test]
+fn scalar_assignments_match_parenthesized_values() {
+    let scalar = SYNTH.replace("= ( 1 )", "= 1").replace("= ( 2 )", "= 2");
+    for id in [999, -999] {
+        let clock = SclkKernel::parse(&scalar, id).unwrap();
+        assert_eq!(clock.n_fields(), 2);
+        assert_eq!(clock.data_type(), 1);
+        assert_eq!(clock.time_system(), SclkTimeSystem::Tdb);
+        assert_eq!(clock.parallel_seconds(12345.0).unwrap(), 123.45);
+    }
+}
+
+#[test]
+fn one_field_scalar_arrays_and_compact_assignments_are_accepted() {
+    // Syntax-only test input, not a measured spacecraft clock.
+    let text = "KPL/SCLK\n\\begindata\nSCLK_DATA_TYPE_999=1 SCLK01_TIME_SYSTEM_999=1 \
+        SCLK01_N_FIELDS_999=1 SCLK01_MODULI_999=1000 SCLK01_OFFSETS_999=0 \
+        SCLK_PARTITION_START_999=0 SCLK_PARTITION_END_999=999 \
+        SCLK01_OUTPUT_DELIM_999=2 SCLK01_COEFFICIENTS_999=(0 0 1)\n\\begintext";
+    let clock = SclkKernel::parse(text, -999).unwrap();
+    assert_eq!(clock.moduli(), &[1000]);
+    assert_eq!(clock.offsets(), &[0]);
+    assert_eq!(
+        clock
+            .ticks_to_et(999.0, &LeapSecondTable::builtin().unwrap())
+            .unwrap(),
+        999.0
+    );
+    assert!(clock.parallel_seconds(1000.0).is_err());
+    assert_eq!(clock.format_string(&[123]).unwrap(), "123");
+}
+
+#[test]
+fn missing_scalar_values_do_not_consume_the_next_assignment() {
+    for bad in ["", "(", ")", "=", ",", "( )"] {
+        let text = SYNTH.replace(
+            "SCLK_DATA_TYPE_999       = ( 1 )",
+            &format!("SCLK_DATA_TYPE_999 = {bad}"),
+        );
+        assert!(SclkKernel::parse(&text, -999).is_err(), "accepted {bad:?}");
+    }
+}
+
+#[test]
+fn scalar_integer_fields_accept_naif_numeric_notation() {
+    let scalar = SYNTH
+        .replace("= ( 1 )", "= 1D0")
+        .replace("= ( 2 )", "= 2.0")
+        .replace("( 1000 100 )", "( 1D3 1D2 )")
+        .replace("( 0 0 )", "( 0.0 0D0 )");
+    let clock = SclkKernel::parse(&scalar, -999).unwrap();
+    assert_eq!(clock.n_fields(), 2);
+    assert_eq!(clock.moduli(), &[1000, 100]);
+    assert_eq!(clock.data_type(), 1);
+}
+
+#[test]
+fn inverse_nonbinary_tick_scale_preserves_cspice_operation_order() {
+    // Artificial arithmetic input, not mission calibration data. Expected
+    // bits independently obtained from CSPICE N0067 SCE2C(-999, 1.0).
+    let text = SYNTH
+        .replace("( 1000 100 )", "( 1000 60 )")
+        .replace("1.0000000000000E+00", "2.8800000000000E+00");
+    let clock = SclkKernel::parse(&text, -999).unwrap();
+    let ticks = clock
+        .et_to_ticks(1.0, &LeapSecondTable::builtin().unwrap())
+        .unwrap();
+    assert_eq!(ticks.to_bits(), 0x4034d55555555555);
+}
+
+#[test]
+fn fractional_clock_string_fields_are_not_rounded() {
+    let clock = SclkKernel::parse(SYNTH, -999).unwrap();
+    for text in ["1.5:2", "1:2.5", "1:-0.5"] {
+        assert!(clock.parse_string(text).is_err(), "accepted {text}");
+    }
+}
+
+#[test]
+fn tick_scale_uses_native_modulus_accumulation_order() {
+    // Artificial arithmetic input, not mission calibration. CSPICE N0067
+    // SCT2E(-999, 1.0) gives the expected bits independently.
+    let text = "KPL/SCLK\n\\begindata\nSCLK01_N_FIELDS_999=(5) \
+        SCLK01_MODULI_999=(1000 1000001 1000001 1000009 1000009) \
+        SCLK01_OFFSETS_999=(0 0 0 0 0) SCLK01_COEFFICIENTS_999=(0 0 1)\n\\begintext";
+    let clock = SclkKernel::parse(text, -999).unwrap();
+    assert_eq!(clock.ticks_per_msb().to_bits(), 0x44ea78662bafc918);
+    assert_eq!(
+        clock
+            .ticks_to_et(1.0, &LeapSecondTable::builtin().unwrap())
+            .unwrap()
+            .to_bits(),
+        0x3af357a93f60fd68
+    );
+}
+
+#[test]
 fn parses_the_kernel_for_either_id_sign() {
     for id in [999, -999] {
         let kernel = SclkKernel::parse(SYNTH, id).unwrap();

@@ -1,8 +1,28 @@
-//! Decimal arithmetic compatible with NAIF N0067 NPARSD.
+//! Arithmetic compatible with NAIF N0067 NPARSD and UNITIM.
 //!
 //! Operation order matters: an ordinary correctly rounded decimal parser
 //! can place an SCLK coefficient on the other side of a queried tick.
 //! See ATTRIBUTION.md for the reference implementation's provenance.
+
+use crate::{math, LeapSecondTable};
+
+/// N0067 UNITIM TDT to TDB: evaluate the periodic term at the input TT.
+pub(crate) fn tt_to_et(tt: f64, lsk: &LeapSecondTable) -> f64 {
+    let anomaly = lsk.m0 + lsk.m1 * tt;
+    let eccentric = anomaly + lsk.eb * math::sin(anomaly);
+    tt + lsk.k * math::sin(eccentric)
+}
+
+/// N0067 UNITIM TDB to TDT, preserving its three inverse iterations.
+pub(crate) fn et_to_tt(et: f64, lsk: &LeapSecondTable) -> f64 {
+    let mut tt = et;
+    for _ in 0..3 {
+        let anomaly = lsk.m0 + lsk.m1 * tt;
+        let eccentric = anomaly + lsk.eb * math::sin(anomaly);
+        tt = et - lsk.k * math::sin(eccentric);
+    }
+    tt
+}
 
 const POWERS: [f64; 11] = [
     1.0,

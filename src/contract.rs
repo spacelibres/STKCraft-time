@@ -18,7 +18,7 @@ use crate::calendar::{calendar_to_jdn, Calendar, J2000_JDN};
 use crate::convert;
 use crate::dtdb::{dtdb_minus_tt_at_observer, DtdbError};
 use crate::leap::{LeapSecondPolicy, LeapSecondSource, LeapSecondTable, JDN_1972};
-use crate::{math, Epoch, TimeError, UtcDateTime};
+use crate::{naif, Epoch, TimeError, UtcDateTime};
 
 /// Calculation convention. Science is never selected by the default context.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
@@ -188,9 +188,7 @@ impl<'a> TimeContext<'a> {
     // retained independently for existing callers. See ATTRIBUTION.md.
     fn tai_seconds_to_et(self, tai: f64) -> Result<NaifEt, ContractError> {
         let tt = tai + self.lsk.delta_t_a;
-        let anomaly = self.lsk.m0 + self.lsk.m1 * tt;
-        let eccentric = anomaly + self.lsk.eb * math::sin(anomaly);
-        NaifEt::from_seconds(tt + self.lsk.k * math::sin(eccentric))
+        NaifEt::from_seconds(naif::tt_to_et(tt, self.lsk))
     }
     /// Converts validated civil UTC to NAIF ET. Historical SOFA UTC stays
     /// in the explicit low-level SOFA API rather than changing this contract.
@@ -230,12 +228,7 @@ impl<'a> TimeContext<'a> {
     }
     /// Checked inverse; finite ET may still exceed the integer epoch range.
     pub fn to_epoch(self, et: NaifEt) -> Result<Epoch, ContractError> {
-        let mut tt = et.0;
-        for _ in 0..3 {
-            let anomaly = self.lsk.m0 + self.lsk.m1 * tt;
-            let eccentric = anomaly + self.lsk.eb * math::sin(anomaly);
-            tt = et.0 - self.lsk.k * math::sin(eccentric);
-        }
+        let tt = naif::et_to_tt(et.0, self.lsk);
         let tai = (tt - self.lsk.delta_t_a) + 43_200.0;
         if !tai.is_finite() {
             return Err(ContractError::NonFinite);

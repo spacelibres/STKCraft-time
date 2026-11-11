@@ -39,6 +39,10 @@ calculation. Do not alternate UTC and numeric-TAI routes within one query.
 Legacy low-level functions retain their earlier evaluation path, including
 the ET fixed-point approximation; the new context records the stricter
 N0067 contract without silently changing those existing interfaces.
+SCLK TDT clocks also use the shared direct N0067 TT/ET arithmetic, retaining
+the original parallel time rather than detouring through an integer Epoch.
+Their inverse follows native reciprocal-rate evaluation order, which matters
+for nonbinary clock moduli and zero-tolerance CK queries.
 
 NAIF context UTC conversion supports the post-1972 LSK convention.
 Historical UTC must be selected through the explicit low-level SOFA

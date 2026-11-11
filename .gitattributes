@@ -6,3 +6,4 @@
 *.csv text eol=lf
 *.tls text eol=lf
 *.yml text eol=lf
+tests/kernels/*.tsc -text -whitespace

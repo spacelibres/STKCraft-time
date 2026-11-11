@@ -35,13 +35,13 @@ NPARSD operation order; see [ATTRIBUTION.md](ATTRIBUTION.md) for provenance.
 - **Reference:** `cargo doc --open`
 
 **Install:** `cargo add stkcraft-time`, or add
-`stkcraft-time = "0.1.17"` to `[dependencies]`. With `no_std`, use `default-features = false`.
+`stkcraft-time = "0.1.18"` to `[dependencies]`. With `no_std`, use `default-features = false`.
 
 ## Project status
 
-- Latest release: **v0.1.17** on GitHub Releases, including release-mode
+- Latest release: **v0.1.18** on GitHub Releases, including release-mode
   binaries for Linux, macOS (x86_64 and arm64) and Windows.
-- Published on crates.io as **`stkcraft-time` 0.1.17**, with API docs on
+- Published on crates.io as **`stkcraft-time` 0.1.18**, with API docs on
   [docs.rs](https://docs.rs/stkcraft-time).
 - Minimum supported Rust version: **1.75**.
 - The library is `no_std` compatible with `alloc`; the optional MCP server
@@ -55,13 +55,13 @@ cargo add stkcraft-time
 
 ```toml
 [dependencies]
-stkcraft-time = "0.1.17"
+stkcraft-time = "0.1.18"
 ```
 
 `no_std` plus `alloc`:
 
 ```toml
-stkcraft-time = { version = "0.1.17", default-features = false }
+stkcraft-time = { version = "0.1.18", default-features = false }
 ```
 
 The MCP server and the validation binaries are optional:
@@ -73,7 +73,7 @@ cargo install stkcraft-time --features mcp --bin stkcraft-mcp
 To track the repository instead of a crates.io release, pin a tag:
 
 ```toml
-stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.17" }
+stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.18" }
 ```
 
 ## Releases
@@ -355,10 +355,16 @@ converts between encoded ticks, the parallel time system, and ET/TAI.
 The clock may use TDB or TT coefficients (`SCLK01_TIME_SYSTEM`); the LSK
 is used only for the TT-to-ET step.
 
-The mapping was verified against CSPICE `sct2e` with a real mission
-kernel (`MRO_SCLKSCET`): over 64 sample ticks spanning the whole kernel,
-the maximum difference is **1.8e-7 s**. That is the spacing of an `f64`
-tick count near `3.8e11`, not a model error.
+Scalar assignments such as `SCLK01_N_FIELDS_74 = 2` and equivalent
+parenthesized values are accepted. TDT clocks retain the original parallel
+TT through the N0067 UNITIM arithmetic in both directions, without an
+intermediate integer Epoch or origin shift.
+
+Independent CSPICE references exercise both `sct2e` and `sce2c`, including
+coefficient neighbors and the formerly failing 0.93 ns and 119.21 ns cases.
+The validator defaults to bit-exact acceptance, uses lossless numeric output
+and loads the same selected LSK on both sides. Finite-sample equality is
+not a physical clock-calibration accuracy guarantee.
 
 ```bash
 python tools/validate_sclk.py --sclk target/mro_sclk.tsc --id -74
@@ -679,7 +685,7 @@ python tools/wgc2_compare.py        # live WGC2 (CSPICE front-end) check
 The library is `no_std` compatible with `alloc`:
 
 ```toml
-stkcraft-time = { version = "0.1.17", default-features = false }
+stkcraft-time = { version = "0.1.18", default-features = false }
 ```
 
 In `no_std` builds, `libm` supplies `sin`, `floor`, `round` and `fmod`;
@@ -694,7 +700,8 @@ The release criterion is numerical alignment with NASA NAIF/SPICE:
 - Live WGC2 `TIME_CONVERSION`: max `2.847e-7 s` (its output rounding).
 - Kernel selection: `naif0012`/`naif0011`/`naif0010` reproduced exactly
   (see *Measured against the live WGC2 API*).
-- SCLK: max `1.5e-7 s` against CSPICE `sct2e`.
+- SCLK: 10,871 independent forward/inverse CSPICE cases match bit for bit.
+  Explicit Epoch/TAI conversions still quantize to integer nanoseconds.
 
 Scales that NAIF does not define are not part of this criterion: UT1 is
 validated against IERS data, and TCG/TCB against ERFA. Neither CSPICE nor

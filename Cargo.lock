@@ -82,7 +82,7 @@ dependencies = [
 
 [[package]]
 name = "stkcraft-time"
-version = "0.1.17"
+version = "0.1.18"
 dependencies = [
  "libm",
  "serde_json",
