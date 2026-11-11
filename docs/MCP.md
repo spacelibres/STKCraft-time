@@ -15,13 +15,6 @@ cargo run   --release --features mcp --bin stkcraft-mcp
 The process speaks newline-delimited JSON-RPC 2.0 on stdin/stdout. Logs
 and errors go to stderr; stdout is reserved for protocol messages.
 
-A container image is published for every release, so no Rust toolchain is
-needed:
-
-```sh
-docker run --rm -i -v "$PWD:/data:ro" ghcr.io/spacelibres/stkcraft-time:0.1.19
-```
-
 ## Client configuration
 
 Point your MCP client at the built binary:
@@ -50,25 +43,6 @@ During development, `cargo run --release` works as well:
         "--features", "mcp",
         "--bin", "stkcraft-mcp",
         "--manifest-path", "/absolute/path/to/STKCraft-time/Cargo.toml"
-      ]
-    }
-  }
-}
-```
-
-The published container starts the server by default. Mount the directory
-that holds your LSK, SCLK and EOP files and pass its in-container path in
-the tool arguments:
-
-```json
-{
-  "mcpServers": {
-    "stkcraft-time": {
-      "command": "docker",
-      "args": [
-        "run", "--rm", "-i",
-        "-v", "/absolute/path/to/kernels:/data:ro",
-        "ghcr.io/spacelibres/stkcraft-time:0.1.19"
       ]
     }
   }

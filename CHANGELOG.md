@@ -4,7 +4,17 @@ All notable changes to `stkcraft-time` are documented here.
 
 The format follows Keep a Changelog. This crate uses semantic versioning.
 
-## [0.1.19] - 2026-11-11
+## [0.1.20] - 2026-11-11
+
+### Removed
+
+- The container image, `Dockerfile`, `.dockerignore`, the `publish-image`
+  workflow job and the related README, MCP guide and contributing
+  documentation. The `ghcr.io/spacelibres/stkcraft-time` package was
+  deleted. 0.1.19 is yanked on crates.io; its only change was the
+  withdrawn feature.
+
+## [0.1.19] - 2026-11-11 (yanked)
 
 ### Added
 
@@ -16,6 +26,8 @@ The format follows Keep a Changelog. This crate uses semantic versioning.
   I/O, so the MCP server can be launched without a Rust toolchain.
 - `README.md` and `docs/MCP.md` document the container invocation and an
   MCP client configuration that starts the image.
+
+Withdrawn in 0.1.20.
 
 ## [0.1.18] - 2026-11-11
 

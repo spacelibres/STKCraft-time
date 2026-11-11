@@ -69,26 +69,6 @@ cargo publish --locked
 <https://crates.io/crates/stkcraft-time> and wait for the docs.rs build
 at <https://docs.rs/stkcraft-time>.
 
-## Container image
-
-Every tag also builds `ghcr.io/spacelibres/stkcraft-time` for
-`linux/amd64` and `linux/arm64`, tagged `X.Y.Z` and `latest`. The image
-contains `stkcraft-mcp` and the four validation binaries; the default
-command is the MCP server.
-
-Build it locally with:
-
-```sh
-docker build -t stkcraft-time:dev .
-printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"smoke","version":"0"}}}' \
-    | docker run --rm -i stkcraft-time:dev
-```
-
-The GitHub Packages entry must be public; set it once with
-`gh api --method PATCH users/spacelibres/packages/container/stkcraft-time -f visibility=public`.
-GitHub Packages has no Cargo registry, so the library itself is only
-published to crates.io.
-
 ## Commit messages
 
 - Imperative subject line, 50 characters or fewer.

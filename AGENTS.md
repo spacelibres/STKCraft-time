@@ -78,18 +78,6 @@ failures before declaring a change complete.
      it skips as well when the version is already on the registry. If the
      job is skipped, run `cargo publish` by hand and then check the crate
      page and the docs.rs build.
-  9. Confirm the container image. The `publish-image` job pushes
-     `ghcr.io/spacelibres/stkcraft-time` for `linux/amd64` and
-     `linux/arm64` with the tag `X.Y.Z` and `latest`. The package must be
-     public, otherwise MCP clients cannot pull it:
-
-     ```sh
-     gh api --method PATCH \
-       -H "Accept: application/vnd.github+json" \
-       users/spacelibres/packages/container/stkcraft-time \
-       -f visibility=public
-     ```
-
 - Every release adds `docs/releases/vX.Y.Z.md`; the `Release` workflow
   uses it as the release body.
 - crates.io needs a registry token. Store it as the
