@@ -30,10 +30,10 @@ It does not link CSPICE and does not port CSPICE source code.
 
 ## Project status
 
-- Latest release: **v0.1.7** on GitHub Releases, including release-mode
+- Latest release: **v0.1.8** on GitHub Releases, including release-mode
   binaries for Linux, macOS (x86_64 and arm64) and Windows.
 - crates.io publication is pending a registry token. Until then, install
-  from the `v0.1.7` Git tag as shown below.
+  from the `v0.1.8` Git tag as shown below.
 - Minimum supported Rust version: **1.75**.
 - The library is `no_std` compatible with `alloc`; the optional MCP server
   requires `std`.
@@ -44,23 +44,23 @@ Until the crate is published to crates.io, use the tagged repository:
 
 ```toml
 [dependencies]
-stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.7" }
+stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.8" }
 ```
 
 ```sh
-cargo add --git https://github.com/spacelibres/STKCraft-time --tag v0.1.7 stkcraft-time
+cargo add --git https://github.com/spacelibres/STKCraft-time --tag v0.1.8 stkcraft-time
 ```
 
 After the crates.io publication, this becomes:
 
 ```toml
-stkcraft-time = "0.1.7"
+stkcraft-time = "0.1.8"
 ```
 
 For `no_std` plus `alloc`:
 
 ```toml
-stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.7", default-features = false }
+stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.8", default-features = false }
 ```
 
 ## Releases
@@ -405,6 +405,21 @@ python tools/fetch_eop.py --out data/finals2000A.all
 # --insecure only if TLS verification is unavailable in the target environment
 ```
 
+If the IERS endpoint is slow or unreachable from your network, point the
+script at a mirror or a local copy. The endpoint can be set per run or
+once per shell:
+
+```bash
+python tools/fetch_eop.py --out data/finals2000A.all \
+    --url https://mirror.example/finals2000A.all
+export STKCRAFT_EOP_URL=https://mirror.example/finals2000A.all
+python tools/fetch_eop.py --out data/finals2000A.all   # uses the env var
+```
+
+`tools/validate_ut1.py` accepts the same `--url` flag and
+`STKCRAFT_EOP_URL` variable, and skips the download entirely when
+`--eop` already points at an existing file.
+
 Then load it from disk:
 
 ```rust
@@ -616,10 +631,10 @@ python tools/wgc2_compare.py        # live WGC2 (CSPICE front-end) check
 The library is `no_std` compatible with `alloc`:
 
 ```toml
-stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.7", default-features = false }
+stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.8", default-features = false }
 
 # after crates.io publication:
-# stkcraft-time = { version = "0.1.7", default-features = false }
+# stkcraft-time = { version = "0.1.8", default-features = false }
 ```
 
 In `no_std` builds, `libm` supplies `sin`, `floor`, `round` and `fmod`;

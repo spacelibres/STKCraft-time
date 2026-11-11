@@ -4,6 +4,23 @@ All notable changes to `stkcraft-time` are documented here.
 
 The format follows Keep a Changelog. This crate uses semantic versioning.
 
+## [0.1.8] - 2026-11-11
+
+### Added
+
+- `tools/fetch_eop.py`, `tools/validate_ut1.py` and
+  `tools/gen_dtdb_table.py` accept `--url`, and the `STKCRAFT_EOP_URL`
+  and `STKCRAFT_DTDB_URL` environment variables, so a mirror or local
+  copy can replace the upstream host when it is slow or unreachable.
+  `--url` wins over the environment variable, and a pre-existing
+  `--eop` / `--src` file still skips the download entirely.
+
+### Fixed
+
+- The download scripts now write the response bytes verbatim. On
+  Windows, text-mode writes translated line endings, so the saved
+  `finals2000A.all` was not byte-identical to the upstream file.
+
 ## [0.1.7] - 2026-11-11
 
 ### Fixed

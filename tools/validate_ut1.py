@@ -18,12 +18,17 @@ the Python standard library plus the crate's own binary.
 Usage:
     python tools/validate_ut1.py
     python tools/validate_ut1.py --eop target/eop/finals2000A.all
+    python tools/validate_ut1.py --url https://mirror.example/finals2000A.all
     python tools/validate_ut1.py --insecure   # if TLS verification fails
+
+The download endpoint can also be set once with the ``STKCRAFT_EOP_URL``
+environment variable; ``--url`` wins over the environment.
 """
 
 from __future__ import annotations
 
 import argparse
+import os
 import ssl
 import subprocess
 import sys
@@ -31,19 +36,21 @@ import urllib.request
 from pathlib import Path
 
 DEFAULT_URL = "https://datacenter.iers.org/data/9/finals2000A.all"
+ENV_URL = "STKCRAFT_EOP_URL"
 
 
-def ensure_eop(path: Path, insecure: bool) -> str:
+def ensure_eop(path: Path, insecure: bool, url: str) -> str:
     if path.exists():
         return path.read_text(encoding="utf-8", errors="replace")
 
     context = ssl._create_unverified_context() if insecure else ssl.create_default_context()
-    request = urllib.request.Request(DEFAULT_URL, headers={"User-Agent": "stkcraft-time"})
+    request = urllib.request.Request(url, headers={"User-Agent": "stkcraft-time"})
     with urllib.request.urlopen(request, context=context, timeout=120) as response:
-        text = response.read().decode("utf-8", errors="replace")
+        payload = response.read()
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(text, encoding="utf-8")
-    return text
+    # Write the bytes verbatim; text mode would translate line endings.
+    path.write_bytes(payload)
+    return payload.decode("utf-8", errors="replace")
 
 
 def expand_year(two_digit: str) -> int:
@@ -108,6 +115,14 @@ def main() -> int:
         default="target/eop/finals2000A.all",
         help="path to finals2000A.all (downloaded if missing)",
     )
+    parser.add_argument(
+        "--url",
+        default=os.environ.get(ENV_URL, DEFAULT_URL),
+        help=(
+            "source URL used when --eop is missing "
+            f"(default: ${ENV_URL} or {DEFAULT_URL})"
+        ),
+    )
     parser.add_argument("--insecure", action="store_true")
     parser.add_argument(
         "--max-zero-diff",
@@ -120,7 +135,7 @@ def main() -> int:
     repo_root = Path(__file__).resolve().parent.parent
     eop_path = (repo_root / args.eop).resolve()
 
-    text = ensure_eop(eop_path, args.insecure)
+    text = ensure_eop(eop_path, args.insecure, args.url)
     rows = parse_rows(text)
     if len(rows) < 2:
         print("not enough EOP rows", file=sys.stderr)

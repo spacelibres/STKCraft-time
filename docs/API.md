@@ -1,6 +1,6 @@
 # `stkcraft-time` API guide
 
-This guide shows how to call the public API of `stkcraft-time` 0.1.7. It
+This guide shows how to call the public API of `stkcraft-time` 0.1.8. It
 is task-oriented: each section answers "which function do I call, and what
 data do I need to load first?" For item-level reference documentation,
 run:
@@ -34,13 +34,13 @@ I/O and does not bundle mission data. The caller supplies the data files
 
 ```toml
 [dependencies]
-stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.7" }
+stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.8" }
 
 # crates.io, once published:
-# stkcraft-time = "0.1.7"
+# stkcraft-time = "0.1.8"
 
 # no_std + alloc:
-# stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.7", default-features = false }
+# stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.8", default-features = false }
 ```
 
 The internal epoch representation is integer seconds plus nanoseconds;
@@ -523,6 +523,21 @@ The CLI binaries require the `std` feature:
 
 Data-fetching and validation scripts live in `tools/`; the crate itself
 never performs network I/O. No EOP or mission SCLK data is bundled.
+
+Every download is configurable, so a mirror or a local copy can be used
+when the upstream host is slow or blocked:
+
+| Script | Flag | Environment variable | Default |
+|---|---|---|---|
+| `tools/fetch_eop.py` | `--url` | `STKCRAFT_EOP_URL` | IERS `finals2000A.all` |
+| `tools/validate_ut1.py` | `--url` | `STKCRAFT_EOP_URL` | IERS `finals2000A.all` |
+| `tools/gen_dtdb_table.py` | `--url` / `--src` | `STKCRAFT_DTDB_URL` | pinned ERFA `dtdb.c` |
+
+`--url` wins over the environment variable, and `--eop` / `--src` skip
+the download when they point at an existing file. Downloaded data is
+validated on arrival: the EOP file is parsed and summarized, and the
+ERFA source is checked against its pinned SHA-256, so a mirror cannot
+change the result silently.
 
 ## 14. Public API index
 

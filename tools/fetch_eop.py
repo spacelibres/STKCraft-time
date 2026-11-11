@@ -11,7 +11,12 @@ product, which is a separate data set published by the IERS.
 
 Usage:
     python tools/fetch_eop.py --out data/finals2000A.all
+    python tools/fetch_eop.py --out data/finals2000A.all --url MIRROR_URL
     python tools/fetch_eop.py --out data/finals2000A.all --insecure
+
+The endpoint can be set once with the ``STKCRAFT_EOP_URL`` environment
+variable; ``--url`` wins over the environment. Any mirror works because
+the downloaded file is parsed and summarized immediately.
 
 The file is refreshed daily by IERS. Re-run this script to update it;
 the crate never downloads anything at runtime.
@@ -20,12 +25,14 @@ the crate never downloads anything at runtime.
 from __future__ import annotations
 
 import argparse
+import os
 import ssl
 import sys
 import urllib.request
 from pathlib import Path
 
 DEFAULT_URL = "https://datacenter.iers.org/data/9/finals2000A.all"
+ENV_URL = "STKCRAFT_EOP_URL"
 
 # The `UT1 - UTC` field lives in columns 59-68 (1-based).
 UT1_SLICE = slice(58, 68)
@@ -79,8 +86,8 @@ def main() -> int:
     )
     parser.add_argument(
         "--url",
-        default=DEFAULT_URL,
-        help=f"source URL (default: {DEFAULT_URL})",
+        default=os.environ.get(ENV_URL, DEFAULT_URL),
+        help=f"source URL (default: ${ENV_URL} or {DEFAULT_URL})",
     )
     parser.add_argument(
         "--insecure",
@@ -103,7 +110,9 @@ def main() -> int:
 
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(text, encoding="utf-8")
+    # Write the bytes verbatim: text-mode writes translate line endings on
+    # Windows and would no longer match the upstream file.
+    out.write_bytes(payload)
 
     print(f"wrote {out} ({len(payload)} bytes)")
     print(_summarize(text))
