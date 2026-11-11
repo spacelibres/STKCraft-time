@@ -17,10 +17,13 @@ jobs:
         include:
           - os: ubuntu-latest
             platform: linux-x86_64
-          - os: macos-14
-            platform: macos-aarch64
+            artifact: linux-x86_64
+          - os: macos-15-intel
+            platform: macos-x86_64
+            artifact: macos
           - os: windows-latest
             platform: windows-x86_64
+            artifact: windows-x86_64
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -28,6 +31,11 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
       - name: Build release binaries
         run: cargo build --locked --release --features mcp --bins
+      - name: Build macOS arm64 binaries
+        if: runner.os == 'macOS'
+        run: |
+          rustup target add aarch64-apple-darwin
+          cargo build --locked --release --features mcp --bins --target aarch64-apple-darwin
       - name: Test release profile (Linux)
         if: runner.os == 'Linux'
         run: cargo test --locked --release --features mcp
@@ -43,6 +51,18 @@ jobs:
           cp target/release/wgc-compare dist/
           cp README.md LICENSE CHANGELOG.md dist/
           tar -czf "stkcraft-time-${GITHUB_REF_NAME}-${{ matrix.platform }}.tar.gz" -C dist .
+      - name: Package macOS arm64
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          mkdir -p dist-arm64
+          cp target/aarch64-apple-darwin/release/stkcraft-mcp dist-arm64/
+          cp target/aarch64-apple-darwin/release/sclk-check dist-arm64/
+          cp target/aarch64-apple-darwin/release/ut1-check dist-arm64/
+          cp target/aarch64-apple-darwin/release/tdb-compare dist-arm64/
+          cp target/aarch64-apple-darwin/release/wgc-compare dist-arm64/
+          cp README.md LICENSE CHANGELOG.md dist-arm64/
+          tar -czf "stkcraft-time-${GITHUB_REF_NAME}-macos-aarch64.tar.gz" -C dist-arm64 .
       - name: Package (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
@@ -58,7 +78,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.platform }}
+          name: ${{ matrix.artifact }}
           path: stkcraft-time-*
           if-no-files-found: error
 

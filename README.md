@@ -30,10 +30,10 @@ It does not link CSPICE and does not port CSPICE source code.
 
 ## Project status
 
-- Latest release: **v0.1.5** on GitHub Releases, including release-mode
-  binaries for Linux, macOS and Windows.
+- Latest release: **v0.1.6** on GitHub Releases, including release-mode
+  binaries for Linux, macOS (x86_64 and arm64) and Windows.
 - crates.io publication is pending a registry token. Until then, install
-  from the `v0.1.5` Git tag as shown below.
+  from the `v0.1.6` Git tag as shown below.
 - Minimum supported Rust version: **1.75**.
 - The library is `no_std` compatible with `alloc`; the optional MCP server
   requires `std`.
@@ -44,23 +44,23 @@ Until the crate is published to crates.io, use the tagged repository:
 
 ```toml
 [dependencies]
-stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.5" }
+stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.6" }
 ```
 
 ```sh
-cargo add --git https://github.com/spacelibres/STKCraft-time --tag v0.1.5 stkcraft-time
+cargo add --git https://github.com/spacelibres/STKCraft-time --tag v0.1.6 stkcraft-time
 ```
 
 After the crates.io publication, this becomes:
 
 ```toml
-stkcraft-time = "0.1.5"
+stkcraft-time = "0.1.6"
 ```
 
 For `no_std` plus `alloc`:
 
 ```toml
-stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.5", default-features = false }
+stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.6", default-features = false }
 ```
 
 ## Releases
@@ -71,6 +71,7 @@ built by `cargo build --release --features mcp --bins`:
 | Platform | Archive |
 |---|---|
 | Linux x86_64 | `stkcraft-time-vX.Y.Z-linux-x86_64.tar.gz` |
+| macOS x86_64 | `stkcraft-time-vX.Y.Z-macos-x86_64.tar.gz` |
 | macOS arm64 | `stkcraft-time-vX.Y.Z-macos-aarch64.tar.gz` |
 | Windows x86_64 | `stkcraft-time-vX.Y.Z-windows-x86_64.zip` |
 
@@ -612,10 +613,10 @@ python tools/wgc2_compare.py        # live WGC2 (CSPICE front-end) check
 The library is `no_std` compatible with `alloc`:
 
 ```toml
-stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.5", default-features = false }
+stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.6", default-features = false }
 
 # after crates.io publication:
-# stkcraft-time = { version = "0.1.5", default-features = false }
+# stkcraft-time = { version = "0.1.6", default-features = false }
 ```
 
 In `no_std` builds, `libm` supplies `sin`, `floor`, `round` and `fmod`;

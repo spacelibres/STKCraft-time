@@ -4,6 +4,20 @@ All notable changes to `stkcraft-time` are documented here.
 
 The format follows Keep a Changelog. This crate uses semantic versioning.
 
+## [0.1.6] - 2026-11-10
+
+### Fixed
+
+- The `Release` workflow now runs macOS builds on the supported Intel
+  runner and cross-builds an arm64 binary, so both macOS architectures
+  are published. The previous arm64 runner label was unavailable.
+
+### Changed
+
+- `docs/releases/v0.1.6.md` is the release body. Version 0.1.5 was
+  tagged but not published because its release workflow could not start
+  the arm64 macOS runner; 0.1.6 is the first published GitHub Release.
+
 ## [0.1.5] - 2026-11-10
 
 ### Added
