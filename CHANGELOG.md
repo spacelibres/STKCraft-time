@@ -4,6 +4,37 @@ All notable changes to `stkcraft-time` are documented here.
 
 The format follows Keep a Changelog. This crate uses semantic versioning.
 
+## [0.1.5] - 2026-11-10
+
+### Added
+
+- GitHub `Release` workflow that runs release-mode tests, builds
+  optimized binaries for Linux x86_64, macOS arm64 and Windows x86_64,
+  generates `SHA256SUMS.txt` and publishes a GitHub Release.
+- `docs/releases/v0.1.5.md` as the release body.
+- Community health files: `SECURITY.md`, `CONTRIBUTING.md`,
+  `CODE_OF_CONDUCT.md`, `SUPPORT.md`, `CITATION.cff`, issue templates
+  and a pull request template.
+- README badges, project status, installation and release-asset
+  sections.
+- `[package.metadata.docs.rs]` with `all-features = true`, an `authors`
+  field and the `aerospace` category.
+
+### Changed
+
+- `Cargo.toml` description now covers all supported scales, kernel
+  types, `no_std` support and the MCP server.
+- Release profile uses thin LTO, one codegen unit and stripped binaries.
+- MCP build and client configuration examples now use release binaries
+  instead of debug binaries.
+- `AGENTS.md` and the `stkcraft-time` skill now require a GitHub Release
+  and release notes for every tag, and record the canonical repository
+  description, homepage and topics.
+- Repository description, homepage and topics are now populated on
+  GitHub.
+
+The time-conversion algorithms are unchanged in this release.
+
 ## [0.1.4] - 2026-11-10
 
 ### Changed

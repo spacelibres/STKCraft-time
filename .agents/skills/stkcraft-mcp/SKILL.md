@@ -8,8 +8,8 @@ description: Use when running, configuring, testing or extending the stkcraft-mc
 The MCP server is optional and lives behind the `mcp` feature:
 
 ```sh
-cargo build --features mcp --bin stkcraft-mcp
-cargo run   --features mcp --bin stkcraft-mcp
+cargo build --release --features mcp --bin stkcraft-mcp
+cargo run   --release --features mcp --bin stkcraft-mcp
 ```
 
 It speaks newline-delimited JSON-RPC 2.0 on stdin/stdout. Never write logs
@@ -21,7 +21,7 @@ to stdout; use stderr.
 {
   "mcpServers": {
     "stkcraft-time": {
-      "command": "/absolute/path/to/target/debug/stkcraft-mcp",
+      "command": "/absolute/path/to/target/release/stkcraft-mcp",
       "args": []
     }
   }

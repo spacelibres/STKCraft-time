@@ -7,6 +7,14 @@
 **STKCraft project:** <https://www.stkcraft.com>
 **Repository:** <https://github.com/spacelibres/STKCraft-time>
 
+[![CI](https://github.com/spacelibres/STKCraft-time/actions/workflows/ci.yml/badge.svg)](https://github.com/spacelibres/STKCraft-time/actions/workflows/ci.yml)
+[![GitHub release](https://img.shields.io/github/v/release/spacelibres/STKCraft-time)](https://github.com/spacelibres/STKCraft-time/releases)
+[![API guide](https://img.shields.io/badge/docs-API%20guide-blue.svg)](docs/API.md)
+[![MCP](https://img.shields.io/badge/MCP-stdio%20server-purple.svg)](docs/MCP.md)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![MSRV](https://img.shields.io/badge/MSRV-1.75-blue.svg)](Cargo.toml)
+[![no_std](https://img.shields.io/badge/no__std-supported-green.svg)](docs/API.md)
+
 A clean-room, NAIF/SPICE-aligned time library written in Rust.
 
 `stkcraft-time` implements the time-scale model documented by the NASA
@@ -19,6 +27,57 @@ It does not link CSPICE and does not port CSPICE source code.
 - **Runnable tour:** [`examples/api_tour.rs`](examples/api_tour.rs)
 - **Agent skills:** [`.agents/skills/`](.agents/skills/)
 - **Reference:** `cargo doc --open`
+
+## Project status
+
+- Latest release: **v0.1.5** on GitHub Releases, including release-mode
+  binaries for Linux, macOS and Windows.
+- crates.io publication is pending a registry token. Until then, install
+  from the `v0.1.5` Git tag as shown below.
+- Minimum supported Rust version: **1.75**.
+- The library is `no_std` compatible with `alloc`; the optional MCP server
+  requires `std`.
+
+## Installation
+
+Until the crate is published to crates.io, use the tagged repository:
+
+```toml
+[dependencies]
+stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.5" }
+```
+
+```sh
+cargo add --git https://github.com/spacelibres/STKCraft-time --tag v0.1.5 stkcraft-time
+```
+
+After the crates.io publication, this becomes:
+
+```toml
+stkcraft-time = "0.1.5"
+```
+
+For `no_std` plus `alloc`:
+
+```toml
+stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.5", default-features = false }
+```
+
+## Releases
+
+Every `vX.Y.Z` tag publishes a GitHub Release with optimized binaries
+built by `cargo build --release --features mcp --bins`:
+
+| Platform | Archive |
+|---|---|
+| Linux x86_64 | `stkcraft-time-vX.Y.Z-linux-x86_64.tar.gz` |
+| macOS arm64 | `stkcraft-time-vX.Y.Z-macos-aarch64.tar.gz` |
+| Windows x86_64 | `stkcraft-time-vX.Y.Z-windows-x86_64.zip` |
+
+Each archive contains `stkcraft-mcp`, `sclk-check`, `ut1-check`,
+`tdb-compare`, `wgc-compare`, `README.md`, `LICENSE` and
+`CHANGELOG.md`. `SHA256SUMS.txt` is attached separately. Release notes
+are in [`docs/releases/`](docs/releases/).
 
 ## Design rules
 
@@ -508,7 +567,7 @@ The optional `mcp` feature builds a stdio MCP server that exposes the
 conversion API as JSON-RPC tools:
 
 ```sh
-cargo build --features mcp --bin stkcraft-mcp
+cargo build --release --features mcp --bin stkcraft-mcp
 ```
 
 Example client configuration:
@@ -517,7 +576,7 @@ Example client configuration:
 {
   "mcpServers": {
     "stkcraft-time": {
-      "command": "/absolute/path/to/target/debug/stkcraft-mcp",
+      "command": "/absolute/path/to/target/release/stkcraft-mcp",
       "args": []
     }
   }
@@ -543,7 +602,7 @@ cargo test                          # unit and integration tests
 cargo test --features mcp           # MCP protocol tests
 cargo test --test spice_golden      # 82 CSPICE reference vectors
 cargo build --no-default-features   # no_std + alloc build
-cargo build --features mcp --bin stkcraft-mcp
+cargo build --release --features mcp --bins
 cargo clippy --all-targets -- -D warnings
 cargo clippy --all-targets --features mcp -- -D warnings
 RUSTDOCFLAGS="-D warnings" cargo doc --no-deps
@@ -553,7 +612,10 @@ python tools/wgc2_compare.py        # live WGC2 (CSPICE front-end) check
 The library is `no_std` compatible with `alloc`:
 
 ```toml
-stkcraft-time = { version = "0.1", default-features = false }
+stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.5", default-features = false }
+
+# after crates.io publication:
+# stkcraft-time = { version = "0.1.5", default-features = false }
 ```
 
 In `no_std` builds, `libm` supplies `sin`, `floor`, `round` and `fmod`;
@@ -606,6 +668,18 @@ MIT License. See `LICENSE`.
 
 The bundled `src/naif0012.tls` is a NAIF data product and is included
 with attribution. It is not covered by the crate's MIT license.
+
+## Contributing
+
+See [`CONTRIBUTING.md`](CONTRIBUTING.md) for development setup, release
+rules and the verification matrix. Report security issues according to
+[`SECURITY.md`](SECURITY.md); all participation is covered by
+[`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md). Support resources are listed
+in [`SUPPORT.md`](SUPPORT.md).
+
+## Citation
+
+See [`CITATION.cff`](CITATION.cff).
 
 ## Precision and representation
 

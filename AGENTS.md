@@ -45,6 +45,8 @@ cargo test --all-targets --features mcp
 cargo clippy --all-targets -- -D warnings
 cargo clippy --all-targets --features mcp -- -D warnings
 cargo build --no-default-features
+cargo build --release --features mcp --bins
+cargo test --release --features mcp
 RUSTDOCFLAGS="-D warnings" cargo doc --no-deps
 ```
 
@@ -64,11 +66,29 @@ failures before declaring a change complete.
      the failure and push again.
   6. Create and push the annotated tag `vX.Y.Z`, then wait for the tag
      CI run to pass.
+  7. Confirm the `Release` workflow publishes a GitHub Release with
+     release-mode binaries for Linux, macOS and Windows and
+     `SHA256SUMS.txt`.
+- Every release adds `docs/releases/vX.Y.Z.md`; the `Release` workflow
+  uses it as the release body.
 - Do not leave the working tree with uncommitted changes when the task is
   complete.
 - Skip only when the user explicitly says not to commit, not to push, or
   not to tag. If credentials or network access block the push, report the
   blocker and the exact commands needed.
+
+## GitHub metadata
+
+Keep these repository settings current:
+
+- Description: `NAIF/SPICE-aligned astronomical time scales in Rust:`
+  `UTC, TAI, TT, TDB/ET, GPS, UT1 and SCLK, with LSK/SCLK/EOP kernels,`
+  `no_std support, WebGeocalc parity and an MCP server.`
+- Homepage: <https://www.stkcraft.com>
+- Topics: `rust`, `time`, `astronomy`, `spice`, `naif`, `utc`, `tai`,
+  `tdb`, `ut1`, `gps`, `sclk`, `no-std`, `mcp`, `spacecraft`,
+  `astrodynamics`, `leap-seconds`, `iers`, `ephemeris`,
+  `time-conversion`, `rust-crate`.
 
 ## Commit messages
 

@@ -1,0 +1,48 @@
+name: Feature request
+description: Propose a new time scale, conversion, kernel format or tool.
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What cannot be done today, and in which workflow?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed API or behaviour
+      description: Include function names, inputs, outputs and error cases.
+    validations:
+      required: true
+  - type: textarea
+    id: references
+    attributes:
+      label: References
+      description: Link to NAIF, IERS, IAU, SOFA or mission documentation.
+  - type: dropdown
+    id: scale
+    attributes:
+      label: Affected area
+      multiple: true
+      options:
+        - UTC / leap seconds
+        - TAI / TT / TDB / ET
+        - UT1 / EOP
+        - GPS
+        - SCLK
+        - TCG / TCB
+        - Formatting
+        - MCP server
+        - Documentation
+        - Build / CI
+  - type: checkboxes
+    id: compatibility
+    attributes:
+      label: Compatibility
+      options:
+        - label: This can remain no_std compatible.
+        - label: This requires a new optional feature.
+        - label: This is a breaking API change.

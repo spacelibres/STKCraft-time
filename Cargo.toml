@@ -1,16 +1,17 @@
 [package]
 name = "stkcraft-time"
-version = "0.1.4"
+version = "0.1.5"
 edition = "2021"
 rust-version = "1.75"
-description = "NAIF/SPICE-aligned astronomical time scales for STKCraft"
+authors = ["STKCraft"]
+description = "NAIF/SPICE-aligned astronomical time scales in Rust: UTC, TAI, TT, TDB/ET, GPS, UT1 and SCLK, with LSK/SCLK/EOP kernels, no_std support, WebGeocalc parity and an MCP server."
 license = "MIT"
 repository = "https://github.com/spacelibres/STKCraft-time"
 homepage = "https://www.stkcraft.com"
 documentation = "https://docs.rs/stkcraft-time"
 readme = "README.md"
 keywords = ["time", "spice", "naif", "astronomy", "utc"]
-categories = ["science", "no-std"]
+categories = ["science", "no-std", "aerospace"]
 
 [dependencies]
 libm = "0.2"
@@ -23,6 +24,14 @@ mcp = ["std", "dep:serde_json"]
 
 [lints.rust]
 unexpected_cfgs = { level = "warn", check-cfg = ["cfg(kani)"] }
+
+[package.metadata.docs.rs]
+all-features = true
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+strip = true
 
 [lib]
 path = "src/lib.rs"

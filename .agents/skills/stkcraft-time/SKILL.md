@@ -24,7 +24,10 @@ Chinese-localized UI labels.
    workflow to pass, then create and push the `vX.Y.Z` tag and wait for
    the tag CI run to pass. Do this automatically; do not wait for a
    separate commit or push request.
-6. Leave no uncommitted changes when the task is complete. Skip the
+6. Add `docs/releases/vX.Y.Z.md` and confirm the `Release` workflow
+   publishes a GitHub Release with release-mode binaries for Linux,
+   macOS and Windows and `SHA256SUMS.txt`.
+7. Leave no uncommitted changes when the task is complete. Skip the
    commit/push/tag steps only when the user explicitly asks you to.
 
 ## Verification
@@ -36,6 +39,8 @@ cargo test --all-targets --features mcp
 cargo clippy --all-targets -- -D warnings
 cargo clippy --all-targets --features mcp -- -D warnings
 cargo build --no-default-features
+cargo build --release --features mcp --bins
+cargo test --release --features mcp
 RUSTDOCFLAGS="-D warnings" cargo doc --no-deps
 ```
 

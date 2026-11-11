@@ -1,0 +1,91 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build ${{ matrix.platform }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux-x86_64
+          - os: macos-14
+            platform: macos-aarch64
+          - os: windows-latest
+            platform: windows-x86_64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+      - name: Build release binaries
+        run: cargo build --locked --release --features mcp --bins
+      - name: Test release profile (Linux)
+        if: runner.os == 'Linux'
+        run: cargo test --locked --release --features mcp
+      - name: Package (Unix)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          mkdir -p dist
+          cp target/release/stkcraft-mcp dist/
+          cp target/release/sclk-check dist/
+          cp target/release/ut1-check dist/
+          cp target/release/tdb-compare dist/
+          cp target/release/wgc-compare dist/
+          cp README.md LICENSE CHANGELOG.md dist/
+          tar -czf "stkcraft-time-${GITHUB_REF_NAME}-${{ matrix.platform }}.tar.gz" -C dist .
+      - name: Package (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          Copy-Item target/release/stkcraft-mcp.exe dist/
+          Copy-Item target/release/sclk-check.exe dist/
+          Copy-Item target/release/ut1-check.exe dist/
+          Copy-Item target/release/tdb-compare.exe dist/
+          Copy-Item target/release/wgc-compare.exe dist/
+          Copy-Item README.md,LICENSE,CHANGELOG.md dist/
+          Compress-Archive -Path dist/* -DestinationPath "stkcraft-time-$env:GITHUB_REF_NAME-${{ matrix.platform }}.zip"
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.platform }}
+          path: stkcraft-time-*
+          if-no-files-found: error
+
+  release:
+    name: Publish GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+      - name: Generate checksums
+        run: |
+          cd artifacts
+          sha256sum * > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: stkcraft-time ${{ github.ref_name }}
+          body_path: docs/releases/${{ github.ref_name }}.md
+          files: artifacts/*
+          draft: false
+          prerelease: false
+          make_latest: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

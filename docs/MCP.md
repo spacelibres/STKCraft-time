@@ -8,8 +8,8 @@ and `serde_json`).
 ## Build and run
 
 ```sh
-cargo build --features mcp --bin stkcraft-mcp
-cargo run   --features mcp --bin stkcraft-mcp
+cargo build --release --features mcp --bin stkcraft-mcp
+cargo run   --release --features mcp --bin stkcraft-mcp
 ```
 
 The process speaks newline-delimited JSON-RPC 2.0 on stdin/stdout. Logs
@@ -23,14 +23,14 @@ Point your MCP client at the built binary:
 {
   "mcpServers": {
     "stkcraft-time": {
-      "command": "/absolute/path/to/target/debug/stkcraft-mcp",
+      "command": "/absolute/path/to/target/release/stkcraft-mcp",
       "args": []
     }
   }
 }
 ```
 
-During development, `cargo run` works as well:
+During development, `cargo run --release` works as well:
 
 ```json
 {
@@ -39,6 +39,7 @@ During development, `cargo run` works as well:
       "command": "cargo",
       "args": [
         "run",
+        "--release",
         "--features", "mcp",
         "--bin", "stkcraft-mcp",
         "--manifest-path", "/absolute/path/to/STKCraft-time/Cargo.toml"

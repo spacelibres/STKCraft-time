@@ -1,0 +1,14 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://github.com/spacelibres/STKCraft-time/blob/main/docs/API.md
+    about: Task-oriented API usage and kernel loading examples.
+  - name: API guide
+    url: https://github.com/spacelibres/STKCraft-time/blob/main/docs/API.md
+    about: Task-oriented API usage and kernel loading examples.
+  - name: MCP server guide
+    url: https://github.com/spacelibres/STKCraft-time/blob/main/docs/MCP.md
+    about: Tool list, protocol and client configuration.
+  - name: Security policy
+    url: https://github.com/spacelibres/STKCraft-time/security/policy
+    about: Report vulnerabilities privately.

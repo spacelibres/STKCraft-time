@@ -1,0 +1,62 @@
+name: Bug report
+description: Report a reproducible defect in stkcraft-time.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not report security vulnerabilities here. Use the private
+        reporting link in SECURITY.md.
+  - type: input
+    id: version
+    attributes:
+      label: stkcraft-time version
+      placeholder: "0.1.5"
+    validations:
+      required: true
+  - type: dropdown
+    id: features
+    attributes:
+      label: Enabled features
+      multiple: true
+      options:
+        - std (default)
+        - no_std (default-features = false)
+        - mcp
+    validations:
+      required: true
+  - type: textarea
+    id: data
+    attributes:
+      label: Kernel and data source
+      description: Which LSK, SCLK or EOP data are you loading? Do not attach restricted data.
+      placeholder: "naif0012.tls, a mission SCLK kernel, finals2000A.all, ..."
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: Include code, inputs and the exact commands you ran.
+      render: rust
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behaviour
+      description: Include the full error or panic message.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: "OS, Rust version, target triple, cargo version"
+    validations:
+      required: true
