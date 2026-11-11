@@ -4,6 +4,32 @@ All notable changes to `stkcraft-time` are documented here.
 
 The format follows Keep a Changelog. This crate uses semantic versioning.
 
+## [0.1.9] - 2026-11-11
+
+### Added
+
+- crates.io publication. `Cargo.toml` now lists `date-and-time` and
+  `parsing` alongside `aerospace`, `science` and `no-std`, so the crate
+  appears under the registry categories users browse for time handling
+  and kernel parsing.
+- `README.md` carries crates.io, docs.rs and download badges, installs
+  with `cargo add stkcraft-time`, and documents the `stkcraft-mcp`
+  install command.
+- `CONTRIBUTING.md` and `AGENTS.md` describe the crates.io publishing
+  step: `cargo login`, `cargo publish --dry-run`, `cargo publish`, and
+  the docs.rs build check.
+
+### Changed
+
+- Every documentation link in `README.md` is absolute, so the crate page
+  on crates.io and the README on docs.rs resolve to the repository
+  instead of a relative path inside the package.
+
+### Notes
+
+- No library API, kernel format or numerical result changes in this
+  release.
+
 ## [0.1.8] - 2026-11-11
 
 ### Added

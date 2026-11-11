@@ -1,6 +1,6 @@
 [package]
 name = "stkcraft-time"
-version = "0.1.8"
+version = "0.1.9"
 edition = "2021"
 rust-version = "1.75"
 authors = ["STKCraft"]
@@ -11,7 +11,7 @@ homepage = "https://www.stkcraft.com"
 documentation = "https://docs.rs/stkcraft-time"
 readme = "README.md"
 keywords = ["time", "spice", "naif", "astronomy", "utc"]
-categories = ["science", "no-std", "aerospace"]
+categories = ["aerospace", "date-and-time", "science", "no-std", "parsing"]
 
 [dependencies]
 libm = "0.2"

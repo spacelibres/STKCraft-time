@@ -4,7 +4,8 @@
 
 - API guide: [`docs/API.md`](docs/API.md)
 - MCP server: [`docs/MCP.md`](docs/MCP.md)
-- API reference: `cargo doc --open` (docs.rs follows after crates.io publication)
+- API reference: <https://docs.rs/stkcraft-time> or `cargo doc --open`
+- crates.io page: <https://crates.io/crates/stkcraft-time>
 - Changelog: [`CHANGELOG.md`](CHANGELOG.md)
 - Release notes: [`docs/releases/`](docs/releases/)
 

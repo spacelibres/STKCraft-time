@@ -51,6 +51,22 @@ Every update is released. See the "Automatic release and push" section in
 4. A GitHub Release with `docs/releases/vX.Y.Z.md` and release-mode
    binaries for Linux, macOS and Windows.
 
+## crates.io publication
+
+The crate is published under the same version as the Git tag. Publishing
+is not part of CI; it needs an API token from
+<https://crates.io/settings/tokens>.
+
+```sh
+cargo login          # once per machine
+cargo publish --dry-run
+cargo publish
+```
+
+`cargo publish` requires a clean working tree and the `vX.Y.Z` tag.
+Verify the result on <https://crates.io/crates/stkcraft-time> and wait
+for the docs.rs build at <https://docs.rs/stkcraft-time>.
+
 ## Commit messages
 
 - Imperative subject line, 50 characters or fewer.
