@@ -35,13 +35,13 @@ NPARSD operation order; see [ATTRIBUTION.md](ATTRIBUTION.md) for provenance.
 - **Reference:** `cargo doc --open`
 
 **Install:** `cargo add stkcraft-time`, or add
-`stkcraft-time = "0.1.16"` to `[dependencies]`. With `no_std`, use `default-features = false`.
+`stkcraft-time = "0.1.17"` to `[dependencies]`. With `no_std`, use `default-features = false`.
 
 ## Project status
 
-- Latest release: **v0.1.16** on GitHub Releases, including release-mode
+- Latest release: **v0.1.17** on GitHub Releases, including release-mode
   binaries for Linux, macOS (x86_64 and arm64) and Windows.
-- Published on crates.io as **`stkcraft-time` 0.1.16**, with API docs on
+- Published on crates.io as **`stkcraft-time` 0.1.17**, with API docs on
   [docs.rs](https://docs.rs/stkcraft-time).
 - Minimum supported Rust version: **1.75**.
 - The library is `no_std` compatible with `alloc`; the optional MCP server
@@ -55,13 +55,13 @@ cargo add stkcraft-time
 
 ```toml
 [dependencies]
-stkcraft-time = "0.1.16"
+stkcraft-time = "0.1.17"
 ```
 
 `no_std` plus `alloc`:
 
 ```toml
-stkcraft-time = { version = "0.1.16", default-features = false }
+stkcraft-time = { version = "0.1.17", default-features = false }
 ```
 
 The MCP server and the validation binaries are optional:
@@ -73,7 +73,7 @@ cargo install stkcraft-time --features mcp --bin stkcraft-mcp
 To track the repository instead of a crates.io release, pin a tag:
 
 ```toml
-stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.16" }
+stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.17" }
 ```
 
 ## Releases
@@ -229,8 +229,8 @@ python tools/wgc2_kernel_sweep.py --insecure   # --insecure only if needed
 | TDB (compact) | `TT + 0.001658*sin(g) + 0.000014*sin(2g)` |
 | GPS | `TAI - 19 s`, zero at `1980-01-06T00:00:00 UTC` |
 | UT1 | Earth-rotation scale, `UTC + (UT1 - UTC)`; requires IERS EOP |
-| TCG | `TT + L_G*(JD_TT - T0)*86400` (IAU coordinate scale) |
-| TCB | `TDB + L_B*(JD_TDB - T0)*86400 - TDB0` (IAU coordinate scale) |
+| TCG | `TT + L_G/(1-L_G)*(JD_TT - T0)*86400` (IAU coordinate scale) |
+| TCB | `TDB + (L_B*(JD_TDB - T0)*86400 - TDB0)/(1-L_B)` (IAU coordinate scale) |
 
 `ET` is **TDB seconds past the J2000 epoch** (`2000-01-01T12:00:00 TDB`),
 matching the SPICE convention. Use `ET` for NAIF/SPICE interoperability,
@@ -315,6 +315,12 @@ or `--eop <path>` to point the UT1 section at a specific
 
 ## Scope
 
+For new integration code, read [Time contracts](docs/TIME_CONTRACT.md).
+`contract::TimeContext::new(&lsk)` is the default NAIF/SPICE path and
+returns typed `NaifEt`. `ScientificContext` is an explicit TT(TAI)/ERFA
+scientific path returning a separate `IauTdb`, with geocentric or supplied
+observer-dependent terms. Existing low-level APIs retain their behavior.
+
 Implemented:
 
 - Gregorian, Julian and Mixed calendars
@@ -327,7 +333,8 @@ Implemented:
 - UTC <-> TAI <-> TT <-> TDB/ET <-> GPS
 - UT1 via an IERS Earth Orientation Parameters table (`eop` module)
 - TCG and TCB IAU coordinate scales (`coord` module)
-- IAU TDB model, Fairhead & Bretagnon 787-term series (`dtdb` module)
+- IAU TDB model, Fairhead & Bretagnon 787-term series and explicitly
+  supplied observer-dependent SOFA/ERFA terms (`dtdb` module)
 - SCLK type-1 kernel parsing and tick/time conversion (`sclk` module)
 - ISO 8601, RFC 3339, RFC 2822 and C89 `strftime`-style formatting
 - `etcal` (no kernel required)
@@ -564,8 +571,8 @@ TT and TDB and need no kernel:
 
 | Scale | Definition |
 |-------|------------|
-| TCG | `TT + L_G*(JD_TT - T0)*86400` |
-| TCB | `TDB + L_B*(JD_TDB - T0)*86400 - TDB0` |
+| TCG | `TT + L_G/(1-L_G)*(JD_TT - T0)*86400` |
+| TCB | `TDB + (L_B*(JD_TDB - T0)*86400 - TDB0)/(1-L_B)` |
 
 with `T0 = 1977-01-01T00:00:00 TAI` (`JD 2443144.5003725` in TT),
 `L_G = 6.969290134e-10`, `L_B = 1.550519768e-8` and `TDB0 = -6.55e-5 s`.
@@ -672,7 +679,7 @@ python tools/wgc2_compare.py        # live WGC2 (CSPICE front-end) check
 The library is `no_std` compatible with `alloc`:
 
 ```toml
-stkcraft-time = { version = "0.1.16", default-features = false }
+stkcraft-time = { version = "0.1.17", default-features = false }
 ```
 
 In `no_std` builds, `libm` supplies `sin`, `floor`, `round` and `fmod`;

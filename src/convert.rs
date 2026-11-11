@@ -330,7 +330,7 @@ fn delta_at_at_epoch(epoch: Epoch, lsk: &LeapSecondTable) -> Option<i32> {
 ///
 /// During a positive leap second the value stays on the day that owns
 /// `23:59:60`, matching [`tai_to_utc`].
-fn utc_jdn(epoch: Epoch, lsk: &LeapSecondTable) -> Option<i64> {
+pub(crate) fn utc_jdn(epoch: Epoch, lsk: &LeapSecondTable) -> Option<i64> {
     let tai_sec = epoch.sec();
     if tai_sec < lsk.first_tai_start() {
         return None;
@@ -338,7 +338,7 @@ fn utc_jdn(epoch: Epoch, lsk: &LeapSecondTable) -> Option<i64> {
 
     let index = lsk.interval_index(tai_sec)?;
     let entries = lsk.entries();
-    let nominal = tai_sec - entries[index].delta_at as i64;
+    let nominal = tai_sec.checked_sub(entries[index].delta_at as i64)?;
 
     if let Some(next) = entries.get(index + 1) {
         if lsk.is_active_index(index + 1) && nominal >= lsk.nominal_sec(index + 1) {

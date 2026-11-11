@@ -1,6 +1,6 @@
 # `stkcraft-time` API guide
 
-This guide shows how to call the public API of `stkcraft-time` 0.1.16. It
+This guide shows how to call the public API of `stkcraft-time` 0.1.17. It
 is task-oriented: each section answers "which function do I call, and what
 data do I need to load first?" For item-level reference documentation,
 run:
@@ -34,13 +34,13 @@ I/O and does not bundle mission data. The caller supplies the data files
 
 ```toml
 [dependencies]
-stkcraft-time = "0.1.16"
+stkcraft-time = "0.1.17"
 
 # no_std + alloc:
-# stkcraft-time = { version = "0.1.16", default-features = false }
+# stkcraft-time = { version = "0.1.17", default-features = false }
 
 # or pin the repository:
-# stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.16" }
+# stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.17" }
 ```
 
 The internal epoch representation is integer seconds plus nanoseconds;
@@ -258,6 +258,14 @@ no leap-second table. Conversions that involve UTC still need the LSK.
 
 ### 6.1 Which TDB model should I use?
 
+For a checked integration surface, use `contract::TimeContext::new(&lsk)`
+and its typed `NaifEt` result. This selects NAIF ET by construction.
+`contract::ScientificContext` explicitly selects TT(TAI) and scientific
+TDB, returning a separate `IauTdb` type. There is no implicit conversion
+between those types. The scientific context ignores mutable LSK constants
+and guards the model's 1950-2050 date interval. See
+[Time contracts](TIME_CONTRACT.md) for units, origins, metadata and limits.
+
 | API | Model | Use when |
 |---|---|---|
 | `convert::tai_to_et` / `et_to_tai` | NAIF one-term `K*sin(E)` | You need NAIF/SPICE/CSPICE compatibility. |
@@ -267,8 +275,11 @@ no leap-second table. Conversions that involve UTC still need the LSK.
 The models are not interchangeable. `ET` is an `f64` by definition.
 The compact model follows [NASA HEASARC](https://heasarc.gsfc.nasa.gov/docs/xte/abc/time_tutorial.html);
 its maximum residual against geocentric ERFA on a daily 1950-2050 grid
-is about 36.5 us. The IAU model is geocentric; observer-dependent
-topocentric terms and spacecraft proper-time transformations are not
+is about 36.5 us. The existing `dtdb::tai_to_tdb_iau` model is geocentric.
+`dtdb_minus_tt_at_observer` and `ScientificContext::to_tdb_at_observer`
+add explicitly supplied observer-dependent SOFA/ERFA terms. They require
+UT1 fraction, east-positive longitude in radians and cylindrical observer
+distances in km. Spacecraft proper-time transformations are not
 implemented. Nanosecond model accuracy does not imply nanosecond
 resolution for an absolute `f64` seconds value.
 

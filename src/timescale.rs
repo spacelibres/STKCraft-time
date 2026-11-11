@@ -25,14 +25,14 @@ pub enum TimeScale {
     /// or from UT1 requires an IERS Earth Orientation Parameters table
     /// (see [`crate::eop::EopTable`]) that measures the actual rotation
     /// of the Earth. UT1 is therefore kept separate from the dynamical
-    /// scales TT and ET: it is an Earth-rotation angle, not a uniform
-    /// coordinate time.
+    /// scales TT and ET: it is an Earth-rotation time scale, not a
+    /// uniform atomic time scale.
     Ut1,
-    /// Geocentric Coordinate Time, `TT + L_G * (TT - T0)`.
+    /// Geocentric Coordinate Time; see the exact affine relation in [`crate::coord`].
     ///
     /// See [`crate::coord`]. This is a coordinate scale, not a clock.
     Tcg,
-    /// Barycentric Coordinate Time, `TDB + L_B * (TDB - T0)`.
+    /// Barycentric Coordinate Time; see the exact affine relation in [`crate::coord`].
     ///
     /// See [`crate::coord`]. This is a coordinate scale, not a clock.
     Tcb,

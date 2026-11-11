@@ -5,8 +5,8 @@
 //! functions of TT and TDB:
 //!
 //! ```text
-//! TCG - TT  = L_G * (JD_TT  - T0) * 86400
-//! TCB - TDB = L_B * (JD_TDB - T0) * 86400 - TDB0
+//! TCG - TT  = L_G / (1 - L_G) * (JD_TT  - T0) * 86400
+//! TCB - TDB = (L_B * (JD_TDB - T0) * 86400 - TDB0) / (1 - L_B)
 //! ```
 //!
 //! where `T0 = 1977-01-01T00:00:00 TAI` (`JD 2443144.5003725` in TT),
@@ -46,7 +46,7 @@ pub const L_G: f64 = 6.969_290_134e-10;
 /// IAU 2006 `L_B` (exact): the TCB/TDB rate ratio.
 pub const L_B: f64 = 1.550_519_768e-8;
 
-/// `TDB - TT` at `1977-01-01T00:00:00 TAI`, in seconds.
+/// Defining offset of the IAU TCB/TDB affine relation, in seconds.
 ///
 /// This is the SOFA/ERFA `TDB0` constant used by the TCB alignment.
 pub const TDB0: f64 = -6.55e-5;

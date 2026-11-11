@@ -4,6 +4,39 @@ All notable changes to `stkcraft-time` are documented here.
 
 The format follows Keep a Changelog. This crate uses semantic versioning.
 
+## [0.1.17] - 2026-11-11
+
+### Added
+
+- Checked `TimeContext` defaults to the NAIF/SPICE contract with distinct
+  `NaifEt` and scientific `IauTdb` types. UTC and numeric TAI entry points
+  reproduce the corresponding N0067 TTRANS/UNITIM input arithmetic.
+  Kernel settings and model identifiers make the selected convention explicit.
+- `ScientificContext` uses TT(TAI) independently of mutable LSK constants,
+  preserves split-date scientific evaluation and rejects epochs outside the
+  documented 1950-2050 model interval, including nanosecond boundary cases.
+- Observer-dependent SOFA/ERFA TDB-TT terms with supplied UT1 fraction,
+  east longitude and cylindrical observer coordinates. Invalid inputs are
+  rejected; 724 independently generated ERFA vectors exercise the model.
+- A source-pinned generator and 910 independent CSPICE UTC input vectors,
+  including fractional-second and leap boundaries. An isolated Geocalc
+  validator separates equal-ET, UTC and numeric-TAI reference paths and
+  records kernel/source hashes without changing the developing checkout.
+
+### Fixed
+
+- The checked civil-time inverse rejects dates beyond the calendar's i32
+  year range rather than silently wrapping the year.
+- Coordinate-scale documentation now states the exact affine rate factors
+  used by the implementation and identifies UT1 as a time scale.
+
+### Changed
+
+- New integration guidance distinguishes SPICE compatibility, scientific
+  model accuracy and application error budgets. TT(BIPM), IERS subdaily
+  corrections, full Earth orientation and spacecraft proper time remain
+  explicitly outside the implemented contract.
+
 ## [0.1.16] - 2026-11-11
 
 ### Fixed

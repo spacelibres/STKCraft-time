@@ -20,6 +20,8 @@
 //! * [`coord`] provides the IAU coordinate scales TCG and TCB.
 //! * [`dtdb`] provides the IAU Fairhead-Bretagnon TDB model.
 //! * [`eop`] holds the IERS Earth Orientation Parameters that UT1 requires.
+//! * [`contract`] separates the default NAIF ET integration contract from
+//!   explicitly selected scientific TDB and observer-dependent models.
 //!
 //! # Kernel selection
 //!
@@ -65,6 +67,7 @@
 extern crate alloc;
 
 pub mod calendar;
+pub mod contract;
 pub mod convert;
 pub mod coord;
 pub mod dtdb;

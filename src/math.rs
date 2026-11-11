@@ -4,6 +4,15 @@
 //! used. Without it, the same operations come from `libm`.
 
 #[cfg(feature = "std")]
+pub(crate) fn cos(x: f64) -> f64 {
+    x.cos()
+}
+#[cfg(not(feature = "std"))]
+pub(crate) fn cos(x: f64) -> f64 {
+    libm::cos(x)
+}
+
+#[cfg(feature = "std")]
 pub(crate) fn sin(x: f64) -> f64 {
     x.sin()
 }

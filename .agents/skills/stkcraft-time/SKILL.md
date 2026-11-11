@@ -49,6 +49,20 @@ cargo build --locked --no-default-features --target thumbv7em-none-eabi
 
 ## API orientation
 
+- Prefer `contract::TimeContext::new(&lsk)` for new geometry integration.
+  It returns checked `NaifEt`; only `.seconds()` crosses into legacy f64
+  geometry APIs. Scientific TDB is an explicit `ScientificContext` with a
+  distinct `IauTdb` type and no implicit conversion to NAIF ET.
+- The checked UTC path follows pinned TTRANS/UNITIM arithmetic. Validate it
+  against STR2ET; validate supplied numeric TAI against UNITIM. Those inputs
+  can quantize differently, so do not compare every representation against
+  one UTC-string oracle or mix conversion routes inside a geometry query.
+- Scientific TT is TT(TAI), always TAI + 32.184 seconds independent of LSK
+  constants. It is not TT(BIPM). Checked scientific TDB uses the 1950-2050
+  comparison interval and rejects invalid inputs. Observer-dependent terms
+  require supplied UT1 fraction, east longitude radians and u/v kilometres.
+  Never substitute UTC for UT1 or invent missing observer/EOP data.
+
 - Load an LSK with `LeapSecondTable::from_lsk(text)` in production.
   All `DELTET` constants must be supplied; missing constants return
   `LskMissing` rather than silently using compiled-in defaults.
