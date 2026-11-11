@@ -4,6 +4,14 @@ All notable changes to `stkcraft-time` are documented here.
 
 The format follows Keep a Changelog. This crate uses semantic versioning.
 
+## [0.1.4] - 2026-11-10
+
+### Changed
+
+- `AGENTS.md` and the `stkcraft-time` skill now require the agent to
+  commit, push and tag every update automatically, and to wait for both
+  the main and tag GitHub Actions runs.
+
 ## [0.1.3] - 2026-11-10
 
 ### Changed

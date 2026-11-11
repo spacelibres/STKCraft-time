@@ -51,6 +51,25 @@ RUSTDOCFLAGS="-D warnings" cargo doc --no-deps
 Pushing to `main` must keep the GitHub Actions `CI` workflow green. Fix
 failures before declaring a change complete.
 
+## Automatic release and push
+
+- After every update, complete the release without waiting for a separate
+  instruction to commit or push:
+  1. Increment the patch version and update `Cargo.toml`, `Cargo.lock`
+     and the dated `CHANGELOG.md` section.
+  2. Run the verification commands above.
+  3. Commit with the subject `Release X.Y.Z`.
+  4. Push the commit to `main`.
+  5. Wait for the GitHub Actions `CI` workflow to pass. If it fails, fix
+     the failure and push again.
+  6. Create and push the annotated tag `vX.Y.Z`, then wait for the tag
+     CI run to pass.
+- Do not leave the working tree with uncommitted changes when the task is
+  complete.
+- Skip only when the user explicitly says not to commit, not to push, or
+  not to tag. If credentials or network access block the push, report the
+  blocker and the exact commands needed.
+
 ## Commit messages
 
 - Imperative subject line, 50 characters or fewer.

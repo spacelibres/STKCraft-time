@@ -20,8 +20,12 @@ Chinese-localized UI labels.
    change and its user-visible impact, not just repeat the commit subject.
 3. Update `Cargo.lock` to the same version.
 4. Run the verification commands below and require success.
-5. Commit, push to `main`, and require the GitHub Actions `CI` workflow to
-   pass. Tag the release as `vX.Y.Z` after the release commit.
+5. Commit with `Release X.Y.Z`, push to `main`, wait for the `CI`
+   workflow to pass, then create and push the `vX.Y.Z` tag and wait for
+   the tag CI run to pass. Do this automatically; do not wait for a
+   separate commit or push request.
+6. Leave no uncommitted changes when the task is complete. Skip the
+   commit/push/tag steps only when the user explicitly asks you to.
 
 ## Verification
 
