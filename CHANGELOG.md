@@ -4,6 +4,19 @@ All notable changes to `stkcraft-time` are documented here.
 
 The format follows Keep a Changelog. This crate uses semantic versioning.
 
+## [0.1.11] - 2026-11-11
+
+### Fixed
+
+- The 0.1.10 release notes stated the wrong test totals. The suite runs
+  104 tests by default and 116 with the `mcp` feature.
+
+### Changed
+
+- The `stkcraft-time` agent skill documents the leap-second aware
+  formatting entry points and the per-partition SCLK validation, so
+  agents do not fall back to the day-length assumption.
+
 ## [0.1.10] - 2026-11-11
 
 ### Added

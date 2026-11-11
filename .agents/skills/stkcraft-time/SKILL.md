@@ -75,6 +75,14 @@ cargo build --locked --no-default-features --target thumbv7em-none-eabi
 - SCLK support is type 1 only. Partitions are parsed but not applied;
   field/string conversion returns `SclkPartitionsUnsupported` for
   partitioned clocks, while encoded ticks↔ET/TAI remain available.
+  Partition bounds are validated per partition only, so a clock reset
+  that starts lower than the previous partition ended still loads.
+- Formatting: `format::iso8601(&utc, precision)` assumes a
+  86 400-second day. When a carry could reach a leap second or a calendar
+  day boundary, use
+  `format::iso8601_with(&utc, &FormatOptions::new(p).with_leap_seconds(&lsk).with_calendar(cal))`;
+  `rfc3339_with`, `spice_calendar_with`, `strftime_with` and
+  `Formatter::with_options` take the same options.
 - `SCLK01_OFFSETS` is the first displayed value: encode as
   `field - offset`, decode as `encoded + offset`.
 - UT1 interpolation is performed on continuous `UT1 - TAI`, so missing
