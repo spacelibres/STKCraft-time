@@ -4,7 +4,7 @@ use crate::calendar::{self, Calendar, GPS_EPOCH_JDN, J2000_JDN};
 use crate::eop::EopTable;
 use crate::epoch::{Epoch, UtcDateTime};
 use crate::error::TimeError;
-use crate::leap::{sofa_delta_at, LeapSecondSource, LeapSecondTable, JDN_1960, JDN_1972};
+use crate::leap::{LeapSecondSource, LeapSecondTable, JDN_1960, JDN_1972};
 use crate::math;
 
 /// `TAI - UTC` at the GPS epoch (`1980-01-06T00:00:00 UTC`).
@@ -53,10 +53,31 @@ pub fn utc_to_tai(
 
     let jdn = calendar::calendar_to_jdn(dt.year, dt.month, dt.day, calendar)?;
 
-    if dt.second >= 60.0 {
-        if jdn < JDN_1972 {
+    if jdn < JDN_1972 {
+        let (dat0, drift, jump) = historical_utc_day(jdn, lsk).ok_or(TimeError::UtcOutOfRange)?;
+        let limit = if dt.hour == 23 && dt.minute == 59 {
+            60.0 + jump
+        } else {
+            60.0
+        };
+        if dt.second >= limit {
             return Err(TimeError::InvalidLeapSecond);
         }
+        let whole = math::floor(dt.second);
+        let seconds_of_day = dt.hour as i64 * 3_600 + dt.minute as i64 * 60 + whole as i64;
+        // Apply the SOFA day rate to UTC seconds, including mini-leap labels.
+        // Keep the absolute epoch integral: f64 cannot resolve nanoseconds there.
+        let correction = dat0
+            + seconds_of_day as f64 * (drift / 86_400.0)
+            + (dt.second - whole) * (1.0 + drift / 86_400.0);
+        let correction_whole = math::floor(correction);
+        return Ok(Epoch::from_parts(
+            (jdn - J2000_JDN) * 86_400 + seconds_of_day + correction_whole as i64,
+            math::round((correction - correction_whole) * 1e9) as i64,
+        ));
+    }
+
+    if dt.second >= 60.0 {
         if dt.hour != 23 || dt.minute != 59 {
             return Err(TimeError::InvalidLeapSecond);
         }
@@ -86,23 +107,9 @@ pub fn utc_to_tai(
     let time_of_day = dt.hour as i64 * 3_600 + dt.minute as i64 * 60 + whole_seconds as i64;
     let nominal = (jdn - J2000_JDN) * 86_400 + time_of_day;
 
-    if jdn >= JDN_1972 {
-        let delta_at = lsk.delta_at_for_jdn(jdn).ok_or(TimeError::UtcOutOfRange)?;
-        let tai_sec = nominal + delta_at as i64;
-        let nanos = math::round((dt.second - whole_seconds) * 1_000_000_000.0) as i64;
-        return Ok(Epoch::from_parts(tai_sec, nanos));
-    }
-
-    let day_fraction = (time_of_day as f64 + (dt.second - whole_seconds)) / 86_400.0;
-    let delta_at = lsk
-        .delta_at_f64(jdn, day_fraction)
-        .ok_or(TimeError::UtcOutOfRange)?;
-    let delta_whole = math::floor(delta_at);
-    let delta_fraction = delta_at - delta_whole;
-    let tai_sec = nominal + delta_whole as i64;
-    let nanos =
-        math::round(((dt.second - whole_seconds) + delta_fraction) * 1_000_000_000.0) as i64;
-
+    let delta_at = lsk.delta_at_for_jdn(jdn).ok_or(TimeError::UtcOutOfRange)?;
+    let tai_sec = nominal + delta_at as i64;
+    let nanos = math::round((dt.second - whole_seconds) * 1_000_000_000.0) as i64;
     Ok(Epoch::from_parts(tai_sec, nanos))
 }
 
@@ -162,6 +169,24 @@ pub fn tai_to_utc(
     })
 }
 
+/// SOFA DAT at midnight, the daily drift, and the separate end-of-day jump.
+pub(crate) fn historical_utc_day(jdn: i64, lsk: &LeapSecondTable) -> Option<(f64, f64, f64)> {
+    if lsk.source() != LeapSecondSource::Sofa || !(JDN_1960..JDN_1972).contains(&jdn) {
+        return None;
+    }
+    let dat0 = lsk.delta_at_f64(jdn, 0.0)?;
+    let dat12 = lsk.delta_at_f64(jdn, 0.5)?;
+    let dat24 = lsk.delta_at_f64(jdn + 1, 0.0)?;
+    let drift = 2.0 * (dat12 - dat0);
+    let jump = dat24 - (dat0 + drift);
+    // DAT subtraction can leave sub-picosecond noise on ordinary days.
+    Some((
+        dat0,
+        drift,
+        if math::abs(jump) < 1e-12 { 0.0 } else { jump },
+    ))
+}
+
 fn tai_to_utc_pre_1972(
     epoch: Epoch,
     calendar: Calendar,
@@ -171,35 +196,46 @@ fn tai_to_utc_pre_1972(
         return Err(TimeError::UtcOutOfRange);
     }
 
-    let tai_value = epoch.tai_seconds();
-    let mut utc_nominal = tai_value;
-
-    for _ in 0..4 {
-        let mjd = 51_544.0 + utc_nominal / 86_400.0;
-        let delta = sofa_delta_at(mjd).ok_or(TimeError::UtcOutOfRange)?;
-        let next = tai_value - delta;
-        if math::abs(next - utc_nominal) < 1e-9 {
-            utc_nominal = next;
-            break;
-        }
-        utc_nominal = next;
-    }
-
-    let start_1960 = (JDN_1960 - J2000_JDN) as f64 * 86_400.0;
-    if utc_nominal < start_1960 {
+    // A nearby integral day estimate avoids cancellation of absolute f64 epochs.
+    let mut jdn = epoch.sec().div_euclid(86_400) + J2000_JDN;
+    if jdn < JDN_1960 {
         return Err(TimeError::UtcOutOfRange);
     }
-
-    let days = math::div_euclid(utc_nominal, 86_400.0);
-    let time_of_day = math::rem_euclid(utc_nominal, 86_400.0);
-    let jdn = days as i64 + J2000_JDN;
+    let day_start = |day: i64| -> Option<Epoch> {
+        let dat = lsk.delta_at_f64(day, 0.0)?;
+        let whole = math::floor(dat);
+        Some(Epoch::from_parts(
+            (day - J2000_JDN) * 86_400 + whole as i64,
+            math::round((dat - whole) * 1e9) as i64,
+        ))
+    };
+    if epoch < day_start(jdn).ok_or(TimeError::UtcOutOfRange)? {
+        jdn -= 1;
+    } else if epoch >= day_start(jdn + 1).ok_or(TimeError::UtcOutOfRange)? {
+        jdn += 1;
+    }
+    let (dat0, drift, jump) = historical_utc_day(jdn, lsk).ok_or(TimeError::UtcOutOfRange)?;
+    let elapsed =
+        (epoch.sec() - (jdn - J2000_JDN) * 86_400) as f64 + epoch.nanos() as f64 * 1e-9 - dat0;
+    let seconds = math::round((elapsed / (1.0 + drift / 86_400.0)).max(0.0) * 1e9) / 1e9;
+    let (hour, minute, second) = if seconds >= 86_400.0 {
+        // An extended final minute belongs to the preceding civil date.
+        (23, 59, 60.0 + (seconds - 86_400.0))
+    } else {
+        let whole = math::floor(seconds) as i64;
+        (
+            (whole / 3_600) as u8,
+            ((whole % 3_600) / 60) as u8,
+            (whole % 60) as f64 + seconds - whole as f64,
+        )
+    };
+    // SOFA's drift scaling also scales a mini-leap. At a negative jump this
+    // leaves a gap of a few nanoseconds before the next actual midnight.
+    // Do not return a civil label removed by that negative jump.
+    if hour == 23 && minute == 59 && second >= 60.0 + jump {
+        return Err(TimeError::UtcOutOfRange);
+    }
     let (year, month, day) = calendar::jdn_to_calendar(jdn, calendar);
-
-    let hour = math::floor(time_of_day / 3_600.0) as u8;
-    let rest = time_of_day - hour as f64 * 3_600.0;
-    let minute = math::floor(rest / 60.0) as u8;
-    let second = rest - minute as f64 * 60.0;
-
     Ok(UtcDateTime {
         year,
         month,

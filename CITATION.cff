@@ -2,7 +2,7 @@ cff-version: 1.2.0
 message: "If you use this software, cite it using the metadata below."
 title: "stkcraft-time: NAIF/SPICE-aligned astronomical time scales in Rust"
 abstract: >-
-  A clean-room Rust implementation of the NAIF/SPICE time-scale model.
+  A Rust implementation of the NAIF/SPICE time-scale model.
   It converts UTC, TAI, TT, TDB/ET, GPS, UT1, TCG and TCB, reads
   leap-second (LSK), spacecraft clock (SCLK) and IERS EOP data, supports
   no_std with alloc, and includes an optional stdio MCP server.
@@ -13,7 +13,7 @@ type: software
 license: MIT
 repository-code: "https://github.com/spacelibres/STKCraft-time"
 url: "https://www.stkcraft.com"
-version: "0.1.15"
+version: "0.1.16"
 date-released: "2026-11-11"
 keywords:
   - rust

@@ -1,6 +1,6 @@
 # `stkcraft-time` API guide
 
-This guide shows how to call the public API of `stkcraft-time` 0.1.15. It
+This guide shows how to call the public API of `stkcraft-time` 0.1.16. It
 is task-oriented: each section answers "which function do I call, and what
 data do I need to load first?" For item-level reference documentation,
 run:
@@ -34,13 +34,13 @@ I/O and does not bundle mission data. The caller supplies the data files
 
 ```toml
 [dependencies]
-stkcraft-time = "0.1.15"
+stkcraft-time = "0.1.16"
 
 # no_std + alloc:
-# stkcraft-time = { version = "0.1.15", default-features = false }
+# stkcraft-time = { version = "0.1.16", default-features = false }
 
 # or pin the repository:
-# stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.15" }
+# stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.16" }
 ```
 
 The internal epoch representation is integer seconds plus nanoseconds;
@@ -104,7 +104,9 @@ fn load_lsk(path: &str) -> Result<LeapSecondTable, TimeError> {
   Its last entry is `2017-01-01`, so it is a convenience snapshot, not a
   privileged source of truth.
 - `LeapSecondTable::from_lsk(text)` parses the `DELTET/*` variables of any
-  `KPL/LSK` kernel. This is the production entry point.
+  complete `KPL/LSK` kernel. This is the production entry point. Missing
+  `DELTA_T_A`, `K`, `EB`, `M` or `DELTA_AT` returns `LskMissing`; no nominal
+  constant is silently substituted for the caller's data.
 - `stkcraft_time::lsk::parse_lsk(text)` is the module-level function behind
   `from_lsk`; both are public.
 
@@ -259,15 +261,26 @@ no leap-second table. Conversions that involve UTC still need the LSK.
 | API | Model | Use when |
 |---|---|---|
 | `convert::tai_to_et` / `et_to_tai` | NAIF one-term `K*sin(E)` | You need NAIF/SPICE/CSPICE compatibility. |
-| `tdb::tai_to_tdb` / `tdb_to_tai` | ESA Navipedia two-term | You want the higher-fidelity dynamical model. |
+| `tdb::tai_to_tdb` / `tdb_to_tai` | NASA HEASARC compact two-term | You need this approximate relation; not a guaranteed improvement over NAIF. |
 | `dtdb::tai_to_tdb_iau` / `tdb_iau_to_tai` | IAU Fairhead–Bretagnon 787-term | You need IAU/SOFA `dtdb` compatibility. |
 
 The models are not interchangeable. `ET` is an `f64` by definition.
+The compact model follows [NASA HEASARC](https://heasarc.gsfc.nasa.gov/docs/xte/abc/time_tutorial.html);
+its maximum residual against geocentric ERFA on a daily 1950-2050 grid
+is about 36.5 us. The IAU model is geocentric; observer-dependent
+topocentric terms and spacecraft proper-time transformations are not
+implemented. Nanosecond model accuracy does not imply nanosecond
+resolution for an absolute `f64` seconds value.
 
 ## 7. UT1 and IERS Earth Orientation Parameters
 
 UT1 cannot be derived from the LSK. It needs an IERS `finals2000A.all`
-table that measures `UT1 - UTC`.
+table that measures `UT1 - UTC`. This API interpolates daily EOP values.
+It omits the subdaily ocean-tide and libration terms required by
+[IERS Conventions section 5.5.3.1](https://iers-conventions.obspm.fr/content/chapter5/icc5.pdf)
+for high-accuracy instantaneous Earth orientation, and does not propagate
+measurement/prediction uncertainties. `observed_only()` filters predictions,
+not measurement error.
 
 ### 7.1 Parsing an EOP file
 
@@ -401,15 +414,19 @@ let ticks_from_tai = sclk.tai_to_ticks(tai, &lsk)?;
   ticks. `fields_from_ticks` rejects a value more than 1e-6 from an
   integer; callers that only need ET/TAI should use the tick conversion
   functions directly.
-- Partition boundaries are parsed and exposed through `partitions()` but
-  are not applied. When the kernel has more than one partition or a
-  nonzero partition start, field and string conversion returns
+- Partition boundaries are exposed through `partitions()` and their
+  cumulative duration bounds encoded tick/time conversion. When the kernel
+  has more than one partition or a nonzero partition start, field and
+  string conversion returns
   `TimeError::SclkPartitionsUnsupported`; encoded ticks↔ET/TAI remain
-  available for callers that apply partitions themselves.
+  available within the encoded domain. Each partition endpoint is rounded
+  to integral ticks before its duration is accumulated. Inputs before the
+  first coefficient or beyond the domain are rejected. A standalone map
+  with no partition metadata has no declared upper bound.
 - Only the bounds inside a partition are validated (`start <= end`, both
-  finite). Cross-partition ordering is not required: NAIF lets a clock
-  jump ahead or regress, which is exactly why a new partition starts, and
-  the bounds are not used by any conversion here.
+  finite); the cumulative duration must also be finite. Cross-partition
+  ordering is not required: NAIF lets a clock jump ahead or regress,
+  which is exactly why a new partition starts.
 
 `DELTET/DELTA_AT` follows NAIF assignment rules: `=` replaces the
 accumulated table and `+=` extends it, so a kernel that restates the

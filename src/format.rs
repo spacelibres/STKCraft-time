@@ -16,8 +16,6 @@ use crate::math;
 /// resolution, and larger values only allocate memory without adding data.
 const MAX_PRECISION: usize = 9;
 
-const SECONDS_PER_DAY: f64 = 86_400.0;
-
 /// Options for calendar formatting.
 ///
 /// The leap-second table decides how long the day is when rounding
@@ -463,14 +461,8 @@ fn second_limit(dt: &UtcDateTime, options: &FormatOptions<'_>) -> f64 {
         return 60.0;
     }
 
-    if let Some(day_length) = day_length(dt, options) {
-        if day_length >= SECONDS_PER_DAY + 1.0 {
-            return 61.0;
-        }
-        if day_length <= SECONDS_PER_DAY - 1.0 {
-            return 59.0;
-        }
-        return 60.0;
+    if let Some(limit) = final_minute_length(dt, options) {
+        return limit;
     }
 
     // Without a table, a value that already has `second >= 60` can only be
@@ -482,12 +474,16 @@ fn second_limit(dt: &UtcDateTime, options: &FormatOptions<'_>) -> f64 {
     }
 }
 
-fn day_length(dt: &UtcDateTime, options: &FormatOptions<'_>) -> Option<f64> {
+fn final_minute_length(dt: &UtcDateTime, options: &FormatOptions<'_>) -> Option<f64> {
     let lsk = options.leap_seconds?;
     let jdn = calendar::calendar_to_jdn(dt.year, dt.month, dt.day, options.calendar).ok()?;
+    if let Some((_, _, jump)) = crate::convert::historical_utc_day(jdn, lsk) {
+        // Preserve the fractional mini-leap cutoff without a full-day cancellation.
+        return Some(60.0 + jump);
+    }
     let before = lsk.delta_at_for_jdn(jdn)? as f64;
     let after = lsk.delta_at_for_jdn(jdn + 1)? as f64;
-    Some(SECONDS_PER_DAY + (after - before))
+    Some(60.0 + (after - before))
 }
 
 fn increment_minute(dt: &mut UtcDateTime, calendar: Calendar) {

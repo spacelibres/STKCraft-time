@@ -49,7 +49,7 @@ jobs:
           cp target/release/ut1-check dist/
           cp target/release/tdb-compare dist/
           cp target/release/wgc-compare dist/
-          cp README.md LICENSE CHANGELOG.md dist/
+          cp README.md LICENSE ATTRIBUTION.md CHANGELOG.md dist/
           tar -czf "stkcraft-time-${GITHUB_REF_NAME}-${{ matrix.platform }}.tar.gz" -C dist .
       - name: Package macOS arm64
         if: runner.os == 'macOS'
@@ -61,7 +61,7 @@ jobs:
           cp target/aarch64-apple-darwin/release/ut1-check dist-arm64/
           cp target/aarch64-apple-darwin/release/tdb-compare dist-arm64/
           cp target/aarch64-apple-darwin/release/wgc-compare dist-arm64/
-          cp README.md LICENSE CHANGELOG.md dist-arm64/
+          cp README.md LICENSE ATTRIBUTION.md CHANGELOG.md dist-arm64/
           tar -czf "stkcraft-time-${GITHUB_REF_NAME}-macos-aarch64.tar.gz" -C dist-arm64 .
       - name: Package (Windows)
         if: runner.os == 'Windows'
@@ -73,7 +73,7 @@ jobs:
           Copy-Item target/release/ut1-check.exe dist/
           Copy-Item target/release/tdb-compare.exe dist/
           Copy-Item target/release/wgc-compare.exe dist/
-          Copy-Item README.md,LICENSE,CHANGELOG.md dist/
+          Copy-Item README.md,LICENSE,ATTRIBUTION.md,CHANGELOG.md dist/
           Compress-Archive -Path dist/* -DestinationPath "stkcraft-time-$env:GITHUB_REF_NAME-${{ matrix.platform }}.zip"
       - name: Upload artifact
         uses: actions/upload-artifact@v4

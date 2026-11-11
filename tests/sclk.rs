@@ -153,7 +153,7 @@ fn partition_aware_strings_are_rejected_but_ticks_still_work() {
     );
 
     // Encoded ticks remain usable even when partition-aware strings are not.
-    assert!(kernel.ticks_to_et(12_345.0, &lsk).is_ok());
+    assert!(kernel.ticks_to_et(45.0, &lsk).is_ok());
 }
 
 #[test]
@@ -172,7 +172,7 @@ fn clock_reset_partitions_are_accepted() {
 
     // The kernel still loads, so encoded ticks remain usable even though
     // field and string conversion stays unavailable for partitions.
-    assert!(kernel.ticks_to_et(12_345.0, &lsk).is_ok());
+    assert!(kernel.ticks_to_et(45.0, &lsk).is_ok());
     assert_eq!(
         kernel.format_string(&[123, 45]),
         Err(stkcraft_time::TimeError::SclkPartitionsUnsupported)
@@ -208,4 +208,58 @@ fn non_finite_numeric_inputs_are_rejected() {
     assert!(kernel.ticks_from_parallel(f64::NAN).is_err());
     assert!(kernel.fields_from_ticks(f64::NAN).is_err());
     assert!(kernel.fields_from_ticks(0.5).is_err());
+}
+
+#[test]
+fn encoded_domain_uses_cumulative_partition_lengths() {
+    // Synthetic arithmetic fixture: two partitions, with a clock reset.
+    // NAIF encoded ticks span sum(round(end) - round(start)) = 1900.
+    let text = SYNTH.replace(
+        "\\begintext",
+        "SCLK_PARTITION_START_999 = ( 100 0 )\nSCLK_PARTITION_END_999 = ( 1000 1000 )\n\\begintext",
+    );
+    let kernel = SclkKernel::parse(&text, -999).unwrap();
+    let lsk = LeapSecondTable::builtin().unwrap();
+    assert!(kernel.ticks_to_et(-1.0, &lsk).is_err());
+    assert_eq!(kernel.ticks_to_et(0.0, &lsk).unwrap(), 0.0);
+    assert_eq!(kernel.ticks_to_et(1900.0, &lsk).unwrap(), 19.0);
+    assert!(kernel.ticks_to_et(1900.001, &lsk).is_err());
+    assert!(kernel.et_to_ticks(-0.01, &lsk).is_err());
+    assert_eq!(kernel.et_to_ticks(19.0, &lsk).unwrap(), 1900.0);
+    assert!(kernel.et_to_ticks(19.01, &lsk).is_err());
+}
+
+#[test]
+fn last_coefficient_is_not_the_end_of_partition_coverage() {
+    let text = SYNTH.replace(
+        "\\begintext",
+        "SCLK_PARTITION_START_999 = ( 0 )\nSCLK_PARTITION_END_999 = ( 200000 )\n\\begintext",
+    );
+    let kernel = SclkKernel::parse(&text, -999).unwrap();
+    // The last segment starts at 100000, but remains valid to 200000.
+    assert_eq!(kernel.parallel_seconds(200000.0).unwrap(), 2000.0);
+    assert!(kernel.parallel_seconds(200000.001).is_err());
+    assert_eq!(kernel.ticks_from_parallel(2000.0).unwrap(), 200000.0);
+    assert!(kernel.ticks_from_parallel(2000.001).is_err());
+}
+
+#[test]
+fn partition_readouts_are_rounded_before_accumulation() {
+    let text = SYNTH.replace("\\begintext",
+        "SCLK_PARTITION_START_999 = ( 100.1 0.1 )\nSCLK_PARTITION_END_999 = ( 1000.1 1000.1 )\n\\begintext");
+    let kernel = SclkKernel::parse(&text, -999).unwrap();
+    assert_eq!(kernel.parallel_seconds(1900.0).unwrap(), 19.0);
+    assert!(kernel.parallel_seconds(1900.01).is_err());
+}
+
+#[test]
+fn queries_before_first_coefficient_are_rejected() {
+    let text = SYNTH.replace(
+        "0.0000000000000E+00     0.0000000000000E+00",
+        "1.0000000000000E+02     0.0000000000000E+00",
+    );
+    let kernel = SclkKernel::parse(&text, -999).unwrap();
+    assert!(kernel.parallel_seconds(99.0).is_err());
+    assert!(kernel.ticks_from_parallel(-0.01).is_err());
+    assert_eq!(kernel.parallel_seconds(100.0).unwrap(), 0.0);
 }

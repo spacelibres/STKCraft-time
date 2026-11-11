@@ -306,3 +306,28 @@ fn unknown_methods_return_json_rpc_errors() {
 
     assert_eq!(response["error"]["code"], -32601);
 }
+
+#[test]
+fn incomplete_lsk_is_a_tool_error() {
+    let path = std::env::temp_dir().join(format!("stkcraft-missing-k-{}.tls", std::process::id()));
+    let text = include_str!("../src/naif0012.tls")
+        .lines()
+        .filter(|line| !line.trim_start().starts_with("DELTET/K "))
+        .collect::<Vec<_>>()
+        .join("\n");
+    std::fs::write(&path, text).unwrap();
+    let response = request(json!({
+        "jsonrpc": "2.0", "id": 11, "method": "tools/call",
+        "params": { "name": "utc_to_et", "arguments": {
+            "lsk_path": path.to_str().unwrap(),
+            "year": 2000, "month": 1, "day": 1,
+            "hour": 12, "minute": 0, "second": 0.0
+        }}
+    }));
+    std::fs::remove_file(path).unwrap();
+    assert_eq!(response["result"]["isError"], true);
+    assert!(response["result"]["content"][0]["text"]
+        .as_str()
+        .unwrap()
+        .contains("DELTET/K"));
+}

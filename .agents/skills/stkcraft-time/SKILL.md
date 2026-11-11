@@ -50,6 +50,8 @@ cargo build --locked --no-default-features --target thumbv7em-none-eabi
 ## API orientation
 
 - Load an LSK with `LeapSecondTable::from_lsk(text)` in production.
+  All `DELTET` constants must be supplied; missing constants return
+  `LskMissing` rather than silently using compiled-in defaults.
   `LeapSecondTable::builtin()` is a snapshot of `naif0012.tls` and stops at
   the `2017-01-01` leap second.
 - Every conversion is a pure function of the supplied kernel.
@@ -72,11 +74,13 @@ cargo build --locked --no-default-features --target thumbv7em-none-eabi
   `ticks_to_et`, `et_to_ticks`, `ticks_to_tai`, `tai_to_ticks`,
   `parse_string`, `format_string`, `ticks_from_fields`,
   `fields_from_ticks`.
-- SCLK support is type 1 only. Partitions are parsed but not applied;
+- SCLK support is type 1 only. Partition durations bound encoded ticks;
   field/string conversion returns `SclkPartitionsUnsupported` for
   partitioned clocks, while encoded ticks↔ET/TAI remain available.
-  Partition bounds are validated per partition only, so a clock reset
-  that starts lower than the previous partition ended still loads.
+  Partition readouts are rounded to integral ticks before accumulating
+  `end - start`; clock resets are allowed. Reject ticks before the first
+  coefficient or beyond that cumulative domain. A standalone map without
+  partition metadata has no declared upper bound.
 - Formatting: `format::iso8601(&utc, precision)` assumes a
   86 400-second day. When a carry could reach a leap second or a calendar
   day boundary, use
@@ -94,12 +98,20 @@ cargo build --locked --no-default-features --target thumbv7em-none-eabi
   `checked_from_tai_seconds`, `checked_add`/`checked_sub`, or the
   `Duration::checked_*` methods. The infallible constructors panic rather
   than wrapping or returning a fake zero.
-- `23:59:60.x` is legal only on a positive-leap-second (86401-second) day.
+- From 1972, `23:59:60.x` is legal only on a positive-leap-second day.
+  In SOFA historical mode, the final minute can instead include a positive
+  mini-leap or lose a fractional second; validate against that day's jump.
 - `23:59:59.x` does not exist on a shortened (86399-second) day and must
   return `InvalidLeapSecond`, not alias the next day's `00:00:00`.
 - Pre-1972 UTC requires `LeapSecondSource::Sofa`; the default
   `IersOnly` source returns `UtcOutOfRange`.
+- Historical inverse conversion keeps split integer epoch arithmetic and
+  actual midnight ownership. SOFA drift/mini-leap scaling has few-nanosecond
+  overlaps/gaps; unrepresentable negative-gap epochs return `UtcOutOfRange`.
 - EOP samples with `NaN` or infinity must return `EopParse`, never panic.
+- UT1 is daily EOP interpolation, without subdaily ocean-tide/libration
+  corrections or propagated measurement/prediction uncertainty. Do not
+  advertise it as a complete instantaneous Earth-orientation model.
 - `EopTable` stores `UT1 - UTC`; UT1 conversion needs bracketing EOP
   samples and does not support the last sample day as an epoch boundary.
 

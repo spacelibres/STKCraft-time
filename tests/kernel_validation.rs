@@ -7,6 +7,20 @@ use stkcraft_time::lsk::parse_lsk;
 use stkcraft_time::sclk::SclkKernel;
 use stkcraft_time::TimeError;
 
+#[test]
+fn incomplete_official_lsk_never_acquires_default_constants() {
+    let official = include_str!("../src/naif0012.tls");
+    for name in ["DELTET/DELTA_T_A", "DELTET/K", "DELTET/EB", "DELTET/M"] {
+        // Fault injection into an actual kernel, not a substitute reference.
+        let text = official
+            .lines()
+            .filter(|line| !line.trim_start().starts_with(&format!("{name} ")))
+            .collect::<Vec<_>>()
+            .join("\n");
+        assert_eq!(parse_lsk(&text).unwrap_err(), TimeError::LskMissing(name));
+    }
+}
+
 const BAD_NAN: &str = r#"
 KPL/LSK
 
@@ -51,10 +65,18 @@ fn lsk_reads_all_data_blocks() {
 KPL/LSK
 
 \begindata
+DELTET/DELTA_T_A = 32.184
+DELTET/K = 0.001657
+DELTET/EB = 0.01671
+DELTET/M = ( 6.239996 1.99096871e-7 )
 DELTET/K = 0.001657
 \begintext
 
 \begindata
+DELTET/DELTA_T_A = 32.184
+DELTET/K = 0.001657
+DELTET/EB = 0.01671
+DELTET/M = ( 6.239996 1.99096871e-7 )
 DELTET/DELTA_AT = ( 10 @1972-JAN-01, 37 @2017-JAN-01 )
 \begintext
 "#;
@@ -82,10 +104,18 @@ const LSK_REASSIGNED: &str = r#"
 KPL/LSK
 
 \begindata
+DELTET/DELTA_T_A = 32.184
+DELTET/K = 0.001657
+DELTET/EB = 0.01671
+DELTET/M = ( 6.239996 1.99096871e-7 )
 DELTET/DELTA_AT = ( 10 @1972-JAN-01, 11 @1972-JUL-01 )
 \begintext
 
 \begindata
+DELTET/DELTA_T_A = 32.184
+DELTET/K = 0.001657
+DELTET/EB = 0.01671
+DELTET/M = ( 6.239996 1.99096871e-7 )
 DELTET/DELTA_AT = ( 10 @1972-JAN-01, 11 @1972-JUL-01, 12 @1973-JAN-01 )
 \begintext
 "#;
@@ -95,6 +125,10 @@ const LSK_EXTENDED: &str = r#"
 KPL/LSK
 
 \begindata
+DELTET/DELTA_T_A = 32.184
+DELTET/K = 0.001657
+DELTET/EB = 0.01671
+DELTET/M = ( 6.239996 1.99096871e-7 )
 DELTET/DELTA_AT = ( 10 @1972-JAN-01 )
 \begintext
 

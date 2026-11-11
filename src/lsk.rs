@@ -9,18 +9,20 @@ use alloc::vec::Vec;
 
 use crate::calendar;
 use crate::error::TimeError;
-use crate::leap::{self, LeapEntry, LeapSecondTable};
+use crate::leap::{LeapEntry, LeapSecondTable};
 
 /// Parses a `KPL/LSK` leap-second kernel.
+///
+/// Requires `DELTET/DELTA_T_A`, `K`, `EB`, `M` and `DELTA_AT` explicitly.
+/// Missing constants are rejected rather than replaced by nominal values.
 pub fn parse_lsk(text: &str) -> Result<LeapSecondTable, TimeError> {
     let data = extract_data(text)?;
     let tokens = tokenize(&data);
 
-    let mut delta_t_a = leap::DELTA_T_A;
-    let mut k = leap::K;
-    let mut eb = leap::EB;
-    let mut m0 = leap::M0;
-    let mut m1 = leap::M1;
+    let mut delta_t_a = None;
+    let mut k = None;
+    let mut eb = None;
+    let mut m = None;
     let mut entries: Vec<LeapEntry> = Vec::new();
 
     let mut i = 0;
@@ -30,21 +32,21 @@ pub fn parse_lsk(text: &str) -> Result<LeapSecondTable, TimeError> {
                 i += 1;
                 expect(&tokens, i, "=")?;
                 i += 1;
-                delta_t_a = parse_f64(token(&tokens, i)?)?;
+                delta_t_a = Some(parse_f64(token(&tokens, i)?)?);
                 i += 1;
             }
             "DELTET/K" => {
                 i += 1;
                 expect(&tokens, i, "=")?;
                 i += 1;
-                k = parse_f64(token(&tokens, i)?)?;
+                k = Some(parse_f64(token(&tokens, i)?)?);
                 i += 1;
             }
             "DELTET/EB" => {
                 i += 1;
                 expect(&tokens, i, "=")?;
                 i += 1;
-                eb = parse_f64(token(&tokens, i)?)?;
+                eb = Some(parse_f64(token(&tokens, i)?)?);
                 i += 1;
             }
             "DELTET/M" => {
@@ -53,9 +55,10 @@ pub fn parse_lsk(text: &str) -> Result<LeapSecondTable, TimeError> {
                 i += 1;
                 expect(&tokens, i, "(")?;
                 i += 1;
-                m0 = parse_f64(token(&tokens, i)?)?;
+                let m0 = parse_f64(token(&tokens, i)?)?;
                 i += 1;
-                m1 = parse_f64(token(&tokens, i)?)?;
+                let m1 = parse_f64(token(&tokens, i)?)?;
+                m = Some((m0, m1));
                 i += 1;
                 expect(&tokens, i, ")")?;
                 i += 1;
@@ -112,6 +115,10 @@ pub fn parse_lsk(text: &str) -> Result<LeapSecondTable, TimeError> {
         }
     }
 
+    let delta_t_a = delta_t_a.ok_or(TimeError::LskMissing("DELTET/DELTA_T_A"))?;
+    let k = k.ok_or(TimeError::LskMissing("DELTET/K"))?;
+    let eb = eb.ok_or(TimeError::LskMissing("DELTET/EB"))?;
+    let (m0, m1) = m.ok_or(TimeError::LskMissing("DELTET/M"))?;
     Ok(LeapSecondTable::new(entries)?.with_constants(delta_t_a, k, eb, m0, m1))
 }
 
@@ -188,14 +195,7 @@ fn expect(tokens: &[String], i: usize, expected: &str) -> Result<(), TimeError> 
 }
 
 fn parse_f64(tok: &str) -> Result<f64, TimeError> {
-    // NAIF text kernels use Fortran `D` exponents.
-    let normalised = tok.replace('D', "E").replace('d', "e");
-    let value = normalised.parse::<f64>().map_err(|_| TimeError::LskParse)?;
-    if value.is_finite() {
-        Ok(value)
-    } else {
-        Err(TimeError::LskParse)
-    }
+    crate::naif::parse_f64(tok).ok_or(TimeError::LskParse)
 }
 
 fn parse_i32(tok: &str) -> Result<i32, TimeError> {

@@ -14,6 +14,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import math
 import re
 import subprocess
 import sys
@@ -52,9 +53,24 @@ def main() -> int:
 
     text = Path(args.sclk).read_text(encoding="utf-8", errors="replace")
     ticks = coefficient_ticks(text, abs(args.id))
-    first, last = ticks[0], ticks[-1]
+    spice.furnsh(args.lsk)
+    spice.furnsh(args.sclk)
+    pool_ticks = [float(value) for value in spice.gdpool(
+        f"SCLK01_COEFFICIENTS_{abs(args.id)}", 0, 1_000_000)[0::3]]
+    first, last = pool_ticks[0], pool_ticks[-1]
     step = (last - first) / max(args.samples - 1, 1)
     samples = [first + step * index for index in range(args.samples)]
+    starts, ends = spice.scpart(args.id)
+    # NAIF normalizes each partition readout to integral ticks. The
+    # cumulative domain, not the final raw readout, bounds encoded ticks.
+    maximum = sum(math.floor(float(end) + 0.5) - math.floor(float(start) + 0.5)
+                  for start, end in zip(starts, ends))
+    boundaries = [query for value in pool_ticks
+                  for query in [math.nextafter(value, -math.inf), value,
+                                math.nextafter(value, math.inf)]
+                  if first <= query <= maximum]
+    samples = sorted({value for value in samples + ticks + boundaries + [first, float(maximum)]
+                      if first <= value <= maximum})
 
     repo_root = Path(__file__).resolve().parent.parent
     command = [
@@ -86,9 +102,6 @@ def main() -> int:
         tick_text, et_text = line.split(",")
         ours[float(tick_text)] = float(et_text)
 
-    spice.furnsh(args.lsk)
-    spice.furnsh(args.sclk)
-
     worst = 0.0
     worst_ticks = 0.0
     for value in samples:
@@ -99,10 +112,23 @@ def main() -> int:
             worst = difference
             worst_ticks = value
 
+    for invalid in [math.nextafter(first, -math.inf),
+                    math.nextafter(float(maximum), math.inf)]:
+        try:
+            spice.sct2e(args.id, invalid)
+        except spice.utils.exceptions.SpiceVALUEOUTOFRANGE:
+            pass
+        else:
+            raise AssertionError(f"CSPICE unexpectedly accepted out-of-domain tick {invalid!r}")
+        rejected = subprocess.run(command, cwd=repo_root, input=f"{invalid!r}\n",
+                                  text=True, capture_output=True)
+        if rejected.returncode != 1 or "conversion error" not in rejected.stderr:
+            raise AssertionError(f"crate did not reject out-of-domain tick {invalid!r}")
     spice.kclear()
 
-    print(f"samples: {len(samples)}, ticks {first:.0f} .. {last:.0f}")
+    print(f"samples: {len(samples)}, ticks {first:.0f} .. {maximum:.0f}")
     print(f"max |crate - CSPICE sct2e| = {worst:.3e} s at ticks {worst_ticks:.0f}")
+    print(f"encoded domain endpoints and out-of-domain rejection checked: {first} .. {maximum}")
     if worst > args.tolerance:
         print("FAIL", file=sys.stderr)
         return 1

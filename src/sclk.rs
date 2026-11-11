@@ -29,10 +29,11 @@
 //!
 //! # Scope
 //!
-//! Partition boundaries are parsed but not applied. Encoded-tick to time
-//! conversion does not need them; partition-aware reformatting of clock
-//! strings does. Within a single partition the field/tick mapping above
-//! is exact.
+//! Encoded-tick/time conversions enforce the cumulative duration of the
+//! declared partitions, with each readout rounded to integral ticks as in
+//! NAIF. Partition-aware field/string conversion is not implemented.
+//! A standalone map without partition metadata has no declared upper
+//! bound. Inputs before the first coefficient are always rejected.
 //!
 //! Only clock type 1 is supported. No SCLK kernel is bundled; load the
 //! mission kernel you need at deployment time.
@@ -82,6 +83,7 @@ pub struct SclkKernel {
     delimiter: char,
     partition_start: Vec<f64>,
     partition_end: Vec<f64>,
+    max_encoded_ticks: Option<f64>,
 }
 
 impl SclkKernel {
@@ -178,15 +180,28 @@ impl SclkKernel {
         }
         // Only per-partition consistency is required. NAIF lets a clock
         // readout jump ahead or regress, which is exactly why partitions
-        // exist, so a later partition may start at a lower encoded count
-        // than the previous one ended. Partition bounds are not used by any
-        // conversion here, so rejecting such a kernel would only make it
-        // impossible to load.
+        // exist, so a later partition may start at a lower readout than
+        // the previous one ended. The encoded domain uses their durations.
         for (start, end) in partition_start.iter().zip(partition_end.iter()) {
             if !start.is_finite() || !end.is_finite() || start > end {
                 return Err(TimeError::SclkParse);
             }
         }
+        // NAIF rounds partition readouts to integral ticks before summing
+        // their durations. Resets do not change the encoded origin (zero).
+        let max_encoded_ticks = if partition_start.is_empty() {
+            None
+        } else {
+            let total: f64 = partition_start
+                .iter()
+                .zip(&partition_end)
+                .map(|(&start, &end)| math::round(end) - math::round(start))
+                .sum();
+            if !total.is_finite() || total < 0.0 {
+                return Err(TimeError::SclkParse);
+            }
+            Some(total)
+        };
 
         Ok(Self {
             spacecraft_id,
@@ -199,6 +214,7 @@ impl SclkKernel {
             delimiter,
             partition_start,
             partition_end,
+            max_encoded_ticks,
         })
     }
 
@@ -237,7 +253,7 @@ impl SclkKernel {
         &self.coefficients
     }
 
-    /// Parsed partition boundaries (not applied by this version).
+    /// Partition readouts used to bound the cumulative encoded domain.
     pub fn partitions(&self) -> (&[f64], &[f64]) {
         (&self.partition_start, &self.partition_end)
     }
@@ -328,7 +344,10 @@ impl SclkKernel {
         if segment.rate == 0.0 {
             return Err(TimeError::SclkParse);
         }
-        Ok(segment.ticks + (seconds - segment.seconds) * self.ticks_per_msb() / segment.rate)
+        let ticks =
+            segment.ticks + (seconds - segment.seconds) * self.ticks_per_msb() / segment.rate;
+        self.validate_ticks(ticks)?;
+        Ok(ticks)
     }
 
     /// Converts encoded ticks to `ET` (TDB seconds past J2000).
@@ -404,17 +423,29 @@ impl SclkKernel {
     }
 
     fn segment_for_ticks(&self, ticks: f64) -> Result<SclkCoefficient, TimeError> {
-        if !ticks.is_finite() {
-            return Err(TimeError::SclkParse);
-        }
+        self.validate_ticks(ticks)?;
         if self.coefficients.is_empty() {
             return Err(TimeError::SclkMissing("SCLK01_COEFFICIENTS"));
         }
         let index = self
             .coefficients
             .partition_point(|segment| segment.ticks <= ticks);
-        let index = if index == 0 { 0 } else { index - 1 };
+        let index = index.checked_sub(1).ok_or(TimeError::SclkParse)?;
         Ok(self.coefficients[index])
+    }
+
+    fn validate_ticks(&self, ticks: f64) -> Result<(), TimeError> {
+        if !ticks.is_finite()
+            || ticks < 0.0
+            || self.max_encoded_ticks.is_some_and(|max| ticks > max)
+            || self
+                .coefficients
+                .first()
+                .is_some_and(|first| ticks < first.ticks)
+        {
+            return Err(TimeError::SclkParse);
+        }
+        Ok(())
     }
 
     fn segment_for_seconds(&self, seconds: f64) -> Result<SclkCoefficient, TimeError> {
@@ -575,16 +606,7 @@ fn parse_i64(token: &str) -> Result<i64, TimeError> {
 }
 
 fn parse_f64(token: &str) -> Result<f64, TimeError> {
-    // NAIF text kernels use Fortran `D` exponents.
-    let normalised = token.replace('D', "E").replace('d', "e");
-    let value = normalised
-        .parse::<f64>()
-        .map_err(|_| TimeError::SclkParse)?;
-    if value.is_finite() {
-        Ok(value)
-    } else {
-        Err(TimeError::SclkParse)
-    }
+    crate::naif::parse_f64(token).ok_or(TimeError::SclkParse)
 }
 
 fn parse_i64_list(tokens: &[String], name_index: usize) -> Result<Vec<i64>, TimeError> {

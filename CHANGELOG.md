@@ -4,6 +4,38 @@ All notable changes to `stkcraft-time` are documented here.
 
 The format follows Keep a Changelog. This crate uses semantic versioning.
 
+## [0.1.16] - 2026-11-11
+
+### Fixed
+
+- Historical UTC conversions in SOFA mode now handle positive and negative
+  fractional mini-leaps and day-rate changes. The inverse preserves split
+  epoch precision and the civil date of extended final minutes; historical
+  formatting also uses the correct fractional day-end limit.
+- Encoded SCLK/time conversion rejects ticks before the first coefficient
+  or beyond the cumulative partition domain, including clock resets and
+  NAIF's rounding of partition readouts. Valid extrapolation inside the
+  last partition remains available.
+- Incomplete LSK files return the missing DELTET variable instead of
+  silently substituting nominal constants, including through MCP tools.
+- Text-kernel decimal arithmetic now follows NAIF NPARSD operation order.
+  This fixes wrong-segment selection at some official ESA JUICE clock
+  coefficient boundaries, where ordinary decimal parsing could produce
+  time differences of about 0.666 seconds.
+- Compact TDB documentation now identifies the NASA HEASARC source and
+  removes unsupported claims of improved accuracy. UT1 documentation
+  explicitly identifies daily interpolation, omitted subdaily corrections
+  and unpropagated EOP uncertainty.
+
+### Added
+
+- Release binary archives include `ATTRIBUTION.md`, retaining the numeric
+  parser's source provenance and original NAIF notice with the binaries.
+- Reproducible PyERFA historical UTC vectors at every 1960-1972 model
+  transition, with positive/negative adjustment boundaries and nanosecond
+  precision checks. SCLK validation now checks every coefficient boundary,
+  encoded-domain endpoints and out-of-domain rejection against CSPICE.
+
 ## [0.1.15] - 2026-11-11
 
 ### Added

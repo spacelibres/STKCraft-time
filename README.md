@@ -18,12 +18,13 @@
 [![MSRV](https://img.shields.io/badge/MSRV-1.75-blue.svg)](https://github.com/spacelibres/STKCraft-time/blob/main/Cargo.toml)
 [![no_std](https://img.shields.io/badge/no__std-supported-green.svg)](https://docs.rs/stkcraft-time/latest/stkcraft_time/)
 
-A clean-room, NAIF/SPICE-aligned time library written in Rust.
+A NAIF/SPICE-aligned time library written in Rust.
 
 `stkcraft-time` implements the time-scale model documented by the NASA
 Navigation and Ancillary Information Facility (NAIF) in the **SPICE Time
 Subsystem Required Reading** and driven by a **Leapseconds Kernel (LSK)**.
-It does not link CSPICE and does not port CSPICE source code.
+It does not link CSPICE. Text-kernel decimal arithmetic follows NAIF's
+NPARSD operation order; see [ATTRIBUTION.md](ATTRIBUTION.md) for provenance.
 
 - **API guide:** [`docs/API.md`](https://github.com/spacelibres/STKCraft-time/blob/main/docs/API.md)
 - **API reference:** <https://docs.rs/stkcraft-time>
@@ -34,13 +35,13 @@ It does not link CSPICE and does not port CSPICE source code.
 - **Reference:** `cargo doc --open`
 
 **Install:** `cargo add stkcraft-time`, or add
-`stkcraft-time = "0.1.15"` to `[dependencies]`. With `no_std`, use `default-features = false`.
+`stkcraft-time = "0.1.16"` to `[dependencies]`. With `no_std`, use `default-features = false`.
 
 ## Project status
 
-- Latest release: **v0.1.15** on GitHub Releases, including release-mode
+- Latest release: **v0.1.16** on GitHub Releases, including release-mode
   binaries for Linux, macOS (x86_64 and arm64) and Windows.
-- Published on crates.io as **`stkcraft-time` 0.1.15**, with API docs on
+- Published on crates.io as **`stkcraft-time` 0.1.16**, with API docs on
   [docs.rs](https://docs.rs/stkcraft-time).
 - Minimum supported Rust version: **1.75**.
 - The library is `no_std` compatible with `alloc`; the optional MCP server
@@ -54,13 +55,13 @@ cargo add stkcraft-time
 
 ```toml
 [dependencies]
-stkcraft-time = "0.1.15"
+stkcraft-time = "0.1.16"
 ```
 
 `no_std` plus `alloc`:
 
 ```toml
-stkcraft-time = { version = "0.1.15", default-features = false }
+stkcraft-time = { version = "0.1.16", default-features = false }
 ```
 
 The MCP server and the validation binaries are optional:
@@ -72,7 +73,7 @@ cargo install stkcraft-time --features mcp --bin stkcraft-mcp
 To track the repository instead of a crates.io release, pin a tag:
 
 ```toml
-stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.15" }
+stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.16" }
 ```
 
 ## Releases
@@ -225,16 +226,18 @@ python tools/wgc2_kernel_sweep.py --insecure   # --insecure only if needed
 | TAI | Continuous atomic time |
 | TT | `TAI + 32.184 s` |
 | ET (NAIF) | `TT + K*sin(E)`, `E = M + EB*sin(M)`, `M = M0 + M1*t` |
-| TDB (ESA) | `TT + 0.001658*sin(g) + 0.000014*sin(2g)` |
+| TDB (compact) | `TT + 0.001658*sin(g) + 0.000014*sin(2g)` |
 | GPS | `TAI - 19 s`, zero at `1980-01-06T00:00:00 UTC` |
 | UT1 | Earth-rotation scale, `UTC + (UT1 - UTC)`; requires IERS EOP |
 | TCG | `TT + L_G*(JD_TT - T0)*86400` (IAU coordinate scale) |
 | TCB | `TDB + L_B*(JD_TDB - T0)*86400 - TDB0` (IAU coordinate scale) |
 
 `ET` is **TDB seconds past the J2000 epoch** (`2000-01-01T12:00:00 TDB`),
-matching the SPICE convention. `ET` and the ESA `TDB` model are kept
-distinct on purpose: use `ET` for NAIF/SPICE interoperability, and the
-`tdb` module for the higher-fidelity dynamical model.
+matching the SPICE convention. Use `ET` for NAIF/SPICE interoperability,
+`tdb` for the compact [NASA HEASARC approximation](https://heasarc.gsfc.nasa.gov/docs/xte/abc/time_tutorial.html),
+and `dtdb` for the 787-term geocentric IAU/SOFA model. The compact model
+is not a guaranteed improvement over NAIF: a daily 1950-2050 comparison
+with ERFA has a maximum residual of about 36.5 us.
 
 ## Accuracy statement
 
@@ -333,8 +336,8 @@ Not implemented in this version:
 
 - Full SPICE `str2et` token grammar (this version provides typed
   constructors only)
-- SCLK partition boundaries (parsed but not applied) and clock types
-  other than type 1
+- SCLK partition-aware field/string conversion and clock types other
+  than type 1
 - Automatic policy selection without an explicit date (the caller
   supplies `LeapSecondPolicy`)
 
@@ -355,10 +358,13 @@ python tools/validate_sclk.py --sclk target/mro_sclk.tsc --id -74
 ```
 
 Scope: encoded-tick conversions and field/string encoding are exact
-within one partition. Partition boundaries are parsed and validated per
-partition (a reset may start lower than the previous partition ended) but
-are not applied; a partition-aware reformatting layer is future work.
-Only clock type 1 is supported.
+within a partition starting at zero. Partition-aware field/string
+conversion is not implemented. Encoded tick/time conversions enforce
+the cumulative partition duration, rounding each readout to integral
+ticks as NAIF does; resets may start below the previous partition end.
+Ticks before the first coefficient or beyond the declared domain are
+rejected. A standalone map without partition metadata has no declared
+upper bound. Only clock type 1 is supported.
 
 ## Formatting
 
@@ -404,8 +410,14 @@ date.
 Before 1972, UTC seconds were not SI seconds. The default
 `LeapSecondSource::IersOnly` matches the NAIF LSK and rejects pre-1972
 UTC. Selecting `LeapSecondSource::Sofa` additionally enables the IAU
-SOFA `iauDat` drift model for 1960-1972, returning fractional
-`TAI - UTC`.
+SOFA `iauDat` drift model for 1960-1972, including positive and negative
+mini-leaps in the final minute and fractional `TAI - UTC`. Historical
+conversions are checked against independent ERFA vectors at every model
+transition. The SOFA drift/mini-leap convention has overlaps/gaps of a few
+nanoseconds at some day ends; inverse conversion gives actual midnight
+to the new date and returns `UtcOutOfRange` for unrepresentable gaps.
+Integer nanosecond storage does not make these historical labels an exact
+bijection at those boundaries.
 
 ## UT1 and IERS EOP
 
@@ -536,9 +548,14 @@ python tools/validate_ut1_astropy.py    # vs astropy's IERS implementation
 
 ### Scope note
 
-UT1 is an Earth-rotation angle, not a uniform coordinate time. It is kept
-separate from ET and TDB on purpose and is never mixed into the dynamical
-conversions.
+UT1 is an Earth-rotation time scale. This API provides leap-aware daily
+EOP interpolation, not a complete instantaneous Earth-orientation model.
+[IERS Conventions, section 5.5.3.1](https://iers-conventions.obspm.fr/content/chapter5/icc5.pdf)
+requires additional subdaily ocean-tide and libration terms for the
+corresponding high-accuracy calculation; these are not implemented. EOP
+measurement and prediction uncertainties are not propagated. Select
+`observed_only()` when predictions are inappropriate. Matching a table
+interpolator does not establish zero physical error.
 
 ## TCG and TCB
 
@@ -655,7 +672,7 @@ python tools/wgc2_compare.py        # live WGC2 (CSPICE front-end) check
 The library is `no_std` compatible with `alloc`:
 
 ```toml
-stkcraft-time = { version = "0.1.15", default-features = false }
+stkcraft-time = { version = "0.1.16", default-features = false }
 ```
 
 In `no_std` builds, `libm` supplies `sin`, `floor`, `round` and `fmod`;
@@ -733,8 +750,8 @@ See [`CITATION.cff`](https://github.com/spacelibres/STKCraft-time/blob/main/CITA
   is used for epoch or duration arithmetic.
 - TAI is the glitch-free internal reference. UTC is a civil
   representation, not an internal scale.
-- NAIF `ET` and the higher-fidelity ESA `TDB` model are kept as separate
-  functions on purpose.
+- NAIF `ET`, the compact two-term `TDB` approximation and the 787-term
+  geocentric IAU `TDB` model are separate functions with different limits.
 - Against 82 CSPICE reference vectors, the maximum UTC-to-ET difference
   is currently **1.1×10⁻¹² s**. This is agreement with a reference
   engine, not a physical accuracy claim.

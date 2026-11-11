@@ -1,7 +1,8 @@
 //! NAIF/SPICE-aligned astronomical time scales.
 //!
-//! `stkcraft-time` is a clean-room implementation of the time-scale model
-//! described in the NAIF *SPICE Time Subsystem Required Reading*. The
+//! `stkcraft-time` implements the time-scale model described in the
+//! NAIF *SPICE Time Subsystem Required Reading*. Kernel decimal arithmetic
+//! follows NAIF N0067 NPARSD; see `ATTRIBUTION.md`. The
 //! leap-second data is read from a NAIF Leapseconds Kernel; no leap
 //! second is hard-coded in the conversion logic.
 //!
@@ -83,6 +84,7 @@ pub mod timescale;
 
 mod dtdb_table;
 mod math;
+mod naif;
 
 #[cfg(kani)]
 mod verification;
