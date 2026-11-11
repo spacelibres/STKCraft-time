@@ -35,13 +35,13 @@ NPARSD operation order; see [ATTRIBUTION.md](ATTRIBUTION.md) for provenance.
 - **Reference:** `cargo doc --open`
 
 **Install:** `cargo add stkcraft-time`, or add
-`stkcraft-time = "0.1.18"` to `[dependencies]`. With `no_std`, use `default-features = false`.
+`stkcraft-time = "0.1.19"` to `[dependencies]`. With `no_std`, use `default-features = false`.
 
 ## Project status
 
-- Latest release: **v0.1.18** on GitHub Releases, including release-mode
+- Latest release: **v0.1.19** on GitHub Releases, including release-mode
   binaries for Linux, macOS (x86_64 and arm64) and Windows.
-- Published on crates.io as **`stkcraft-time` 0.1.18**, with API docs on
+- Published on crates.io as **`stkcraft-time` 0.1.19**, with API docs on
   [docs.rs](https://docs.rs/stkcraft-time).
 - Minimum supported Rust version: **1.75**.
 - The library is `no_std` compatible with `alloc`; the optional MCP server
@@ -55,13 +55,13 @@ cargo add stkcraft-time
 
 ```toml
 [dependencies]
-stkcraft-time = "0.1.18"
+stkcraft-time = "0.1.19"
 ```
 
 `no_std` plus `alloc`:
 
 ```toml
-stkcraft-time = { version = "0.1.18", default-features = false }
+stkcraft-time = { version = "0.1.19", default-features = false }
 ```
 
 The MCP server and the validation binaries are optional:
@@ -73,8 +73,31 @@ cargo install stkcraft-time --features mcp --bin stkcraft-mcp
 To track the repository instead of a crates.io release, pin a tag:
 
 ```toml
-stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.18" }
+stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.19" }
 ```
+
+## Container image
+
+Every tag publishes `ghcr.io/spacelibres/stkcraft-time` for `linux/amd64`
+and `linux/arm64` with the MCP server and the four validation binaries, so
+no Rust toolchain is needed:
+
+```sh
+docker run --rm -i ghcr.io/spacelibres/stkcraft-time:0.1.19
+```
+
+The default command is `stkcraft-mcp`, which speaks JSON-RPC on stdin and
+stdout. Pass a binary name to run a CLI tool, and mount the kernel or EOP
+files that the tool has to read:
+
+```sh
+docker run --rm -v "$PWD:/data:ro" ghcr.io/spacelibres/stkcraft-time:0.1.19 \
+    ut1-check /data/finals2000A.all
+```
+
+The image runs as UID 10001, uses `/data` as the working directory, and
+performs no network I/O. See [`docs/MCP.md`](https://github.com/spacelibres/STKCraft-time/blob/main/docs/MCP.md)
+for an MCP client configuration that launches the container.
 
 ## Releases
 
@@ -90,8 +113,10 @@ built by `cargo build --release --features mcp --bins`:
 
 Each archive contains `stkcraft-mcp`, `sclk-check`, `ut1-check`,
 `tdb-compare`, `wgc-compare`, `README.md`, `LICENSE` and
-`CHANGELOG.md`. `SHA256SUMS.txt` is attached separately. Release notes
-are in [`docs/releases/`](https://github.com/spacelibres/STKCraft-time/tree/main/docs/releases).
+`CHANGELOG.md`. `SHA256SUMS.txt` is attached separately. The same tag
+also publishes `ghcr.io/spacelibres/stkcraft-time:X.Y.Z` and `:latest` to
+GitHub Packages. Release notes are in
+[`docs/releases/`](https://github.com/spacelibres/STKCraft-time/tree/main/docs/releases).
 
 ## Design rules
 
@@ -685,7 +710,7 @@ python tools/wgc2_compare.py        # live WGC2 (CSPICE front-end) check
 The library is `no_std` compatible with `alloc`:
 
 ```toml
-stkcraft-time = { version = "0.1.18", default-features = false }
+stkcraft-time = { version = "0.1.19", default-features = false }
 ```
 
 In `no_std` builds, `libm` supplies `sin`, `floor`, `round` and `fmod`;

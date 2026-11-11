@@ -1,0 +1,11 @@
+target
+.git
+.github
+.agents
+docs
+examples
+tests
+tools
+data
+__pycache__
+*.pyc

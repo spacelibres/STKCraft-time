@@ -4,6 +4,19 @@ All notable changes to `stkcraft-time` are documented here.
 
 The format follows Keep a Changelog. This crate uses semantic versioning.
 
+## [0.1.19] - 2026-11-11
+
+### Added
+
+- A `Dockerfile` and a `publish-image` job. Every tag builds
+  `linux/amd64` and `linux/arm64` images at
+  `ghcr.io/spacelibres/stkcraft-time`, tagged `X.Y.Z` and `latest`, with
+  `stkcraft-mcp` and the four validation binaries. The image runs as UID
+  10001, uses `/data` as the working directory and performs no network
+  I/O, so the MCP server can be launched without a Rust toolchain.
+- `README.md` and `docs/MCP.md` document the container invocation and an
+  MCP client configuration that starts the image.
+
 ## [0.1.18] - 2026-11-11
 
 ### Fixed
