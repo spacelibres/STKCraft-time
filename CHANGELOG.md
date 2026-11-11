@@ -4,6 +4,16 @@ All notable changes to `stkcraft-time` are documented here.
 
 The format follows Keep a Changelog. This crate uses semantic versioning.
 
+## [0.1.14] - 2026-11-11
+
+### Fixed
+
+- The `Release` workflow's crates.io lookup sent no `User-Agent`, so the
+  API answered `403` and the job fell through to `cargo publish` on a
+  version that was already published, failing the tag run. The check now
+  sends a `User-Agent` and publishes only on an authoritative `404`,
+  failing loudly on any other status.
+
 ## [0.1.13] - 2026-11-11
 
 ### Added
