@@ -19,20 +19,41 @@ pub struct Epoch {
 impl Epoch {
     /// Builds an epoch from TAI seconds and nanoseconds since
     /// `2000-01-01T00:00:00 TAI`, normalising the nanosecond field.
+    ///
+    /// Panics when the result cannot be represented. Use
+    /// [`Epoch::checked_from_parts`] for untrusted input.
     pub fn from_parts(sec: i64, nanos: i64) -> Self {
-        let sec = sec + nanos.div_euclid(1_000_000_000);
-        let nanos = nanos.rem_euclid(1_000_000_000);
-        Self {
-            sec,
-            nanos: nanos as u32,
-        }
+        Self::checked_from_parts(sec, nanos).expect("epoch overflow")
+    }
+
+    /// Checked form of [`Epoch::from_parts`].
+    pub fn checked_from_parts(sec: i64, nanos: i64) -> Option<Self> {
+        let total = (sec as i128)
+            .checked_mul(1_000_000_000)?
+            .checked_add(nanos as i128)?;
+        Self::from_nanoseconds(total)
     }
 
     /// Builds an epoch from a floating-point TAI second count.
+    ///
+    /// Panics on a non-finite or out-of-range value. Use
+    /// [`Epoch::checked_from_tai_seconds`] for untrusted input.
     pub fn from_tai_seconds(seconds: f64) -> Self {
+        Self::checked_from_tai_seconds(seconds).expect("invalid or out-of-range epoch")
+    }
+
+    /// Checked form of [`Epoch::from_tai_seconds`].
+    pub fn checked_from_tai_seconds(seconds: f64) -> Option<Self> {
+        if !seconds.is_finite() {
+            return None;
+        }
         let whole = math::floor(seconds);
+        if whole < i64::MIN as f64 || whole >= i64::MAX as f64 {
+            return None;
+        }
         let frac = seconds - whole;
-        Self::from_parts(whole as i64, math::round(frac * 1_000_000_000.0) as i64)
+        let nanos = math::round(frac * 1_000_000_000.0) as i64;
+        Self::checked_from_parts(whole as i64, nanos)
     }
 
     /// Returns the TAI second count as a floating-point value.
@@ -48,6 +69,38 @@ impl Epoch {
     /// Returns the nanosecond remainder.
     pub fn nanos(&self) -> u32 {
         self.nanos
+    }
+
+    /// Checked addition of a duration.
+    pub fn checked_add(self, rhs: Duration) -> Option<Self> {
+        Self::from_nanoseconds(
+            self.total_nanoseconds()
+                .checked_add(rhs.total_nanoseconds())?,
+        )
+    }
+
+    /// Checked subtraction of a duration.
+    pub fn checked_sub(self, rhs: Duration) -> Option<Self> {
+        Self::from_nanoseconds(
+            self.total_nanoseconds()
+                .checked_sub(rhs.total_nanoseconds())?,
+        )
+    }
+
+    fn total_nanoseconds(&self) -> i128 {
+        self.sec as i128 * 1_000_000_000 + self.nanos as i128
+    }
+
+    fn from_nanoseconds(total: i128) -> Option<Self> {
+        let sec = total.div_euclid(1_000_000_000);
+        let nanos = total.rem_euclid(1_000_000_000);
+        if sec < i64::MIN as i128 || sec > i64::MAX as i128 {
+            return None;
+        }
+        Some(Self {
+            sec: sec as i64,
+            nanos: nanos as u32,
+        })
     }
 }
 
@@ -91,8 +144,7 @@ impl Add<Duration> for Epoch {
     type Output = Epoch;
 
     fn add(self, rhs: Duration) -> Self::Output {
-        let sec = self.sec.checked_add(rhs.sec()).expect("epoch overflow");
-        Epoch::from_parts(sec, self.nanos as i64 + rhs.nanos() as i64)
+        self.checked_add(rhs).expect("epoch overflow")
     }
 }
 
@@ -100,8 +152,7 @@ impl Sub<Duration> for Epoch {
     type Output = Epoch;
 
     fn sub(self, rhs: Duration) -> Self::Output {
-        let sec = self.sec.checked_sub(rhs.sec()).expect("epoch overflow");
-        Epoch::from_parts(sec, self.nanos as i64 - rhs.nanos() as i64)
+        self.checked_sub(rhs).expect("epoch overflow")
     }
 }
 
@@ -109,7 +160,10 @@ impl Sub<Epoch> for Epoch {
     type Output = Duration;
 
     fn sub(self, rhs: Epoch) -> Self::Output {
-        let sec = self.sec.checked_sub(rhs.sec).expect("duration overflow");
-        Duration::from_parts(sec, self.nanos as i64 - rhs.nanos as i64)
+        let total = self
+            .total_nanoseconds()
+            .checked_sub(rhs.total_nanoseconds())
+            .expect("duration overflow");
+        Duration::from_nanoseconds(total).expect("duration overflow")
     }
 }

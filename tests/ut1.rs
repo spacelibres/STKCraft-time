@@ -107,6 +107,17 @@ fn non_finite_samples_are_rejected() {
 }
 
 #[test]
+fn non_finite_query_is_rejected() {
+    let table = uniform_eop();
+
+    assert_eq!(table.ut1_minus_utc(f64::NAN), Err(TimeError::Ut1OutOfRange));
+    assert_eq!(
+        table.ut1_minus_utc(f64::INFINITY),
+        Err(TimeError::Ut1OutOfRange)
+    );
+}
+
+#[test]
 fn parser_rejects_non_finite_values() {
     let text = format!("{}\n", sample_line("NaN", "0.1", ""));
     assert_eq!(
@@ -201,6 +212,75 @@ fn epoch_outside_the_table_returns_out_of_range() {
         Err(TimeError::Ut1OutOfRange)
     );
     assert_eq!(tai_to_ut1(tai, &lsk, &eop), Err(TimeError::Ut1OutOfRange));
+}
+
+#[test]
+fn inverse_works_at_the_first_eop_day() {
+    let lsk = LeapSecondTable::builtin().unwrap();
+    let eop = leap_second_eop();
+
+    let first = utc_to_tai(
+        &UtcDateTime::new(2016, 12, 31, 0, 0, 0.0),
+        Calendar::Gregorian,
+        &lsk,
+    )
+    .unwrap();
+    let ut1 = tai_to_ut1(first, &lsk, &eop).unwrap();
+    let back = ut1_to_tai(ut1, &lsk, &eop).unwrap();
+
+    assert_eq!(back, first);
+}
+
+#[test]
+fn inverse_rejects_ut1_before_the_table() {
+    let lsk = LeapSecondTable::builtin().unwrap();
+    let eop = leap_second_eop();
+
+    let first = utc_to_tai(
+        &UtcDateTime::new(2016, 12, 31, 0, 0, 0.0),
+        Calendar::Gregorian,
+        &lsk,
+    )
+    .unwrap();
+    let ut1 = tai_to_ut1(first, &lsk, &eop).unwrap();
+
+    assert_eq!(
+        ut1_to_tai(ut1 - 86_400.0, &lsk, &eop),
+        Err(TimeError::Ut1OutOfRange)
+    );
+}
+
+#[test]
+fn sparse_eop_crossing_a_leap_second_is_not_smeared() {
+    let lsk = LeapSecondTable::builtin().unwrap();
+    let eop = EopTable::new(vec![
+        EopSample {
+            mjd: 57_752.0,
+            ut1_minus_utc: -0.4,
+            observed: true,
+        },
+        EopSample {
+            mjd: 57_754.0,
+            ut1_minus_utc: 0.6,
+            observed: true,
+        },
+        EopSample {
+            mjd: 57_755.0,
+            ut1_minus_utc: 0.6,
+            observed: true,
+        },
+    ])
+    .unwrap();
+
+    let noon = utc_to_tai(
+        &UtcDateTime::new(2016, 12, 31, 12, 0, 0.0),
+        Calendar::Gregorian,
+        &lsk,
+    )
+    .unwrap();
+    let value = ut1_minus_utc(noon, &lsk, &eop).unwrap();
+
+    assert!((value + 0.4).abs() < 1e-9, "value {value}");
 }
 
 #[test]

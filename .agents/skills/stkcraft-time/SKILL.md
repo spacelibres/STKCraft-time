@@ -42,6 +42,9 @@ cargo build --no-default-features
 cargo build --release --features mcp --bins
 cargo test --release --features mcp
 RUSTDOCFLAGS="-D warnings" cargo doc --no-deps
+cargo +1.75.0 check --locked --all-targets --features mcp
+cargo build --locked --no-default-features --target wasm32-unknown-unknown
+cargo build --locked --no-default-features --target thumbv7em-none-eabi
 ```
 
 ## API orientation
@@ -69,18 +72,28 @@ RUSTDOCFLAGS="-D warnings" cargo doc --no-deps
   `ticks_to_et`, `et_to_ticks`, `ticks_to_tai`, `tai_to_ticks`,
   `parse_string`, `format_string`, `ticks_from_fields`,
   `fields_from_ticks`.
-- SCLK support is type 1 only. Partitions are parsed but not applied.
+- SCLK support is type 1 only. Partitions are parsed but not applied;
+  field/string conversion returns `SclkPartitionsUnsupported` for
+  partitioned clocks, while encoded ticks↔ET/TAI remain available.
+- `SCLK01_OFFSETS` is the first displayed value: encode as
+  `field - offset`, decode as `encoded + offset`.
+- UT1 interpolation is performed on continuous `UT1 - TAI`, so missing
+  days across a leap second do not smear the step.
 
 ## Edge cases that must stay correct
 
+- Untrusted numeric input must use `Epoch::checked_from_parts`,
+  `checked_from_tai_seconds`, `checked_add`/`checked_sub`, or the
+  `Duration::checked_*` methods. The infallible constructors panic rather
+  than wrapping or returning a fake zero.
 - `23:59:60.x` is legal only on a positive-leap-second (86401-second) day.
 - `23:59:59.x` does not exist on a shortened (86399-second) day and must
   return `InvalidLeapSecond`, not alias the next day's `00:00:00`.
 - Pre-1972 UTC requires `LeapSecondSource::Sofa`; the default
   `IersOnly` source returns `UtcOutOfRange`.
 - EOP samples with `NaN` or infinity must return `EopParse`, never panic.
-- `EopTable` stores `UT1 - UTC`; UT1 conversion needs the UTC day and the
-  following day in the table.
+- `EopTable` stores `UT1 - UTC`; UT1 conversion needs bracketing EOP
+  samples and does not support the last sample day as an epoch boundary.
 
 ## References
 

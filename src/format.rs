@@ -6,10 +6,14 @@ use alloc::string::ToString;
 use alloc::vec::Vec;
 use core::fmt;
 
-use crate::calendar;
+use crate::calendar::{self, J2000_JDN};
 use crate::epoch::UtcDateTime;
 use crate::error::TimeError;
 use crate::math;
+
+/// Maximum fractional digits: the internal representation is nanosecond
+/// resolution, and larger values only allocate memory without adding data.
+const MAX_PRECISION: usize = 9;
 
 const MONTHS: [&str; 12] = [
     "JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC",
@@ -48,6 +52,7 @@ const WEEKDAY_LONG: [&str; 7] = [
 
 /// Formats a UTC representation as ISO 8601 with a trailing `Z`.
 pub fn iso8601(dt: &UtcDateTime, precision: usize) -> String {
+    let dt = normalize_datetime(dt, precision);
     format!(
         "{:04}-{:02}-{:02}T{:02}:{:02}:{}Z",
         dt.year,
@@ -62,6 +67,7 @@ pub fn iso8601(dt: &UtcDateTime, precision: usize) -> String {
 /// Formats a representation in the SPICE calendar style,
 /// e.g. `2000 JAN 01 12:00:00.000`.
 pub fn spice_calendar(dt: &UtcDateTime, precision: usize) -> String {
+    let dt = normalize_datetime(dt, precision);
     let month = MONTHS[(dt.month.saturating_sub(1) as usize) % 12];
     format!(
         "{:04} {} {:02} {:02}:{:02}:{}",
@@ -77,8 +83,21 @@ pub fn spice_calendar(dt: &UtcDateTime, precision: usize) -> String {
 /// Formats `ET` as a calendar TDB string. This is the `etcal` behaviour
 /// and requires no leap-second kernel.
 pub fn etcal(et: f64, precision: usize) -> String {
-    let jd = 2_451_545.0 + et / 86_400.0;
-    let (year, month, day, hour, minute, second) = jd_to_calendar(jd);
+    if !et.is_finite() {
+        return "INVALID ET".to_string();
+    }
+
+    // Split before adding an absolute Julian Date: adding a microsecond to
+    // 2451545.0 would round it away at f64 resolution.
+    let day_offset = math::floor(et / 86_400.0);
+    if day_offset < i64::MIN as f64 || day_offset >= i64::MAX as f64 {
+        return "INVALID ET".to_string();
+    }
+    let seconds = et - day_offset * 86_400.0;
+    let jdn = J2000_JDN + day_offset as i64;
+    let seconds_of_day = 43_200.0 + seconds;
+    let (year, month, day, hour, minute, second) = calendar_from_jdn_seconds(jdn, seconds_of_day);
+
     spice_calendar(
         &UtcDateTime::new(year, month, day, hour, minute, second),
         precision,
@@ -111,6 +130,7 @@ pub fn jd_to_calendar(jd: f64) -> (i32, u8, u8, u8, u8, f64) {
 /// Formats a UTC representation as RFC 3339 with an explicit `+00:00`
 /// offset.
 pub fn rfc3339(dt: &UtcDateTime, precision: usize) -> String {
+    let dt = normalize_datetime(dt, precision);
     format!(
         "{:04}-{:02}-{:02}T{:02}:{:02}:{}+00:00",
         dt.year,
@@ -230,29 +250,32 @@ impl<'a> Formatter<'a> {
 
 impl fmt::Display for Formatter<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let normalized = normalize_datetime(self.dt, MAX_PRECISION);
+        let dt = &normalized;
+
         for token in &self.format.tokens {
             match token {
                 Token::Literal(value) => f.write_str(value.as_str())?,
-                Token::Year4 => write!(f, "{:04}", self.dt.year)?,
-                Token::Year2 => write!(f, "{:02}", self.dt.year.rem_euclid(100))?,
-                Token::Month2 => write!(f, "{:02}", self.dt.month)?,
-                Token::Day2 => write!(f, "{:02}", self.dt.day)?,
-                Token::DaySpace => write!(f, "{:2}", self.dt.day)?,
-                Token::Hour2 => write!(f, "{:02}", self.dt.hour)?,
-                Token::Minute2 => write!(f, "{:02}", self.dt.minute)?,
-                Token::Second2 => write!(f, "{:02}", math::floor(self.dt.second) as u8)?,
-                Token::DayOfYear => write!(f, "{:03}", day_of_year(self.dt))?,
-                Token::WeekdayShort => f.write_str(WEEKDAY_SHORT[weekday_index(self.dt)])?,
-                Token::WeekdayLong => f.write_str(WEEKDAY_LONG[weekday_index(self.dt)])?,
+                Token::Year4 => write!(f, "{:04}", dt.year)?,
+                Token::Year2 => write!(f, "{:02}", dt.year.rem_euclid(100))?,
+                Token::Month2 => write!(f, "{:02}", dt.month)?,
+                Token::Day2 => write!(f, "{:02}", dt.day)?,
+                Token::DaySpace => write!(f, "{:2}", dt.day)?,
+                Token::Hour2 => write!(f, "{:02}", dt.hour)?,
+                Token::Minute2 => write!(f, "{:02}", dt.minute)?,
+                Token::Second2 => write!(f, "{:02}", math::floor(dt.second) as u8)?,
+                Token::DayOfYear => write!(f, "{:03}", day_of_year(dt))?,
+                Token::WeekdayShort => f.write_str(WEEKDAY_SHORT[weekday_index(dt)])?,
+                Token::WeekdayLong => f.write_str(WEEKDAY_LONG[weekday_index(dt)])?,
                 Token::MonthShort => {
-                    f.write_str(MONTH_SHORT[(self.dt.month.saturating_sub(1) as usize) % 12])?
+                    f.write_str(MONTH_SHORT[(dt.month.saturating_sub(1) as usize) % 12])?
                 }
                 Token::MonthLong => {
-                    f.write_str(MONTH_LONG[(self.dt.month.saturating_sub(1) as usize) % 12])?
+                    f.write_str(MONTH_LONG[(dt.month.saturating_sub(1) as usize) % 12])?
                 }
                 Token::Offset => f.write_str("+0000")?,
                 Token::Zone => f.write_str("UTC")?,
-                Token::Fraction => write!(f, "{:09}", fractional_nanos(self.dt))?,
+                Token::Fraction => write!(f, "{:09}", fractional_nanos(dt))?,
                 Token::Percent => f.write_str("%")?,
             }
         }
@@ -292,7 +315,85 @@ fn fractional_nanos(dt: &UtcDateTime) -> u32 {
     }
 }
 
+fn clamp_precision(precision: usize) -> usize {
+    precision.min(MAX_PRECISION)
+}
+
+fn round_seconds(second: f64, precision: usize) -> f64 {
+    const POW10: [f64; 10] = [
+        1.0,
+        10.0,
+        100.0,
+        1_000.0,
+        10_000.0,
+        100_000.0,
+        1_000_000.0,
+        10_000_000.0,
+        100_000_000.0,
+        1_000_000_000.0,
+    ];
+    let factor = POW10[clamp_precision(precision)];
+    math::round(second * factor) / factor
+}
+
+fn normalize_datetime(dt: &UtcDateTime, precision: usize) -> UtcDateTime {
+    let mut out = *dt;
+    let mut second = round_seconds(dt.second, precision);
+
+    if second >= 60.0 {
+        if dt.second >= 60.0 && second < 61.0 {
+            // A leap second that still rounds inside 60.x is kept.
+        } else {
+            second = 0.0;
+            increment_minute(&mut out);
+        }
+    }
+
+    out.second = second;
+    out
+}
+
+fn increment_minute(dt: &mut UtcDateTime) {
+    dt.minute += 1;
+    if dt.minute >= 60 {
+        dt.minute = 0;
+        dt.hour += 1;
+        if dt.hour >= 24 {
+            dt.hour = 0;
+            increment_day(dt);
+        }
+    }
+}
+
+fn increment_day(dt: &mut UtcDateTime) {
+    let jdn = calendar::gregorian_to_jdn(dt.year, dt.month, dt.day);
+    let (year, month, day) = calendar::jdn_to_gregorian(jdn + 1);
+    dt.year = year;
+    dt.month = month;
+    dt.day = day;
+}
+
+fn calendar_from_jdn_seconds(mut jdn: i64, mut seconds: f64) -> (i32, u8, u8, u8, u8, f64) {
+    while seconds >= 86_400.0 {
+        seconds -= 86_400.0;
+        jdn += 1;
+    }
+    while seconds < 0.0 {
+        seconds += 86_400.0;
+        jdn -= 1;
+    }
+
+    let (year, month, day) = calendar::jdn_to_gregorian(jdn);
+    let hour = math::floor(seconds / 3_600.0) as u8;
+    let rest = seconds - hour as f64 * 3_600.0;
+    let minute = math::floor(rest / 60.0) as u8;
+    let second = rest - minute as f64 * 60.0;
+
+    (year, month, day, hour, minute, second)
+}
+
 fn pad_seconds(second: f64, precision: usize) -> String {
+    let precision = clamp_precision(precision);
     let formatted = format!("{:.*}", precision, second);
     if second < 10.0 {
         let mut out = String::with_capacity(formatted.len() + 1);

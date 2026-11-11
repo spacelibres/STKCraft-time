@@ -14,7 +14,7 @@ use crate::leap::{self, LeapEntry, LeapSecondTable};
 /// Parses a `KPL/LSK` leap-second kernel.
 pub fn parse_lsk(text: &str) -> Result<LeapSecondTable, TimeError> {
     let data = extract_data(text)?;
-    let tokens = tokenize(data);
+    let tokens = tokenize(&data);
 
     let mut delta_t_a = leap::DELTA_T_A;
     let mut k = leap::K;
@@ -100,14 +100,31 @@ pub fn builtin() -> Result<LeapSecondTable, TimeError> {
     parse_lsk(include_str!("naif0012.tls"))
 }
 
-fn extract_data(text: &str) -> Result<&str, TimeError> {
+fn extract_data(text: &str) -> Result<String, TimeError> {
     const BEGIN: &str = "\\begindata";
     const END: &str = "\\begintext";
 
-    let start = text.find(BEGIN).ok_or(TimeError::LskParse)? + BEGIN.len();
-    let rest = &text[start..];
-    let end = rest.find(END).unwrap_or(rest.len());
-    Ok(&rest[..end])
+    let mut data = String::new();
+    let mut rest = text;
+    let mut found = false;
+
+    while let Some(start) = rest.find(BEGIN) {
+        found = true;
+        let after = &rest[start + BEGIN.len()..];
+        let end = after.find(END).unwrap_or(after.len());
+        data.push_str(&after[..end]);
+        data.push('\n');
+        if end == after.len() {
+            break;
+        }
+        rest = &after[end + END.len()..];
+    }
+
+    if found {
+        Ok(data)
+    } else {
+        Err(TimeError::LskParse)
+    }
 }
 
 fn tokenize(input: &str) -> Vec<String> {
@@ -153,7 +170,12 @@ fn expect(tokens: &[String], i: usize, expected: &str) -> Result<(), TimeError> 
 fn parse_f64(tok: &str) -> Result<f64, TimeError> {
     // NAIF text kernels use Fortran `D` exponents.
     let normalised = tok.replace('D', "E").replace('d', "e");
-    normalised.parse::<f64>().map_err(|_| TimeError::LskParse)
+    let value = normalised.parse::<f64>().map_err(|_| TimeError::LskParse)?;
+    if value.is_finite() {
+        Ok(value)
+    } else {
+        Err(TimeError::LskParse)
+    }
 }
 
 fn parse_i32(tok: &str) -> Result<i32, TimeError> {
@@ -181,7 +203,8 @@ fn parse_date_token(tok: &str) -> Result<i64, TimeError> {
     }
 
     let month = month_from_name(month_name).ok_or(TimeError::LskParse)?;
-    Ok(calendar::gregorian_to_jdn(year, month, day))
+    calendar::calendar_to_jdn(year, month, day, calendar::Calendar::Gregorian)
+        .map_err(|_| TimeError::LskParse)
 }
 
 fn month_from_name(name: &str) -> Option<u8> {

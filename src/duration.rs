@@ -36,13 +36,10 @@ impl Duration {
 
     /// Checked form of [`Duration::from_parts`].
     pub fn checked_from_parts(sec: i64, nanos: i64) -> Option<Self> {
-        let carry = nanos.div_euclid(1_000_000_000);
-        let nanos = nanos.rem_euclid(1_000_000_000);
-        let sec = sec.checked_add(carry)?;
-        Some(Self {
-            sec,
-            nanos: nanos as i32,
-        })
+        let total = (sec as i128)
+            .checked_mul(1_000_000_000)?
+            .checked_add(nanos as i128)?;
+        Self::from_nanoseconds(total)
     }
 
     /// Builds a duration from a total number of nanoseconds.
@@ -60,9 +57,21 @@ impl Duration {
 
     /// Builds a duration from a floating-point second count.
     pub fn from_seconds_f64(seconds: f64) -> Self {
+        Self::checked_from_seconds_f64(seconds).expect("invalid or out-of-range duration")
+    }
+
+    /// Checked form of [`Duration::from_seconds_f64`].
+    pub fn checked_from_seconds_f64(seconds: f64) -> Option<Self> {
+        if !seconds.is_finite() {
+            return None;
+        }
         let whole = math::floor(seconds);
+        if whole < i64::MIN as f64 || whole >= i64::MAX as f64 {
+            return None;
+        }
         let frac = seconds - whole;
-        Self::from_parts(whole as i64, math::round(frac * 1_000_000_000.0) as i64)
+        let nanos = math::round(frac * 1_000_000_000.0) as i64;
+        Self::checked_from_parts(whole as i64, nanos)
     }
 
     /// Whole seconds component. For negative durations this is the floor,
@@ -114,25 +123,23 @@ impl Duration {
 
     /// Checked negation.
     pub fn checked_neg(&self) -> Option<Self> {
-        let sec = self.sec.checked_neg()?;
-        Some(Self::from_parts(sec, -(self.nanos as i64)))
+        Self::from_nanoseconds(self.total_nanoseconds().checked_neg()?)
     }
 
     /// Checked addition.
     pub fn checked_add(&self, other: Self) -> Option<Self> {
-        let nanos = self.nanos as i64 + other.nanos as i64;
-        let carry = nanos.div_euclid(1_000_000_000);
-        let nanos = nanos.rem_euclid(1_000_000_000);
-        let sec = self.sec.checked_add(other.sec)?.checked_add(carry)?;
-        Some(Self {
-            sec,
-            nanos: nanos as i32,
-        })
+        Self::from_nanoseconds(
+            self.total_nanoseconds()
+                .checked_add(other.total_nanoseconds())?,
+        )
     }
 
     /// Checked subtraction.
     pub fn checked_sub(&self, other: Self) -> Option<Self> {
-        self.checked_add(other.checked_neg()?)
+        Self::from_nanoseconds(
+            self.total_nanoseconds()
+                .checked_sub(other.total_nanoseconds())?,
+        )
     }
 
     /// Checked multiplication by an integer.

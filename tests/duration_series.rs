@@ -62,3 +62,53 @@ fn time_series_inclusive_has_seven_steps() {
     assert_eq!(TimeSeries::inclusive(start, end, step).count(), 7);
     assert_eq!(TimeSeries::exclusive(start, end, step).count(), 6);
 }
+
+#[test]
+fn checked_duration_accepts_representable_extremes() {
+    let a = Duration::from_parts(i64::MIN, 500_000_000);
+
+    assert_eq!(
+        a.checked_neg(),
+        Some(Duration::from_parts(i64::MAX, 500_000_000))
+    );
+    assert_eq!(a.checked_sub(a), Some(Duration::ZERO));
+    assert_eq!(
+        a.checked_add(Duration::from_parts(-1, 500_000_000)),
+        Some(Duration::from_parts(i64::MIN, 0))
+    );
+}
+
+#[test]
+fn invalid_float_durations_are_rejected() {
+    assert!(Duration::checked_from_seconds_f64(f64::NAN).is_none());
+    assert!(Duration::checked_from_seconds_f64(f64::INFINITY).is_none());
+    assert!(Duration::checked_from_seconds_f64(1e300).is_none());
+}
+
+#[test]
+fn epoch_extremes_do_not_wrap() {
+    assert!(Epoch::checked_from_parts(i64::MAX, 1_000_000_000).is_none());
+    assert!(Epoch::checked_from_parts(i64::MIN, -1).is_none());
+    assert_eq!(Epoch::from_parts(i64::MAX, 999_999_999).sec(), i64::MAX);
+
+    assert!(Epoch::checked_from_tai_seconds(f64::NAN).is_none());
+    assert!(Epoch::checked_from_tai_seconds(f64::INFINITY).is_none());
+
+    let epoch = Epoch::from_parts(i64::MAX, 0);
+    assert!(epoch.checked_add(Duration::SECOND).is_none());
+    assert!(epoch
+        .checked_sub(Duration::from_parts(i64::MIN, 0))
+        .is_none());
+}
+
+#[test]
+fn time_series_stops_at_last_representable_epoch() {
+    let end = Epoch::from_parts(i64::MAX, 0);
+    let mut inclusive = TimeSeries::inclusive(end, end, Duration::SECOND);
+
+    assert_eq!(inclusive.next(), Some(end));
+    assert_eq!(inclusive.next(), None);
+
+    let mut exclusive = TimeSeries::exclusive(end, end, Duration::SECOND);
+    assert_eq!(exclusive.next(), None);
+}

@@ -39,7 +39,10 @@ to stdout; use stderr.
 
 `handle_message` in `src/mcp.rs` returns `None` for notifications.
 Library errors from a tool are returned as `isError: true` text content,
-not as JSON-RPC errors.
+not as JSON-RPC errors. Invalid requests, including a missing `method`,
+return `-32600`. The server advertises only protocol version
+`2024-11-05`. Tool panics are caught per request and returned as
+`isError`, so one bad call does not stop the server.
 
 ## Tools
 
@@ -64,7 +67,9 @@ not as JSON-RPC errors.
 UTC tools accept `calendar` = `gregorian` (default), `julian` or `mixed`.
 All tools accept an optional `lsk_path`; omit it to use the bundled
 `naif0012.tls`. EOP tools also accept `eop_series` (`a`, `b`, `final`) and
-`observed_only`.
+`observed_only`. `precision` is limited to `0..=9`. TAI tools accept
+`tai_seconds`, or exact `sec` + `nanos`. SCLK tools accept continuous
+ticks; `fields` and `clock_string` are `null` for non-integral ticks.
 
 ## Example call
 
@@ -111,6 +116,6 @@ cargo clippy --all-targets --features mcp -- -D warnings
 - `23:59:60.x` without a positive leap second and `23:59:59.x` on a
   shortened day are rejected.
 - Non-finite EOP samples are rejected with `EopParse`.
-- UT1 needs EOP coverage for the UTC day and the following day.
+- UT1 needs bracketing EOP samples around the UTC day; the last sample day is not usable as an epoch boundary.
 
 See `docs/MCP.md` for full schemas and examples.

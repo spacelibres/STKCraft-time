@@ -59,7 +59,7 @@ impl Iterator for TimeSeries {
             return None;
         }
 
-        self.cursor = Some(current + self.step);
+        self.cursor = current.checked_add(self.step);
         Some(current)
     }
 }

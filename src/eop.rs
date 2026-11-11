@@ -214,6 +214,10 @@ impl EopTable {
     /// that a positive leap second introduces into `UT1 - UTC`; use
     /// [`crate::convert::ut1_minus_utc`] for an epoch on the UT1 scale.
     pub fn ut1_minus_utc(&self, mjd: f64) -> Result<f64, TimeError> {
+        if !mjd.is_finite() {
+            return Err(TimeError::Ut1OutOfRange);
+        }
+
         let first = self.samples.first().ok_or(TimeError::EopMissing)?;
         let last = self.samples.last().ok_or(TimeError::EopMissing)?;
 

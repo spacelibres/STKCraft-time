@@ -321,42 +321,61 @@ fn tai_at_utc_day_start(jdn: i64, lsk: &LeapSecondTable) -> Option<i64> {
 
 /// Returns `UT1 - UTC` in seconds at `epoch`, using an IERS EOP table.
 ///
-/// The value is interpolated linearly across the UTC day that contains
-/// `epoch`. The known one-second step introduced by a positive leap
-/// second is removed before interpolating, so the result does not smear
-/// the step across the day. This is the correct value to use when the
-/// caller needs `UT1` rather than plain table interpolation.
+/// The EOP samples are converted to continuous `UT1 - TAI` using the
+/// leap-second table before interpolation. This keeps a leap-second step
+/// from being smeared when the table has missing days around the step.
 ///
-/// Returns [`TimeError::Ut1OutOfRange`] when the epoch or the following
-/// UTC day lies outside the EOP table.
+/// Returns [`TimeError::Ut1OutOfRange`] when the epoch or the bracketing
+/// EOP samples lie outside the table.
 pub fn ut1_minus_utc(
     epoch: Epoch,
     lsk: &LeapSecondTable,
     eop: &EopTable,
 ) -> Result<f64, TimeError> {
     let jdn = utc_jdn(epoch, lsk).ok_or(TimeError::Ut1OutOfRange)?;
-    let start = tai_at_utc_day_start(jdn, lsk).ok_or(TimeError::Ut1OutOfRange)?;
-
-    let elapsed = epoch.tai_seconds() - start as f64;
-
-    let delta_today = lsk.delta_at_for_jdn(jdn).ok_or(TimeError::Ut1OutOfRange)? as f64;
-    let delta_next = lsk
-        .delta_at_for_jdn(jdn + 1)
-        .map(|value| value as f64)
-        .unwrap_or(delta_today);
-
-    let leap = delta_next - delta_today;
-    let day_length = 86_400.0 + leap;
-
     let mjd_start = utc_mjd(jdn);
-    let value_start = eop.ut1_minus_utc(mjd_start)?;
-    let value_end = eop.ut1_minus_utc(mjd_start + 1.0)?;
+    let samples = eop.samples();
 
-    // Removing `leap` leaves the slow rotation-rate term, so only the
-    // genuine drift is interpolated across the day.
-    let rate = (value_end - value_start - leap) / day_length;
+    if samples.len() < 2 {
+        return Err(TimeError::Ut1OutOfRange);
+    }
 
-    Ok(value_start + rate * elapsed)
+    let index = samples.partition_point(|sample| sample.mjd <= mjd_start);
+    if index == 0 || index >= samples.len() {
+        return Err(TimeError::Ut1OutOfRange);
+    }
+
+    let before = samples[index - 1];
+    let after = samples[index];
+    let before_jdn = mjd_to_jdn(before.mjd);
+    let after_jdn = mjd_to_jdn(after.mjd);
+
+    let before_tai = tai_at_utc_day_start(before_jdn, lsk).ok_or(TimeError::Ut1OutOfRange)? as f64;
+    let after_tai = tai_at_utc_day_start(after_jdn, lsk).ok_or(TimeError::Ut1OutOfRange)? as f64;
+    let before_delta = lsk
+        .delta_at_for_jdn(before_jdn)
+        .ok_or(TimeError::Ut1OutOfRange)? as f64;
+    let after_delta = lsk
+        .delta_at_for_jdn(after_jdn)
+        .ok_or(TimeError::Ut1OutOfRange)? as f64;
+
+    let before_ut1_tai = before.ut1_minus_utc - before_delta;
+    let after_ut1_tai = after.ut1_minus_utc - after_delta;
+    let span = after_tai - before_tai;
+    let tai = epoch.tai_seconds();
+
+    let ut1_tai = if span <= 0.0 {
+        before_ut1_tai
+    } else {
+        let fraction = (tai - before_tai) / span;
+        if !(0.0..=1.0).contains(&fraction) {
+            return Err(TimeError::Ut1OutOfRange);
+        }
+        before_ut1_tai + fraction * (after_ut1_tai - before_ut1_tai)
+    };
+
+    let delta_at = delta_at_at_epoch(epoch, lsk).ok_or(TimeError::Ut1OutOfRange)? as f64;
+    Ok(ut1_tai + delta_at)
 }
 
 /// Converts a TAI epoch to UT1 seconds past `2000-01-01T00:00:00 UT1`.
@@ -382,11 +401,13 @@ pub fn tai_to_ut1(epoch: Epoch, lsk: &LeapSecondTable, eop: &EopTable) -> Result
 /// the epoch itself. It converges in a few iterations because the offset
 /// changes slowly.
 pub fn ut1_to_tai(ut1: f64, lsk: &LeapSecondTable, eop: &EopTable) -> Result<Epoch, TimeError> {
-    // `UT1 - TAI` is a little less than minus 32 seconds near the J2000
-    // epoch; this is only a starting guess.
-    let mut tai = ut1 + 32.0;
+    if !ut1.is_finite() {
+        return Err(TimeError::Ut1OutOfRange);
+    }
 
-    for _ in 0..8 {
+    let mut tai = initial_tai_guess(ut1, lsk, eop).ok_or(TimeError::Ut1OutOfRange)?;
+
+    for _ in 0..10 {
         let epoch = Epoch::from_tai_seconds(tai);
         let delta_at = delta_at_at_epoch(epoch, lsk).ok_or(TimeError::Ut1OutOfRange)? as f64;
         let ut1_minus_tai = ut1_minus_utc(epoch, lsk, eop)? - delta_at;
@@ -398,7 +419,30 @@ pub fn ut1_to_tai(ut1: f64, lsk: &LeapSecondTable, eop: &EopTable) -> Result<Epo
         tai = next;
     }
 
-    Ok(Epoch::from_tai_seconds(tai))
+    let epoch = Epoch::from_tai_seconds(tai);
+    let actual = tai_to_ut1(epoch, lsk, eop)?;
+    if math::abs(actual - ut1) > 1e-6 {
+        return Err(TimeError::Ut1OutOfRange);
+    }
+
+    Ok(epoch)
+}
+
+/// Clamps the first fixed-point guess to the EOP-supported TAI interval.
+fn initial_tai_guess(ut1: f64, lsk: &LeapSecondTable, eop: &EopTable) -> Option<f64> {
+    let (first_mjd, last_mjd) = eop.range();
+    if !first_mjd.is_finite() || !last_mjd.is_finite() || first_mjd > last_mjd {
+        return None;
+    }
+
+    let first_tai = tai_at_utc_day_start(mjd_to_jdn(first_mjd), lsk)? as f64;
+    let last_tai = tai_at_utc_day_start(mjd_to_jdn(last_mjd), lsk)? as f64 + 86_400.0;
+    Some((ut1 + 32.0).clamp(first_tai, last_tai))
+}
+
+/// Converts a daily EOP MJD to its Julian Day Number.
+fn mjd_to_jdn(mjd: f64) -> i64 {
+    J2000_JDN + math::round(mjd - 51_544.0) as i64
 }
 
 /// Converts a civil UTC representation to UT1 seconds past

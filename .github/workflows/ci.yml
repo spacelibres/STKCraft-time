@@ -13,7 +13,10 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
         with:
-          components: clippy
+          components: clippy, rustfmt
+          targets: wasm32-unknown-unknown, thumbv7em-none-eabi
+      - name: Check formatting
+        run: cargo fmt --all -- --check
       - name: Run tests
         run: cargo test --locked --all-targets
       - name: Run tests with MCP feature
@@ -24,5 +27,21 @@ jobs:
         run: cargo clippy --locked --all-targets --features mcp -- -D warnings
       - name: Build without default features
         run: cargo build --locked --no-default-features
+      - name: Build wasm32 no_std
+        run: cargo build --locked --no-default-features --target wasm32-unknown-unknown
+      - name: Build thumbv7em no_std
+        run: cargo build --locked --no-default-features --target thumbv7em-none-eabi
       - name: Build MCP server
         run: cargo build --locked --features mcp --bin stkcraft-mcp
+      - name: Build docs
+        run: RUSTDOCFLAGS="-D warnings" cargo doc --locked --no-deps --all-features
+
+  msrv:
+    name: MSRV 1.75
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Rust 1.75
+        uses: dtolnay/rust-toolchain@1.75.0
+      - name: Check MSRV
+        run: cargo check --locked --all-targets --features mcp

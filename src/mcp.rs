@@ -9,6 +9,7 @@
 
 use std::fs;
 use std::io::{self, BufRead, Write};
+use std::panic::{catch_unwind, AssertUnwindSafe};
 
 use serde_json::{json, Value};
 
@@ -22,6 +23,10 @@ use crate::epoch::{Epoch, UtcDateTime};
 use crate::format;
 use crate::leap::LeapSecondTable;
 use crate::sclk::SclkKernel;
+
+const MCP_PROTOCOL_VERSION: &str = "2024-11-05";
+const MAX_MESSAGE_BYTES: usize = 1_048_576;
+const MAX_PRECISION: usize = 9;
 
 /// Runs the MCP server on stdin/stdout until EOF.
 pub fn run_stdio() -> io::Result<()> {
@@ -47,6 +52,10 @@ pub fn run_stdio() -> io::Result<()> {
 
 /// Handles one JSON-RPC message. Returns `None` for notifications.
 pub fn handle_message(message: &str) -> Option<String> {
+    if message.len() > MAX_MESSAGE_BYTES {
+        return Some(error_response(Value::Null, -32600, "message too large").to_string());
+    }
+
     let request: Value = match serde_json::from_str(message) {
         Ok(value) => value,
         Err(error) => {
@@ -56,39 +65,62 @@ pub fn handle_message(message: &str) -> Option<String> {
         }
     };
 
+    if !request.is_object() {
+        return Some(
+            error_response(Value::Null, -32600, "invalid request: expected an object").to_string(),
+        );
+    }
+
     let id = request.get("id").cloned();
-    let method = request.get("method").and_then(Value::as_str)?;
+    let method = match request.get("method").and_then(Value::as_str) {
+        Some(method) => method,
+        None => {
+            if let Some(id) = id {
+                return Some(
+                    error_response(id, -32600, "invalid request: missing method").to_string(),
+                );
+            }
+            return None;
+        }
+    };
 
     // JSON-RPC notifications carry no id and must not receive a response.
     let id = id?;
+
+    match request.get("jsonrpc").and_then(Value::as_str) {
+        Some("2.0") => {}
+        Some(_) => {
+            return Some(
+                error_response(id, -32600, "invalid request: jsonrpc must be \"2.0\"").to_string(),
+            )
+        }
+        None => {
+            return Some(error_response(id, -32600, "invalid request: missing jsonrpc").to_string())
+        }
+    }
+
     let params = request.get("params").cloned().unwrap_or(Value::Null);
 
     match method {
-        "initialize" => {
-            let version = params
-                .get("protocolVersion")
-                .and_then(Value::as_str)
-                .unwrap_or("2024-11-05");
-            Some(
-                success_response(
-                    id,
-                    json!({
-                        "protocolVersion": version,
-                        "capabilities": {
-                            "tools": {
-                                "listChanged": false
-                            }
-                        },
-                        "serverInfo": {
-                            "name": "stkcraft-time",
-                            "version": env!("CARGO_PKG_VERSION")
-                        },
-                        "instructions": "Convert between UTC, TAI, TT, ET/TDB, GPS, UT1 and spacecraft clock ticks. The tools read LSK, SCLK and EOP files from local paths; omit lsk_path to use the bundled naif0012.tls."
-                    }),
-                )
-                .to_string(),
+        "initialize" => Some(
+            success_response(
+                id,
+                json!({
+                    "protocolVersion": MCP_PROTOCOL_VERSION,
+                    "capabilities": {
+                        "tools": {
+                            "listChanged": false
+                        }
+                    },
+                    "serverInfo": {
+                        "name": "stkcraft-time",
+                        "version": env!("CARGO_PKG_VERSION")
+                    },
+                    "instructions": "Convert between UTC, TAI, TT, ET/TDB, GPS, UT1 and spacecraft clock ticks. The tools read LSK, SCLK and EOP files from local paths; omit lsk_path to use the bundled naif0012.tls."
+                }),
             )
-        }
+            .to_string(),
+        ),
         "ping" => Some(success_response(id, json!({})).to_string()),
         "tools/list" => {
             Some(success_response(id, json!({ "tools": tool_definitions() })).to_string())
@@ -107,8 +139,9 @@ pub fn handle_message(message: &str) -> Option<String> {
                 .cloned()
                 .unwrap_or_else(|| json!({}));
 
-            let result = match call_tool(name, &arguments) {
-                Ok(value) => {
+            let outcome = catch_unwind(AssertUnwindSafe(|| call_tool(name, &arguments)));
+            let result = match outcome {
+                Ok(Ok(value)) => {
                     let text = match serde_json::to_string_pretty(&value) {
                         Ok(text) => text,
                         Err(_) => value.to_string(),
@@ -122,11 +155,20 @@ pub fn handle_message(message: &str) -> Option<String> {
                         ]
                     })
                 }
-                Err(error) => json!({
+                Ok(Err(error)) => json!({
                     "content": [
                         {
                             "type": "text",
                             "text": error
+                        }
+                    ],
+                    "isError": true
+                }),
+                Err(_) => json!({
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "tool panicked"
                         }
                     ],
                     "isError": true
@@ -291,7 +333,7 @@ fn tool_definitions() -> Value {
                     "minute": { "type": "integer", "minimum": 0, "maximum": 59 },
                     "second": { "type": "number", "minimum": 0, "exclusiveMaximum": 61 },
                     "kind": { "type": "string", "enum": ["iso8601", "rfc3339", "rfc2822", "spice", "strftime"] },
-                    "precision": { "type": "integer", "minimum": 0, "description": "Fractional digits for ISO/RFC 3339/SPICE" },
+                    "precision": { "type": "integer", "minimum": 0, "maximum": 9, "description": "Fractional digits for ISO/RFC 3339/SPICE" },
                     "pattern": { "type": "string", "description": "strftime pattern when kind=strftime" }
                 },
                 "required": ["year", "month", "day", "hour", "minute", "second"]
@@ -304,7 +346,7 @@ fn tool_definitions() -> Value {
                 "type": "object",
                 "properties": {
                     "et": { "type": "number" },
-                    "precision": { "type": "integer", "minimum": 0 }
+                    "precision": { "type": "integer", "minimum": 0, "maximum": 9 }
                 },
                 "required": ["et"]
             }
@@ -361,10 +403,19 @@ fn epoch_schema() -> Value {
                 "type": "number",
                 "description": "TAI seconds past 2000-01-01T00:00:00 TAI"
             },
+            "sec": {
+                "type": "integer",
+                "description": "Whole TAI seconds; use with nanos instead of tai_seconds"
+            },
+            "nanos": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 999999999,
+                "description": "Nanoseconds for sec"
+            },
             "calendar": { "type": "string", "enum": ["gregorian", "julian", "mixed"] },
             "lsk_path": { "type": "string", "description": "Path to a KPL/LSK kernel" }
-        },
-        "required": ["tai_seconds"]
+        }
     })
 }
 
@@ -375,9 +426,18 @@ fn tai_seconds_schema() -> Value {
             "tai_seconds": {
                 "type": "number",
                 "description": "TAI seconds past 2000-01-01T00:00:00 TAI"
+            },
+            "sec": {
+                "type": "integer",
+                "description": "Whole TAI seconds; use with nanos instead of tai_seconds"
+            },
+            "nanos": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 999999999,
+                "description": "Nanoseconds for sec"
             }
-        },
-        "required": ["tai_seconds"]
+        }
     })
 }
 
@@ -439,7 +499,7 @@ fn call_tool(name: &str, args: &Value) -> Result<Value, String> {
         }
         "tai_to_utc" => {
             let lsk = load_lsk(args)?;
-            let tai = Epoch::from_tai_seconds(as_f64(args, "tai_seconds")?);
+            let tai = epoch_arg(args)?;
             let calendar = calendar_arg(args)?;
             let utc = tai_to_utc(tai, calendar, &lsk).map_err(|error| error.to_string())?;
             Ok(json!({
@@ -469,14 +529,14 @@ fn call_tool(name: &str, args: &Value) -> Result<Value, String> {
         }
         "tai_to_tt" => {
             let lsk = load_lsk(args)?;
-            let tai = Epoch::from_tai_seconds(as_f64(args, "tai_seconds")?);
+            let tai = epoch_arg(args)?;
             Ok(json!({
                 "tai": epoch_json(tai),
                 "tt": tai_to_tt(tai, &lsk)
             }))
         }
         "tai_to_gps" => {
-            let tai = Epoch::from_tai_seconds(as_f64(args, "tai_seconds")?);
+            let tai = epoch_arg(args)?;
             Ok(json!({
                 "tai": epoch_json(tai),
                 "gps_seconds": tai_to_gps(tai)
@@ -522,9 +582,7 @@ fn call_tool(name: &str, args: &Value) -> Result<Value, String> {
             let tai = sclk
                 .ticks_to_tai(ticks, &lsk)
                 .map_err(|error| error.to_string())?;
-            let fields = sclk
-                .fields_from_ticks(ticks)
-                .map_err(|error| error.to_string())?;
+            let fields = fields_if_integral(&sclk, ticks);
             Ok(json!({
                 "ticks": ticks,
                 "fields": fields,
@@ -539,12 +597,11 @@ fn call_tool(name: &str, args: &Value) -> Result<Value, String> {
             let ticks = sclk
                 .et_to_ticks(et, &lsk)
                 .map_err(|error| error.to_string())?;
-            let fields = sclk
-                .fields_from_ticks(ticks)
-                .map_err(|error| error.to_string())?;
-            let clock_string = sclk
-                .format_string(&fields)
-                .map_err(|error| error.to_string())?;
+            let fields = fields_if_integral(&sclk, ticks);
+            let clock_string = match &fields {
+                Some(fields) => sclk.format_string(fields).ok(),
+                None => None,
+            };
             Ok(json!({
                 "et": et,
                 "ticks": ticks,
@@ -554,7 +611,7 @@ fn call_tool(name: &str, args: &Value) -> Result<Value, String> {
         }
         "format_utc" => {
             let utc = utc_arg(args)?;
-            let precision = args.get("precision").and_then(Value::as_u64).unwrap_or(3) as usize;
+            let precision = precision_arg(args)?;
             let kind = opt_str(args, "kind")
                 .unwrap_or("iso8601")
                 .to_ascii_lowercase();
@@ -576,7 +633,7 @@ fn call_tool(name: &str, args: &Value) -> Result<Value, String> {
         }
         "etcal" => {
             let et = as_f64(args, "et")?;
-            let precision = args.get("precision").and_then(Value::as_u64).unwrap_or(3) as usize;
+            let precision = precision_arg(args)?;
             Ok(json!({
                 "et": et,
                 "calendar": format::etcal(et, precision)
@@ -621,6 +678,53 @@ fn as_i32(args: &Value, name: &str) -> Result<i32, String> {
 fn as_u8(args: &Value, name: &str) -> Result<u8, String> {
     let value = as_i64(args, name)?;
     u8::try_from(value).map_err(|_| format!("`{name}` is out of range"))
+}
+
+fn precision_arg(args: &Value) -> Result<usize, String> {
+    match args.get("precision") {
+        None => Ok(3),
+        Some(value) => {
+            let precision = value
+                .as_u64()
+                .ok_or_else(|| "`precision` must be a non-negative integer".to_string())?;
+            if precision > MAX_PRECISION as u64 {
+                return Err(format!("`precision` must be between 0 and {MAX_PRECISION}"));
+            }
+            Ok(precision as usize)
+        }
+    }
+}
+
+fn epoch_arg(args: &Value) -> Result<Epoch, String> {
+    if let Some(value) = args.get("tai_seconds") {
+        let seconds = value
+            .as_f64()
+            .ok_or_else(|| "`tai_seconds` must be a number".to_string())?;
+        return Epoch::checked_from_tai_seconds(seconds)
+            .ok_or_else(|| "`tai_seconds` is non-finite or out of range".to_string());
+    }
+
+    let sec = as_i64(args, "sec")?;
+    let nanos = match args.get("nanos") {
+        Some(value) => value
+            .as_i64()
+            .ok_or_else(|| "`nanos` must be an integer".to_string())?,
+        None => 0,
+    };
+
+    Epoch::checked_from_parts(sec, nanos)
+        .ok_or_else(|| "`sec`/`nanos` are out of range".to_string())
+}
+
+fn fields_if_integral(sclk: &SclkKernel, ticks: f64) -> Option<Vec<i64>> {
+    if !ticks.is_finite() {
+        return None;
+    }
+    let rounded = ticks.round();
+    if (ticks - rounded).abs() > 1e-6 {
+        return None;
+    }
+    sclk.fields_from_ticks(rounded).ok()
 }
 
 fn calendar_arg(args: &Value) -> Result<Calendar, String> {

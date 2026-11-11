@@ -5,8 +5,8 @@
 //! nor CSPICE exposes these scales, so ERFA is the independent reference.
 //!
 //! TCG is a pure TT linear function and must match tightly. TCB is built
-//! from this crate's TDB (NAIF model, ~30 us); the test tolerance reflects
-//! that model difference rather than hiding it.
+//! from this crate's IAU Fairhead & Bretagnon TDB model; the tolerance is
+//! above the measured f64 spacing and far below the old NAIF model error.
 
 use stkcraft_time::calendar::{gregorian_to_jdn, J2000_JDN};
 use stkcraft_time::convert::tai_to_tt;
@@ -67,8 +67,10 @@ fn matches_erfa_golden() {
     assert!(checked >= 5, "expected at least five golden rows");
     assert!(worst_tt < 1e-6, "TT mismatch {worst_tt:e} s");
     assert!(worst_tcg < 1e-6, "TCG mismatch {worst_tcg:e} s");
-    // TCB carries the NAIF TDB model; ERFA uses the full IAU TDB series.
-    assert!(worst_tcb < 5e-5, "TCB mismatch {worst_tcb:e} s");
+    // TCB uses the IAU TDB series, not the NAIF one-term model. The
+    // measured error is about 2.4e-7 s; this threshold catches a regression
+    // to the ~30 us NAIF model while allowing f64 spacing.
+    assert!(worst_tcb < 1e-6, "TCB mismatch {worst_tcb:e} s");
 
     println!(
         "vs ERFA over {checked} epochs: TT {worst_tt:.3e} s, TCG {worst_tcg:.3e} s, TCB {worst_tcb:.3e} s"

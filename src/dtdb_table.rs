@@ -3,6 +3,8 @@
 //! Fairhead & Bretagnon (1990) TDB-TT series, 787 terms, amplitudes
 //! in seconds, frequencies in radians per Julian millennium, phases in
 //! radians. Extracted from ERFA `dtdb.c` (IAU SOFA `iauDtdb`).
+//! Source commit: 1a8044cde5b7763295d472a6443387239127c6c8
+//! Source SHA-256: 228bd7c7c1c88dda44c29a076f289c968f64d77a2dc389138b03ab5d1d442105
 
 pub(crate) static FAIRHD: [[f64; 3]; 787] = [
     [1656.674564e-6, 6283.075849991, 6.240054195],

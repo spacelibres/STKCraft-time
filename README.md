@@ -30,10 +30,10 @@ It does not link CSPICE and does not port CSPICE source code.
 
 ## Project status
 
-- Latest release: **v0.1.6** on GitHub Releases, including release-mode
+- Latest release: **v0.1.7** on GitHub Releases, including release-mode
   binaries for Linux, macOS (x86_64 and arm64) and Windows.
 - crates.io publication is pending a registry token. Until then, install
-  from the `v0.1.6` Git tag as shown below.
+  from the `v0.1.7` Git tag as shown below.
 - Minimum supported Rust version: **1.75**.
 - The library is `no_std` compatible with `alloc`; the optional MCP server
   requires `std`.
@@ -44,23 +44,23 @@ Until the crate is published to crates.io, use the tagged repository:
 
 ```toml
 [dependencies]
-stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.6" }
+stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.7" }
 ```
 
 ```sh
-cargo add --git https://github.com/spacelibres/STKCraft-time --tag v0.1.6 stkcraft-time
+cargo add --git https://github.com/spacelibres/STKCraft-time --tag v0.1.7 stkcraft-time
 ```
 
 After the crates.io publication, this becomes:
 
 ```toml
-stkcraft-time = "0.1.6"
+stkcraft-time = "0.1.7"
 ```
 
 For `no_std` plus `alloc`:
 
 ```toml
-stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.6", default-features = false }
+stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.7", default-features = false }
 ```
 
 ## Releases
@@ -603,7 +603,10 @@ cargo test                          # unit and integration tests
 cargo test --features mcp           # MCP protocol tests
 cargo test --test spice_golden      # 82 CSPICE reference vectors
 cargo build --no-default-features   # no_std + alloc build
+cargo build --no-default-features --target wasm32-unknown-unknown
+cargo build --no-default-features --target thumbv7em-none-eabi
 cargo build --release --features mcp --bins
+cargo +1.75.0 check --all-targets --features mcp
 cargo clippy --all-targets -- -D warnings
 cargo clippy --all-targets --features mcp -- -D warnings
 RUSTDOCFLAGS="-D warnings" cargo doc --no-deps
@@ -613,10 +616,10 @@ python tools/wgc2_compare.py        # live WGC2 (CSPICE front-end) check
 The library is `no_std` compatible with `alloc`:
 
 ```toml
-stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.6", default-features = false }
+stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.7", default-features = false }
 
 # after crates.io publication:
-# stkcraft-time = { version = "0.1.6", default-features = false }
+# stkcraft-time = { version = "0.1.7", default-features = false }
 ```
 
 In `no_std` builds, `libm` supplies `sin`, `floor`, `round` and `fmod`;

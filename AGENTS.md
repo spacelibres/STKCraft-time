@@ -47,6 +47,9 @@ cargo clippy --all-targets --features mcp -- -D warnings
 cargo build --no-default-features
 cargo build --release --features mcp --bins
 cargo test --release --features mcp
+cargo +1.75.0 check --locked --all-targets --features mcp
+cargo build --locked --no-default-features --target wasm32-unknown-unknown
+cargo build --locked --no-default-features --target thumbv7em-none-eabi
 RUSTDOCFLAGS="-D warnings" cargo doc --no-deps
 ```
 

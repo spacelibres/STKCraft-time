@@ -1,6 +1,6 @@
 # `stkcraft-time` API guide
 
-This guide shows how to call the public API of `stkcraft-time` 0.1.6. It
+This guide shows how to call the public API of `stkcraft-time` 0.1.7. It
 is task-oriented: each section answers "which function do I call, and what
 data do I need to load first?" For item-level reference documentation,
 run:
@@ -34,13 +34,13 @@ I/O and does not bundle mission data. The caller supplies the data files
 
 ```toml
 [dependencies]
-stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.6" }
+stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.7" }
 
 # crates.io, once published:
-# stkcraft-time = "0.1.6"
+# stkcraft-time = "0.1.7"
 
 # no_std + alloc:
-# stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.6", default-features = false }
+# stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.7", default-features = false }
 ```
 
 The internal epoch representation is integer seconds plus nanoseconds;
@@ -318,7 +318,9 @@ let tai = utc_to_tai(&utc, Calendar::Gregorian, &lsk)?;
 // Raw table interpolation. It does not remove the leap-second step.
 let raw = eop.ut1_minus_utc(57_753.5)?;
 
-// Leap-aware: removes the known TAI-UTC step before interpolating.
+// Leap-aware: each EOP sample is converted to continuous UT1-TAI
+// before interpolation, so a missing day across a leap second does not
+// smear the step.
 let offset = ut1_minus_utc(tai, &lsk, &eop)?;
 
 // Continuous UT1 seconds past 2000-01-01T00:00:00 UT1.
@@ -330,9 +332,11 @@ Use `convert::ut1_minus_utc` for epochs on the UT1 scale.
 Use `EopTable::ut1_minus_utc` only for table inspection or when the
 leap-second step is irrelevant.
 
-The leap-aware conversion needs EOP samples for the UTC day containing the
-epoch **and** the following day. If either is missing, the result is
-`TimeError::Ut1OutOfRange`.
+The leap-aware conversion interpolates `UT1 - TAI`, not raw `UT1 - UTC`.
+The EOP table must contain a sample on or before the epoch's UTC day and a
+later sample; the last sample day is not usable as an epoch boundary.
+Missing days inside the table are handled as a continuous gap, without
+reintroducing a leap-second step.
 
 ## 8. Spacecraft clock kernels (SCLK)
 
@@ -382,14 +386,26 @@ let ticks_from_tai = sclk.tai_to_ticks(tai, &lsk)?;
 
 - `spacecraft_id` may be positive or negative; kernel variables are looked
   up with the magnitude (`-41` and `41` both find the `_41` variables).
+- `SCLK01_OFFSETS` gives the first displayed value of each field. The
+  encoded counter is `field - offset`; decoding adds the offset back. For
+  a Voyager-like third field with offset 1, the displayed field
+  `[0, 0, 1]` is encoded tick 0, not tick 2.
 - `SclkTimeSystem::Tdb` coefficients are ET seconds past J2000 directly.
   `SclkTimeSystem::Tdt` coefficients are TT seconds past J2000 and use the
   LSK for the TT↔ET step.
 - `parallel_seconds(ticks)` and `ticks_from_parallel(seconds)` stop at the
   parallel time system; `ticks_to_et`/`et_to_ticks` and
-  `ticks_to_tai`/`tai_to_ticks` perform the scale conversion.
+  `ticks_to_tai`/`tai_to_ticks` perform the scale conversion. Continuous
+  (non-integral) ticks are valid for all of these conversions.
+- `fields_from_ticks` and `ticks_from_fields` operate on discrete encoded
+  ticks. `fields_from_ticks` rejects a value more than 1e-6 from an
+  integer; callers that only need ET/TAI should use the tick conversion
+  functions directly.
 - Partition boundaries are parsed and exposed through `partitions()` but
-  are not applied. Partition-aware reformatting is not implemented.
+  are not applied. When the kernel has more than one partition or a
+  nonzero partition start, field and string conversion returns
+  `TimeError::SclkPartitionsUnsupported`; encoded ticks↔ET/TAI remain
+  available for callers that apply partitions themselves.
 
 ## 9. Coordinate scales: TCG and TCB
 
@@ -430,10 +446,14 @@ assert_eq!(exclusive.len(), 3);
 ```
 
 `Epoch` stores integer TAI seconds plus nanoseconds since
-`2000-01-01T00:00:00 TAI`. `Duration` is exact and normalised. Use the
-`checked_*` methods for untrusted input; the infallible constructors and
-operators panic on overflow. `TimeSeries` yields nothing when `step` is
-zero or negative.
+`2000-01-01T00:00:00 TAI`. `Duration` is exact and normalised. Use
+`Epoch::checked_from_parts`, `checked_from_tai_seconds`, `checked_add`
+and `checked_sub`, or the `Duration::checked_*` methods, for untrusted
+input. The infallible constructors and operators panic on overflow or
+non-finite input rather than wrapping or returning a fake zero.
+`TimeSeries` yields nothing when `step` is zero or negative, and it uses
+checked cursor advancement so the last representable epoch is delivered
+before iteration ends.
 
 ## 11. Formatting
 
@@ -456,6 +476,12 @@ let format = Format::parse("%Y-%m-%dT%H:%M:%SZ")?;
 let rendered = Formatter::new(&utc, &format).to_string();
 ```
 
+Precision is clamped to 9 fractional digits. Rounding is carry-aware:
+`59.9999` with precision 3 becomes the next minute, and `60.9999` on a
+leap second becomes the next day. `etcal` splits ET into whole days and
+seconds before formatting, so microsecond values survive. A non-finite
+ET produces `"INVALID ET"`.
+
 Supported `strftime` tokens: `%Y %y %m %d %e %H %M %S %j %a %A %b %B %z
 %Z %f %%`. `%f` is nanoseconds; `%z` is `+0000`; `%Z` is `UTC`. An
 unsupported token returns `TimeError::InvalidFormat`.
@@ -471,10 +497,11 @@ unsupported token returns `TimeError::InvalidFormat`.
 | `InvalidSecond` | Seconds component outside `0.0..61.0`. |
 | `InvalidLeapSecond` | `23:59:60.x` without a positive leap second, or `23:59:59.x` on a shortened day. |
 | `UtcOutOfRange` | UTC epoch outside the supplied LSK coverage. |
-| `Ut1OutOfRange` | Epoch or neighbouring day outside the EOP table. |
+| `Ut1OutOfRange` | Epoch or bracketing EOP sample outside the table. |
 | `EopMissing` | Empty EOP table. |
 | `EopParse` | EOP text or sample is invalid, including non-finite values. |
 | `SclkParse` / `SclkMissing` / `SclkUnsupported` | SCLK text, missing variable, or non-type-1 clock. |
+| `SclkPartitionsUnsupported` | Field/string conversion requested for a partitioned clock; encoded ticks↔ET remain usable. |
 | `LskParse` / `LskMissing` | LSK text or required `DELTET` variable. |
 | `InvalidFormat` | Unsupported `strftime` token. |
 | `Overflow` | Reserved for checked arithmetic. |
@@ -533,10 +560,14 @@ pub struct Epoch { /* private fields */ }
 
 impl Epoch {
     pub fn from_parts(sec: i64, nanos: i64) -> Self;
+    pub fn checked_from_parts(sec: i64, nanos: i64) -> Option<Self>;
     pub fn from_tai_seconds(seconds: f64) -> Self;
+    pub fn checked_from_tai_seconds(seconds: f64) -> Option<Self>;
     pub fn tai_seconds(&self) -> f64;
     pub fn sec(&self) -> i64;
     pub fn nanos(&self) -> u32;
+    pub fn checked_add(self, rhs: Duration) -> Option<Self>;
+    pub fn checked_sub(self, rhs: Duration) -> Option<Self>;
 }
 
 pub struct UtcDateTime {
@@ -571,6 +602,7 @@ impl Duration {
     pub fn checked_from_parts(sec: i64, nanos: i64) -> Option<Self>;
     pub fn from_nanoseconds(ns: i128) -> Option<Self>;
     pub fn from_seconds_f64(seconds: f64) -> Self;
+    pub fn checked_from_seconds_f64(seconds: f64) -> Option<Self>;
     pub fn sec(&self) -> i64;
     pub fn nanos(&self) -> i32;
     pub fn total_nanoseconds(&self) -> i128;

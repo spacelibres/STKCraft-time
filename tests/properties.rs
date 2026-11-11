@@ -95,3 +95,88 @@ fn duration_checked_add_is_exact() {
         }
     }
 }
+
+fn expected_duration(total: i128) -> Option<(i64, i32)> {
+    let sec = total.div_euclid(1_000_000_000);
+    let nanos = total.rem_euclid(1_000_000_000);
+    if sec < i64::MIN as i128 || sec > i64::MAX as i128 {
+        None
+    } else {
+        Some((sec as i64, nanos as i32))
+    }
+}
+
+#[test]
+fn duration_checked_operations_match_i128_oracle_at_extremes() {
+    let seconds = [
+        i64::MIN,
+        i64::MIN + 1,
+        -1_000_000_000,
+        -1,
+        0,
+        1,
+        1_000_000_000,
+        i64::MAX - 1,
+        i64::MAX,
+    ];
+    let nanos = [
+        -1_000_000_000,
+        -1,
+        0,
+        1,
+        500_000_000,
+        999_999_999,
+        1_000_000_000,
+    ];
+
+    let mut values = Vec::new();
+    for &sec in &seconds {
+        for &nano in &nanos {
+            if let Some(value) = Duration::checked_from_parts(sec, nano) {
+                values.push(value);
+            }
+        }
+    }
+
+    for &a in &values {
+        let a_total = a.total_nanoseconds();
+        assert_eq!(
+            a.checked_neg().map(|value| (value.sec(), value.nanos())),
+            expected_duration(-a_total)
+        );
+
+        for &b in &values {
+            let b_total = b.total_nanoseconds();
+            assert_eq!(
+                a.checked_add(b).map(|value| (value.sec(), value.nanos())),
+                expected_duration(a_total + b_total)
+            );
+            assert_eq!(
+                a.checked_sub(b).map(|value| (value.sec(), value.nanos())),
+                expected_duration(a_total - b_total)
+            );
+        }
+    }
+}
+
+#[test]
+fn epoch_checked_from_parts_matches_i128_oracle() {
+    let cases = [
+        (i64::MIN, -1_000_000_000),
+        (i64::MIN, 0),
+        (i64::MIN, 999_999_999),
+        (i64::MAX, 0),
+        (i64::MAX, 999_999_999),
+        (i64::MAX, 1_000_000_000),
+        (0, -1),
+        (0, 1_000_000_000),
+    ];
+
+    for (sec, nanos) in cases {
+        let total = sec as i128 * 1_000_000_000 + nanos as i128;
+        let expected = expected_duration(total);
+        let actual =
+            Epoch::checked_from_parts(sec, nanos).map(|epoch| (epoch.sec(), epoch.nanos() as i32));
+        assert_eq!(actual, expected, "sec={sec}, nanos={nanos}");
+    }
+}

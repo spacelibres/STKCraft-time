@@ -4,6 +4,63 @@ All notable changes to `stkcraft-time` are documented here.
 
 The format follows Keep a Changelog. This crate uses semantic versioning.
 
+## [0.1.7] - 2026-11-11
+
+### Fixed
+
+- SCLK `SCLK01_OFFSETS` now follows NAIF: encode as `field - offset`,
+  decode as `encoded + offset`. Nonzero-offset clocks such as Voyager no
+  longer gain or lose ticks.
+- `Epoch` arithmetic is checked end to end. `from_parts`, floating-point
+  construction, addition and subtraction no longer wrap in release;
+  checked variants are available for untrusted input.
+- MCP `precision` is limited to `0..=9` in the schema and execution layer,
+  and tool panics are isolated so a bad request cannot terminate the
+  service.
+- Formatting rounding now carries into minutes and days, clamps precision
+  to nanoseconds, and never emits `010.000` or a nonexistent `60.000`.
+- `etcal` splits ET into whole days and seconds before formatting, so
+  microseconds survive at J2000.
+- UT1 inverse conversion works at the first EOP day; the fixed-point
+  initial guess is clamped to the EOP-supported interval.
+- UT1 interpolation uses continuous `UT1 - TAI`, so missing EOP samples
+  across a leap second no longer reintroduce a ~0.25 s step error.
+- `Duration` checked negation, addition and subtraction use i128 totals
+  and accept representable extrema, including `a.checked_sub(a)`.
+- Non-finite and out-of-range floats are rejected instead of becoming
+  zero or saturated epochs/durations; EOP queries reject NaN.
+- LSK and SCLK parsers read all data blocks, validate calendar dates,
+  reject non-finite constants, require increasing ticks/seconds and
+  positive rates, and validate partition arrays.
+- SCLK partition-aware field/string conversion returns
+  `SclkPartitionsUnsupported` instead of silently ignoring offsets;
+  encoded ticks↔ET/TAI remain available.
+- MCP accepts continuous SCLK ticks; optional fields and clock strings are
+  `null` for non-integral ticks.
+- Invalid JSON-RPC requests receive `-32600`; the server advertises only
+  MCP protocol version `2024-11-05`.
+- `TimeSeries` uses checked cursor advancement and delivers the last
+  representable epoch before ending.
+- `tools/gen_dtdb_table.py` uses TLS verification by default, pins the
+  ERFA source commit and SHA-256, and requires an explicit `--insecure`.
+
+### Added
+
+- `Epoch::checked_from_parts`, `checked_from_tai_seconds`, `checked_add`,
+  `checked_sub`, and `Duration::checked_from_seconds_f64`.
+- `TimeError::SclkPartitionsUnsupported`.
+- MCP `sec`/`nanos` epoch input and schema precision limits.
+
+### Changed
+
+- CI now checks formatting, rustdoc, MSRV 1.75, wasm32 and
+  thumbv7em-none-eabi `no_std` builds.
+- Property tests use an independent i128 oracle at integer extremes.
+- TCG/TCB tolerance now protects the IAU TDB model instead of allowing
+  the old NAIF-model error.
+- Documentation and skills describe checked APIs, SCLK offsets, partition
+  behavior and UT1 interpolation.
+
 ## [0.1.6] - 2026-11-10
 
 ### Fixed

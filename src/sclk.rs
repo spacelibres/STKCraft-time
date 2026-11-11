@@ -15,8 +15,12 @@
 //! The encoded tick count of a field vector is
 //!
 //! ```text
-//! ticks = (((f0 + o0) * m1 + (f1 + o1)) * m2 + (f2 + o2)) * ...
+//! ticks = (((f0 - o0) * m1 + (f1 - o1)) * m2 + (f2 - o2)) * ...
 //! ```
+//!
+//! The offsets give the value of the first count of each field. For
+//! Voyager, the third field starts at 1, so its offset is 1 and the
+//! encoded counter runs from 0 to 799.
 //!
 //! and the number of ticks in one count of the most significant field is
 //! `m1 * m2 * ...`. The spacing between successive coefficient samples is
@@ -87,7 +91,7 @@ impl SclkKernel {
     /// looked up with the magnitude, matching NAIF kernels such as
     /// `MRO_SCLKSCET` (variables `_74`, clock id `-74`).
     pub fn parse(text: &str, spacecraft_id: i32) -> Result<Self, TimeError> {
-        let tokens = tokenize(extract_data(text)?);
+        let tokens = tokenize(&extract_data(text)?);
 
         let n_fields_token = find_var(&tokens, "SCLK01_N_FIELDS", spacecraft_id)
             .ok_or(TimeError::SclkMissing("SCLK01_N_FIELDS"))?;
@@ -137,11 +141,21 @@ impl SclkKernel {
             return Err(TimeError::SclkParse);
         }
         let mut coefficients = Vec::new();
+        let mut previous_ticks = f64::NEG_INFINITY;
+        let mut previous_seconds = f64::NEG_INFINITY;
         for chunk in coefficient_values.chunks(3) {
+            let ticks = parse_f64(chunk[0])?;
+            let seconds = parse_f64(chunk[1])?;
+            let rate = parse_f64(chunk[2])?;
+            if ticks <= previous_ticks || seconds <= previous_seconds || rate <= 0.0 {
+                return Err(TimeError::SclkParse);
+            }
+            previous_ticks = ticks;
+            previous_seconds = seconds;
             coefficients.push(SclkCoefficient {
-                ticks: parse_f64(chunk[0])?,
-                seconds: parse_f64(chunk[1])?,
-                rate: parse_f64(chunk[2])?,
+                ticks,
+                seconds,
+                rate,
             });
         }
 
@@ -158,6 +172,24 @@ impl SclkKernel {
             Some(index) => parse_f64_list(&tokens, index)?,
             None => Vec::new(),
         };
+
+        if partition_start.len() != partition_end.len() {
+            return Err(TimeError::SclkParse);
+        }
+        let mut previous_start = f64::NEG_INFINITY;
+        let mut previous_end = f64::NEG_INFINITY;
+        for (start, end) in partition_start.iter().zip(partition_end.iter()) {
+            if !start.is_finite()
+                || !end.is_finite()
+                || start > end
+                || *start < previous_start
+                || *end < previous_end
+            {
+                return Err(TimeError::SclkParse);
+            }
+            previous_start = *start;
+            previous_end = *end;
+        }
 
         Ok(Self {
             spacecraft_id,
@@ -224,6 +256,7 @@ impl SclkKernel {
 
     /// Encodes a field vector as a total tick count.
     pub fn ticks_from_fields(&self, fields: &[i64]) -> Result<f64, TimeError> {
+        self.ensure_partitionless()?;
         if fields.len() != self.n_fields {
             return Err(TimeError::SclkParse);
         }
@@ -231,7 +264,7 @@ impl SclkKernel {
         let mut ticks: i64 = 0;
         for (index, &field) in fields.iter().enumerate() {
             let value = field
-                .checked_add(self.offsets[index])
+                .checked_sub(self.offsets[index])
                 .ok_or(TimeError::SclkParse)?;
             if value < 0 {
                 return Err(TimeError::SclkParse);
@@ -254,6 +287,7 @@ impl SclkKernel {
     /// Partition boundaries are not applied; the fields are those of the
     /// continuous tick encoding.
     pub fn fields_from_ticks(&self, ticks: f64) -> Result<Vec<i64>, TimeError> {
+        self.ensure_partitionless()?;
         if !(ticks.is_finite() && ticks >= 0.0) {
             return Err(TimeError::SclkParse);
         }
@@ -267,26 +301,32 @@ impl SclkKernel {
 
         for index in (1..self.n_fields).rev() {
             let modulus = self.moduli[index];
-            fields[index] = remainder % modulus - self.offsets[index];
+            fields[index] = remainder % modulus + self.offsets[index];
             remainder /= modulus;
         }
-        fields[0] = remainder - self.offsets[0];
 
-        if fields[0] < 0 || fields[0] >= self.moduli[0] {
+        if remainder >= self.moduli[0] {
             return Err(TimeError::SclkParse);
         }
+        fields[0] = remainder + self.offsets[0];
 
         Ok(fields)
     }
 
     /// Converts encoded ticks to the parallel time system, in seconds.
     pub fn parallel_seconds(&self, ticks: f64) -> Result<f64, TimeError> {
+        if !ticks.is_finite() {
+            return Err(TimeError::SclkParse);
+        }
         let segment = self.segment_for_ticks(ticks)?;
         Ok(segment.seconds + (ticks - segment.ticks) * segment.rate / self.ticks_per_msb())
     }
 
     /// Converts a parallel-time value in seconds to encoded ticks.
     pub fn ticks_from_parallel(&self, seconds: f64) -> Result<f64, TimeError> {
+        if !seconds.is_finite() {
+            return Err(TimeError::SclkParse);
+        }
         let segment = self.segment_for_seconds(seconds)?;
         if segment.rate == 0.0 {
             return Err(TimeError::SclkParse);
@@ -331,6 +371,7 @@ impl SclkKernel {
 
     /// Parses a formatted clock string into a field vector.
     pub fn parse_string(&self, sclk: &str) -> Result<Vec<i64>, TimeError> {
+        self.ensure_partitionless()?;
         let mut fields = Vec::new();
         for part in sclk.split(self.delimiter) {
             fields.push(parse_i64(part.trim())?);
@@ -343,6 +384,7 @@ impl SclkKernel {
 
     /// Formats a field vector as a clock string.
     pub fn format_string(&self, fields: &[i64]) -> Result<String, TimeError> {
+        self.ensure_partitionless()?;
         if fields.len() != self.n_fields {
             return Err(TimeError::SclkParse);
         }
@@ -351,7 +393,23 @@ impl SclkKernel {
         Ok(parts.join(&delimiter))
     }
 
+    /// Fields and strings are only defined without partition offsets in
+    /// this version; keep encoded ticks available for partition-aware
+    /// callers that apply the boundaries themselves.
+    fn ensure_partitionless(&self) -> Result<(), TimeError> {
+        if self.partition_start.is_empty() && self.partition_end.is_empty() {
+            return Ok(());
+        }
+        if self.partition_start.len() == 1 && self.partition_start[0] == 0.0 {
+            return Ok(());
+        }
+        Err(TimeError::SclkPartitionsUnsupported)
+    }
+
     fn segment_for_ticks(&self, ticks: f64) -> Result<SclkCoefficient, TimeError> {
+        if !ticks.is_finite() {
+            return Err(TimeError::SclkParse);
+        }
         if self.coefficients.is_empty() {
             return Err(TimeError::SclkMissing("SCLK01_COEFFICIENTS"));
         }
@@ -363,6 +421,9 @@ impl SclkKernel {
     }
 
     fn segment_for_seconds(&self, seconds: f64) -> Result<SclkCoefficient, TimeError> {
+        if !seconds.is_finite() {
+            return Err(TimeError::SclkParse);
+        }
         if self.coefficients.is_empty() {
             return Err(TimeError::SclkMissing("SCLK01_COEFFICIENTS"));
         }
@@ -409,15 +470,32 @@ pub trait SclkMap {
     fn et_to_sclk(&self, et: f64) -> Result<String, TimeError>;
 }
 
-/// Extracts the `\begindata` ... `\begintext` block.
-fn extract_data(text: &str) -> Result<&str, TimeError> {
+/// Extracts every `\begindata` ... `\begintext` block.
+fn extract_data(text: &str) -> Result<String, TimeError> {
     const BEGIN: &str = "\\begindata";
     const END: &str = "\\begintext";
 
-    let start = text.find(BEGIN).ok_or(TimeError::SclkParse)? + BEGIN.len();
-    let rest = &text[start..];
-    let end = rest.find(END).unwrap_or(rest.len());
-    Ok(&rest[..end])
+    let mut data = String::new();
+    let mut rest = text;
+    let mut found = false;
+
+    while let Some(start) = rest.find(BEGIN) {
+        found = true;
+        let after = &rest[start + BEGIN.len()..];
+        let end = after.find(END).unwrap_or(after.len());
+        data.push_str(&after[..end]);
+        data.push('\n');
+        if end == after.len() {
+            break;
+        }
+        rest = &after[end + END.len()..];
+    }
+
+    if found {
+        Ok(data)
+    } else {
+        Err(TimeError::SclkParse)
+    }
 }
 
 /// Splits on whitespace and the assignment punctuation.
@@ -451,7 +529,7 @@ fn tokenize(input: &str) -> Vec<String> {
 
 /// Finds the index of a kernel variable token, trying both id signs.
 fn find_var(tokens: &[String], base: &str, spacecraft_id: i32) -> Option<usize> {
-    let magnitude = spacecraft_id.abs();
+    let magnitude = i64::from(spacecraft_id).abs();
     let candidates = [
         format!("{base}_{spacecraft_id}"),
         format!("{base}_{magnitude}"),
@@ -459,7 +537,7 @@ fn find_var(tokens: &[String], base: &str, spacecraft_id: i32) -> Option<usize> 
     ];
     tokens
         .iter()
-        .position(|token| candidates.iter().any(|candidate| candidate == token))
+        .rposition(|token| candidates.iter().any(|candidate| candidate == token))
 }
 
 /// Reads the parenthesised list following `name = (`.
@@ -502,7 +580,14 @@ fn parse_i64(token: &str) -> Result<i64, TimeError> {
 fn parse_f64(token: &str) -> Result<f64, TimeError> {
     // NAIF text kernels use Fortran `D` exponents.
     let normalised = token.replace('D', "E").replace('d', "e");
-    normalised.parse::<f64>().map_err(|_| TimeError::SclkParse)
+    let value = normalised
+        .parse::<f64>()
+        .map_err(|_| TimeError::SclkParse)?;
+    if value.is_finite() {
+        Ok(value)
+    } else {
+        Err(TimeError::SclkParse)
+    }
 }
 
 fn parse_i64_list(tokens: &[String], name_index: usize) -> Result<Vec<i64>, TimeError> {

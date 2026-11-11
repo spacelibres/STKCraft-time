@@ -61,7 +61,11 @@ Supported requests:
 | `ping` | Liveness check. |
 
 Notifications such as `notifications/initialized` receive no response,
-as required by JSON-RPC 2.0.
+as required by JSON-RPC 2.0. The server advertises only MCP protocol
+version `2024-11-05`; a request for another version receives that
+supported version in the `initialize` result. Invalid requests, including
+a missing `method`, receive a `-32600` error, and oversized messages are
+rejected.
 
 ## Tools
 
@@ -74,21 +78,26 @@ UTC tools accept `calendar`: `gregorian` (default), `julian`, or `mixed`.
 | `lsk_info` | — (`lsk_path` optional) | Coverage dates/JDNs, entries, source and policy. |
 | `delta_at` | `jdn`, or `year`/`month`/`day` | `TAI - UTC` in whole seconds. |
 | `utc_to_tai` | UTC fields | TAI seconds, sec/nanos, ISO 8601. |
-| `tai_to_utc` | `tai_seconds` | Civil UTC fields and ISO 8601. |
+| `tai_to_utc` | `tai_seconds`, or `sec` + `nanos` | Civil UTC fields and ISO 8601. |
 | `utc_to_et` | UTC fields | NAIF ET. |
 | `et_to_utc` | `et` | Civil UTC fields and ISO 8601. |
-| `tai_to_tt` | `tai_seconds` | TT seconds past J2000 TT. |
-| `tai_to_gps` | `tai_seconds` | GPS seconds past the GPS epoch. |
+| `tai_to_tt` | `tai_seconds`, or `sec` + `nanos` | TT seconds past J2000 TT. |
+| `tai_to_gps` | `tai_seconds`, or `sec` + `nanos` | GPS seconds past the GPS epoch. |
 | `gps_to_tai` | `gps_seconds` | TAI epoch. |
 | `utc_to_ut1` | UTC fields, `eop_path` | UT1 seconds past `2000-01-01T00:00:00 UT1`. |
 | `ut1_to_utc` | `ut1_seconds`, `eop_path` | Civil UTC fields and ISO 8601. |
-| `sclk_to_et` | `sclk_path`, `spacecraft_id`, and `ticks` or `clock_string` | Ticks, fields, ET and TAI. |
-| `et_to_sclk` | `sclk_path`, `spacecraft_id`, `et` | Ticks, fields and clock string. |
+| `sclk_to_et` | `sclk_path`, `spacecraft_id`, and `ticks` or `clock_string` | Ticks, optional fields, ET and TAI. |
+| `et_to_sclk` | `sclk_path`, `spacecraft_id`, `et` | Ticks, optional fields and clock string. |
 | `format_utc` | UTC fields, optional `kind`, `precision`, `pattern` | Formatted string. |
 | `etcal` | `et`, optional `precision` | SPICE calendar string. |
 
 EOP tools also accept `eop_series` (`a`, `b`, `final`) and
 `observed_only` (boolean). `sclk_path` must be a type-1 SCLK kernel.
+
+`precision` is limited to `0..=9`. `tai_seconds` may be replaced by an
+integer `sec` plus `nanos` for exact epoch exchange. SCLK tools accept
+continuous ticks; `fields` and `clock_string` are `null` when the tick
+value is not integral.
 
 ### `utc_to_et` example
 
@@ -158,9 +167,12 @@ block):
 - `23:59:60.x` without a positive leap second, and `23:59:59.x` on a
   shortened day, return `InvalidLeapSecond`.
 - Non-finite EOP samples are rejected with `EopParse`.
-- UT1 requires EOP samples for the UTC day and the following day.
-- SCLK support is limited to type-1 clocks; partitions are parsed but not
-  applied.
+- UT1 requires bracketing EOP samples around the UTC day; the last
+  sample day is not usable as an epoch boundary.
+- SCLK support is limited to type-1 clocks. Partitions are parsed but not
+  applied; field/string conversion returns
+  `SclkPartitionsUnsupported` for partitioned clocks, while encoded
+  ticks↔ET/TAI remain available.
 - Tool arguments are JSON numbers/strings. To pass a leap-second label,
   use `"second": 60.5`; do not pass a formatted string as a number.
 

@@ -23,6 +23,8 @@ pub enum TimeError {
     SclkMissing(&'static str),
     /// The spacecraft clock type is not supported.
     SclkUnsupported,
+    /// SCLK partition-aware field/string conversion is not implemented.
+    SclkPartitionsUnsupported,
     /// The requested epoch lies outside the EOP table.
     Ut1OutOfRange,
     /// A UTC time that does not exist at a leap-second boundary:
@@ -60,6 +62,12 @@ impl fmt::Display for TimeError {
                 write!(
                     f,
                     "unsupported spacecraft clock type (only type 1 is supported)"
+                )
+            }
+            TimeError::SclkPartitionsUnsupported => {
+                write!(
+                    f,
+                    "SCLK partition-aware field/string conversion is not implemented"
                 )
             }
             TimeError::Ut1OutOfRange => {
