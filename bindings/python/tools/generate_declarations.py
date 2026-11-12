@@ -45,7 +45,7 @@ def declaration(n,owner=None):
    if owner=='EopTable' and n.name=='samples':result='tuple[EopSample, ...]'
    if owner=='TimeContext' and n.name=='utc_to_et_batch':result='list[NaifEt]'
    if owner=='TimeContext' and n.name=='et_to_utc_batch':result='list[UtcDateTime]'
-   if n.name in ('decode_native_sclk','spice_short'):result='str'
+   if n.name in ('decode_native_sclk','spice_short','gps_seconds_to_week_tow'):result='str'
    if n.name in ('encode_native_sclk','encode_native_sclk_with_context'):result='float'
    if owner=='SclkKernel' and n.name=='ticks_to_et_batch':result='list[NaifEt]'
    if owner=='SclkKernel' and n.name=='et_to_ticks_batch':result='list[float]'

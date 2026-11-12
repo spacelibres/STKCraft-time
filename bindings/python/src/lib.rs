@@ -697,7 +697,7 @@ fn legacy_to(e: &NativeEpoch, l: &NativeLsk, scale: &str) -> PyResult<f64> {
         _ => return Err(err("InvalidScale")),
     })
 }
-// VALIDATION ONLY, tied to the exact =0.1.33 std core dependency. These
+// VALIDATION ONLY, tied to the exact =0.1.34 std core dependency. These
 // discarded f64 intermediates mirror convert/tdb/dtdb/coord inverse order to
 // check the argument before their infallible Epoch constructor. Every returned
 // scientific result still comes from the original public core function below.
@@ -876,6 +876,12 @@ fn raw_julian(
         .map(|v| v.days())
         .map_err(err)
 }
+#[pyfunction]
+fn wgc_gps_week_tow(seconds: f64, lsk: &NativeLsk) -> PyResult<String> {
+    c::wgc_gps::gps_seconds_to_week_tow(seconds, &lsk.0)
+        .map_err(|error| PyValueError::new_err(format!("WgcGps({error:?})")))
+}
+
 #[pymodule]
 fn _native(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<NativeEpoch>()?;
@@ -914,7 +920,8 @@ fn _native(m: &Bound<'_, PyModule>) -> PyResult<()> {
         leap_year,
         etcal,
         validate_format,
-        raw_julian
+        raw_julian,
+        wgc_gps_week_tow
     );
     m.add("VERSION", env!("CARGO_PKG_VERSION"))?;
     Ok(())

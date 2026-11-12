@@ -1,0 +1,7 @@
+{
+  "caption": "Latest Leapseconds Kernel",
+  "sclkId": "0",
+  "description": "Kernel set including only the latest generic LSK file (naif0012.tls).",
+  "kernelSetId": "2",
+  "missionId": "lsk"
+}

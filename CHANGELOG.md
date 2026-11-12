@@ -4,6 +4,19 @@ All notable changes to `stkcraft-time` are documented here.
 
 The format follows Keep a Changelog. This crate uses semantic versioning.
 
+## [0.1.34] - 2026-11-12
+
+### Added
+
+- Add an explicit Rust and Python WebGeocalc GPS-seconds-to-week/TOW
+  display path. It preserves the observed binary64 UNITIM round-trip,
+  six-place decimal rounding, signed zero and week-field saturation so the
+  tested NASA outputs can be reproduced without changing exact Epoch APIs.
+  Tested non-finite inputs return the WGC display string `0, NaN`.
+- Record 1,289 live WGC2 output cases, a 22-request live replay and
+  independent CSPICE intermediate-bit captures. The recorded kernel and
+  runtime limitations remain explicit; other WGC time formats remain open.
+
 ## [0.1.33] - 2026-11-12
 
 ### Added

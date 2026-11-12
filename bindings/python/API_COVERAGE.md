@@ -259,3 +259,5 @@ SCLK/LSK/kernel-date parsers and are not exported as a second scientific API.
 | `tdb::tai_to_tdb` | `compat.tai_to_tdb` | wrapped | Direct core delegation; integer narrowing and finite checks occur at the boundary. |
 | `tdb::tdb_to_tai` | `compat.tdb_to_tai` | wrapped | Direct core delegation; integer narrowing and finite checks occur at the boundary. |
 | `timescale::TimeScale` | `TimeScale` | wrapped | Direct core delegation; integer narrowing and finite checks occur at the boundary. |
+| `wgc_gps::WgcGpsError` | `WgcGpsError` | wrapped | Direct core delegation; integer narrowing and finite checks occur at the boundary. |
+| `wgc_gps::gps_seconds_to_week_tow` | `gps_seconds_to_week_tow` | wrapped | Direct core delegation; integer narrowing and finite checks occur at the boundary. |

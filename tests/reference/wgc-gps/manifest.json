@@ -1,0 +1,33 @@
+{
+  "algorithm": "sha256",
+  "files": {
+    "decimal-adjacent.json": "f4e2932b4872aa17d309da86bcaa951d869218ccd5c2bf350e39e28e10b3c48d",
+    "decimal-adjacent.tsv": "b8b8121b18a49d3ceaadfd4a56e297010d017f86e0b40ac518c81a931353069c",
+    "decimal-ties.json": "79d43c16f5ab243fd144b1b794630b55174614556f05ccad995185a79b486e27",
+    "decimal-ties.tsv": "1821fc17205c18b44477f28b474c4b411034c180371a27352888190f5d5b629a",
+    "half-ties.json": "3e9eb3007460c25291cfb8054feaa08e40fa34be2d843512e8d3bddbb68844ca",
+    "independent-half-probe.json": "89f3fdfa778ab3de783c8898259b4052f0e33303682c2e21eb9d0dbdd266dca5",
+    "independent-half-probe.tsv": "a0bd27ada4b789512d9f14ca7d513c06d9271a4a29c455f4d5f082d49aac44f0",
+    "integer-limits.json": "9215fb97e900e6ae3c3ad5804c094c2e7bddb0c1cf663bca5adb4148cd24fe72",
+    "kernel-set-2.json": "9a2d858c448e53050a64278f1c4f54110ed33c233b6e962522de59ef719a7289",
+    "large-seconds.json": "1bedd8acc395362e4675a21fdeb53a0210251f7e2d16a1091b4f6f909c2ffb02",
+    "lsk-comparison.json": "bf431fc60a370bba5e0b62f175fcc6d71e3a10705713bf3388af8ef13ed7f674",
+    "rounding-grid.json": "641ae32d061a42a44ace823090b7eb85070c7c7ee054ad54107523930e8d23ac",
+    "seconds-boundaries.json": "98bb1f5a49dfe33664afd20356006c0866fb572b1840bc9ae06452e60988a853",
+    "seconds-grid.json": "7a9d650675a463204d5c7c35fc3637782c04c8c10961b40c62a7a31afba112d9",
+    "seeded-grid.json": "88ea5761eed064791879138c9a0029fbfc7011ec30ca215015adebfefdc1ff3d",
+    "seeded-half-grid.json": "06cbdcf6ad235547a9f18b68d602cbcfac21eb6c84ddda94f6dcfc0df9989549",
+    "seeded-half-grid.tsv": "579f923f7047e2c49ab5bdea45f9a5c28426ef62cb3e29ee3599bc0220b5c5dc",
+    "unitim-altered.json": "a95ddf3481e464834333b3360ac7c4e81db6d42bc8fe3ce61802cf3a344d6efb",
+    "unitim-altered.tsv": "9f2e37f796e8409045941ebda1d16bcd9564fe8c7336d82878990af3716308b7",
+    "unitim-native.json": "82689ca18fd8160cb34b36815ab6c7c27346c76baa702e351129cdecf0c29621",
+    "unitim-native.tsv": "166112eacddddf4b9e8bad236ef69b3e2fc366af3e3194abc445b28e9675bc31",
+    "utc-outputs.json": "c257ccc2aa057cff5ff8add894ad3d9be9fe4e61947371fe11ad932cedc5d6e0",
+    "week-inputs.json": "b5de7e6b18f9ae2c2e054882cb8fc2724c88bd102d41fb596ee0d2b8fe81a165",
+    "week-tow-cases.tsv": "e75f9abe9ad80ae6a56dac7af3a0a142c22946dda0febb58290b02bff76fc9f7",
+    "week-tow-edge-cases.tsv": "c028b941e18a42cb3a3ff5b7ff34559d25b977e3ac067fe04638ac25915230fe",
+    "replay-2026-11-12.json": "d685d8c4e60455fee8912db35b4816a2f58ed3f763b5c6a915a26aad1980ac8a",
+    "nonfinite-inputs.json": "27c42fccbc3a4b8a994afb67101d5ea1448c82d109c8a20d58f08bc68fbda71f",
+    "nonfinite-inputs.tsv": "25e31a779dced3d0166b7e948b408af4708362a7bb650982a6d19caf4b4de6fd"
+  }
+}

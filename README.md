@@ -36,13 +36,13 @@ NPARSD operation order; see [ATTRIBUTION.md](ATTRIBUTION.md) for provenance.
 - **Reference:** `cargo doc --open`
 
 **Install:** `cargo add stkcraft-time`, or add
-`stkcraft-time = "0.1.33"` to `[dependencies]`. With `no_std`, use `default-features = false`.
+`stkcraft-time = "0.1.34"` to `[dependencies]`. With `no_std`, use `default-features = false`.
 
 ## Project status
 
-- Latest release: **v0.1.33** on GitHub Releases, including release-mode
+- Latest release: **v0.1.34** on GitHub Releases, including release-mode
   binaries for Linux, macOS (x86_64 and arm64) and Windows.
-- Published on crates.io as **`stkcraft-time` 0.1.33**, with API docs on
+- Published on crates.io as **`stkcraft-time` 0.1.34**, with API docs on
   [docs.rs](https://docs.rs/stkcraft-time).
 - Minimum supported Rust version: **1.75**.
 - The library is `no_std` compatible with `alloc`; the optional MCP server
@@ -56,13 +56,13 @@ cargo add stkcraft-time
 
 ```toml
 [dependencies]
-stkcraft-time = "0.1.33"
+stkcraft-time = "0.1.34"
 ```
 
 `no_std` plus `alloc`:
 
 ```toml
-stkcraft-time = { version = "0.1.33", default-features = false }
+stkcraft-time = { version = "0.1.34", default-features = false }
 ```
 
 The MCP server and the validation binaries are optional:
@@ -74,7 +74,7 @@ cargo install stkcraft-time --features mcp --bin stkcraft-mcp
 To track the repository instead of a crates.io release, pin a tag:
 
 ```toml
-stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.33" }
+stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.34" }
 ```
 
 ## Releases
@@ -392,6 +392,7 @@ Implemented:
 - SCLK type-1 kernel parsing and tick/time conversion (`sclk` module)
 - ISO 8601, RFC 3339, RFC 2822 and C89 `strftime`-style formatting
 - `etcal` (no kernel required)
+- An explicit, sample-verified WGC GPS-seconds to week/TOW display path
 - Kernel `@date` literal parsing (`kernel_date` module, exercised N0067
   `TPARTV`/`TPARSE` profile)
 
@@ -742,7 +743,7 @@ python tools/wgc2_compare.py        # live WGC2 (CSPICE front-end) check
 The library is `no_std` compatible with `alloc`:
 
 ```toml
-stkcraft-time = { version = "0.1.33", default-features = false }
+stkcraft-time = { version = "0.1.34", default-features = false }
 ```
 
 In `no_std` builds, `libm` supplies `sin`, `cos`, `floor` and `round`;

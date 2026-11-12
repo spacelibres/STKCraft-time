@@ -1,0 +1,98 @@
+{
+  "request": {
+    "calculationType": "TIME_CONVERSION",
+    "kernels": [
+      {
+        "type": "KERNEL_SET",
+        "id": 2
+      }
+    ],
+    "timeSystem": "GPS",
+    "timeFormat": "SECONDS_PAST_GPS0",
+    "times": [
+      "2147644800",
+      "-2147644800",
+      "3000000000",
+      "-3000000000",
+      "500000.01156949997",
+      "-500000.01156949997",
+      "500000.0145365",
+      "-500000.0145365"
+    ],
+    "timeStep": 1,
+    "timeStepUnits": "SECONDS",
+    "outputTimeSystem": "GPS",
+    "outputTimeFormat": "WEEK_TOW"
+  },
+  "created": {
+    "status": "OK",
+    "message": "The request was successful.",
+    "calculationId": "8dd0853f-fdc5-4e2d-9dbe-c62e75b40b41",
+    "result": {
+      "phase": "COMPLETE",
+      "expiresIn": 600
+    }
+  },
+  "status": {
+    "status": "OK",
+    "message": "The request was successful.",
+    "calculationId": "8dd0853f-fdc5-4e2d-9dbe-c62e75b40b41",
+    "result": {
+      "phase": "COMPLETE",
+      "expiresIn": 598
+    }
+  },
+  "results": {
+    "status": "OK",
+    "message": "The request was successful.",
+    "calculationId": "8dd0853f-fdc5-4e2d-9dbe-c62e75b40b41",
+    "columns": [
+      {
+        "name": "Seconds past GPS zero time",
+        "type": "NUMBER",
+        "units": "",
+        "outputID": "DATE"
+      },
+      {
+        "name": "Week past GPS zero time, TOW (s)",
+        "type": "DATE",
+        "units": "",
+        "outputID": "DATE2"
+      }
+    ],
+    "rows": [
+      [
+        2147644800.0,
+        "3550, 0.000000"
+      ],
+      [
+        -2147644800.0,
+        "-3550, -0.000000"
+      ],
+      [
+        3000000000.0,
+        "3550, 192000.000000"
+      ],
+      [
+        -3000000000.0,
+        "-3550, -192000.000000"
+      ],
+      [
+        500000.011569,
+        "0, 500000.011569"
+      ],
+      [
+        -500000.011569,
+        "0, -500000.011569"
+      ],
+      [
+        500000.014537,
+        "0, 500000.014537"
+      ],
+      [
+        -500000.014537,
+        "0, -500000.014537"
+      ]
+    ]
+  }
+}

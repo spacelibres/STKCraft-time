@@ -12,7 +12,7 @@
 
 # `stkcraft-time` API guide
 
-This guide shows how to call the public API of `stkcraft-time` 0.1.33. It
+This guide shows how to call the public API of `stkcraft-time` 0.1.34. It
 is task-oriented: each section answers "which function do I call, and what
 data do I need to load first?" For item-level reference documentation,
 run:
@@ -59,13 +59,13 @@ replaces it.
 
 ```toml
 [dependencies]
-stkcraft-time = "0.1.33"
+stkcraft-time = "0.1.34"
 
 # no_std + alloc:
-# stkcraft-time = { version = "0.1.33", default-features = false }
+# stkcraft-time = { version = "0.1.34", default-features = false }
 
 # or pin the repository:
-# stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.33" }
+# stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.34" }
 ```
 
 The internal epoch representation is integer seconds plus nanoseconds;
@@ -329,6 +329,22 @@ let tai_from_gps = gps_to_tai(gps);
 
 `GPS` is a continuous scale defined as `TAI - 19 s`; GPS↔TAI itself needs
 no leap-second table. Conversions that involve UTC still need the LSK.
+
+### WebGeocalc GPS week/TOW display
+
+`wgc_gps::gps_seconds_to_week_tow(seconds, &lsk)` converts a binary64
+GPS-epoch second input to the exercised WebGeocalc six-decimal week/TOW
+string. The tested non-finite inputs produce WGC's literal `0, NaN`;
+this is a display string and does not represent a valid numeric epoch. It performs the observed NAIF TAI→TDB→TAI round-trip using the
+selected LSK before formatting. The displayed week saturates the integer
+seconds to i32 before division, while the remainder uses the full value.
+Shortest-decimal half-away rounding preserves negative zero and does not
+carry a displayed 604800-second remainder into the week.
+
+This compatibility path differs from exact integer-time arithmetic. It is
+verified only for the documented live WGC2 and native samples; arbitrary
+kernels, platforms, input strings and other WGC output formats remain open.
+See `tests/reference/wgc-gps/README.md` for captured inputs and provenance.
 
 ### 6.1 Which TDB model should I use?
 
@@ -929,6 +945,11 @@ pub fn tai_to_et(epoch: Epoch, lsk: &LeapSecondTable) -> f64;
 pub fn et_to_tai(et: f64, lsk: &LeapSecondTable) -> Epoch;
 pub fn tai_to_tt(epoch: Epoch, lsk: &LeapSecondTable) -> f64;
 pub fn tt_to_tai(tt: f64, lsk: &LeapSecondTable) -> Epoch;
+// In module `wgc_gps`:
+pub enum WgcGpsError { NonFinite }
+pub fn gps_seconds_to_week_tow(seconds: f64, lsk: &LeapSecondTable)
+    -> Result<String, WgcGpsError>;
+
 pub fn tai_to_gps(epoch: Epoch) -> f64;
 pub fn gps_to_tai(gps: f64) -> Epoch;
 

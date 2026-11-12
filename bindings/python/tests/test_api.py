@@ -373,3 +373,25 @@ def test_partitioned_sclk_python_native_width_boundaries():
     for row in rows:
         text=source.replace('SCLK01_MODULI_902=(10000000000000000)',f"SCLK01_MODULI_902=({row['modulus']})")
         assert 'S:'+t.SclkKernel(text,-902).decode_native_sclk(0.0)==row['result']
+
+def test_wgc_gps_week_tow_matches_live_reference():
+    lsk=t.LeapSecondTable.builtin()
+    base=ROOT/'tests'/'reference'/'wgc-gps'
+    counts={'week-tow-cases.tsv':354,'week-tow-edge-cases.tsv':38,
+            'decimal-ties.tsv':6,'decimal-adjacent.tsv':8,'seeded-half-grid.tsv':400,
+            'independent-half-probe.tsv':480,'nonfinite-inputs.tsv':3}
+    for name,count in counts.items():
+        with (base/name).open(encoding='utf-8',newline='') as f:
+            rows=list(csv.DictReader(f,delimiter='\t'))
+        assert len(rows)==count
+        for row in rows:
+            assert t.gps_seconds_to_week_tow(float(row['input_gps_seconds']),lsk)==row['week_tow']
+    for value in (float('nan'),float('inf'),float('-inf')):
+        assert t.gps_seconds_to_week_tow(value,lsk)=='0, NaN'
+
+def test_wgc_gps_python_rejects_silent_integer_rounding():
+    lsk=t.LeapSecondTable.builtin()
+    with pytest.raises(OverflowError):
+        t.gps_seconds_to_week_tow(2**53+1,lsk)
+    with pytest.raises(TypeError):
+        t.gps_seconds_to_week_tow(True,lsk)

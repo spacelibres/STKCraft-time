@@ -100,6 +100,18 @@ cargo build --locked --no-default-features --target thumbv7em-none-eabi
   `convert::et_to_tai(et, &lsk)`.
 - TAI -> TT: `convert::tai_to_tt`; TAI -> GPS:
   `convert::tai_to_gps`; GPS -> TAI: `convert::gps_to_tai`.
+- For the exercised WGC GPS-seconds-to-week/TOW display, use
+  `wgc_gps::gps_seconds_to_week_tow(seconds, &lsk)`. This explicit
+  binary64 compatibility path uses the selected LSK and a native UNITIM
+  round-trip. The observed display saturates whole seconds to i32 before
+  deriving the week and rounds the shortest-decimal remainder half away to
+  six places; it retains negative zero and does not carry 604800 into the
+  week. Tested non-finite inputs yield the WGC display string `0, NaN`;
+  do not treat that string as a valid numeric epoch. It does not replace
+  exact integer time arithmetic. The finite NASA
+  and CSPICE evidence and kernel limitations are in
+  `tests/reference/wgc-gps/README.md`; input week strings and other WGC time
+  formats remain separate requirements.
 - UT1 needs an EOP table: `EopTable::from_finals2000a(text)` and
   `convert::utc_to_ut1(&utc, Calendar, &lsk, &eop)`. Use
   `convert::ut1_minus_utc` for the leap-aware offset;

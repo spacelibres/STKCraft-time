@@ -1,0 +1,281 @@
+[
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "UTC",
+      "timeFormat": "CALENDAR",
+      "times": [
+        "1980-01-05T23:59:59.0",
+        "1980-01-06T00:00:00.0",
+        "1980-01-12T23:59:59.5",
+        "1980-01-13T00:00:00.0",
+        "2000-01-01T12:00:00.123456",
+        "2016-12-31T23:59:60.5",
+        "2017-01-01T00:00:00.0"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeSystem": "GPS",
+      "outputTimeFormat": "WEEK_TOW"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "5dc28622-0bfd-4d2c-ac7c-9ecc130dc4d9",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "5dc28622-0bfd-4d2c-ac7c-9ecc130dc4d9",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 599
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "5dc28622-0bfd-4d2c-ac7c-9ecc130dc4d9",
+      "columns": [
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "Week past GPS zero time, TOW (s)",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "1980-01-05 23:59:59.000000 UTC",
+          "0, -1.000000"
+        ],
+        [
+          "1980-01-06 00:00:00.000000 UTC",
+          "0, 0.000000"
+        ],
+        [
+          "1980-01-12 23:59:59.500000 UTC",
+          "0, 604799.500000"
+        ],
+        [
+          "1980-01-13 00:00:00.000000 UTC",
+          "1, 0.000000"
+        ],
+        [
+          "2000-01-01 12:00:00.123456 UTC",
+          "1042, 561613.123456"
+        ],
+        [
+          "2016-12-31 23:59:60.500000 UTC",
+          "1930, 17.500000"
+        ],
+        [
+          "2017-01-01 00:00:00.000000 UTC",
+          "1930, 18.000000"
+        ]
+      ]
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "UTC",
+      "timeFormat": "CALENDAR",
+      "times": [
+        "1980-01-05T23:59:59.0",
+        "1980-01-06T00:00:00.0",
+        "1980-01-12T23:59:59.5",
+        "1980-01-13T00:00:00.0",
+        "2000-01-01T12:00:00.123456",
+        "2016-12-31T23:59:60.5",
+        "2017-01-01T00:00:00.0"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeSystem": "GPS",
+      "outputTimeFormat": "SECONDS_PAST_GPS0"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "6aece751-1128-4a08-8c7e-25e895374cf3",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "6aece751-1128-4a08-8c7e-25e895374cf3",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 599
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "6aece751-1128-4a08-8c7e-25e895374cf3",
+      "columns": [
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "Seconds past GPS zero time",
+          "type": "NUMBER",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "1980-01-05 23:59:59.000000 UTC",
+          -1.0
+        ],
+        [
+          "1980-01-06 00:00:00.000000 UTC",
+          0.0
+        ],
+        [
+          "1980-01-12 23:59:59.500000 UTC",
+          604799.5
+        ],
+        [
+          "1980-01-13 00:00:00.000000 UTC",
+          604800.0
+        ],
+        [
+          "2000-01-01 12:00:00.123456 UTC",
+          630763213.123456
+        ],
+        [
+          "2016-12-31 23:59:60.500000 UTC",
+          1167264017.5
+        ],
+        [
+          "2017-01-01 00:00:00.000000 UTC",
+          1167264018.0
+        ]
+      ]
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "UTC",
+      "timeFormat": "CALENDAR",
+      "times": [
+        "1980-01-05T23:59:59.0",
+        "1980-01-06T00:00:00.0",
+        "1980-01-12T23:59:59.5",
+        "1980-01-13T00:00:00.0",
+        "2000-01-01T12:00:00.123456",
+        "2016-12-31T23:59:60.5",
+        "2017-01-01T00:00:00.0"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeSystem": "UTC",
+      "outputTimeFormat": "CALENDAR_DOY"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "e8d5c40d-432f-4926-b9fa-b116d6ab2a84",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "e8d5c40d-432f-4926-b9fa-b116d6ab2a84",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 599
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "e8d5c40d-432f-4926-b9fa-b116d6ab2a84",
+      "columns": [
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "UTC day-of-year date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "1980-01-05 23:59:59.000000 UTC",
+          "1980-005/23:59:59.000000 UTC"
+        ],
+        [
+          "1980-01-06 00:00:00.000000 UTC",
+          "1980-006/00:00:00.000000 UTC"
+        ],
+        [
+          "1980-01-12 23:59:59.500000 UTC",
+          "1980-012/23:59:59.500000 UTC"
+        ],
+        [
+          "1980-01-13 00:00:00.000000 UTC",
+          "1980-013/00:00:00.000000 UTC"
+        ],
+        [
+          "2000-01-01 12:00:00.123456 UTC",
+          "2000-001/12:00:00.123456 UTC"
+        ],
+        [
+          "2016-12-31 23:59:60.500000 UTC",
+          "2016-366/23:59:60.500000 UTC"
+        ],
+        [
+          "2017-01-01 00:00:00.000000 UTC",
+          "2017-001/00:00:00.000000 UTC"
+        ]
+      ]
+    }
+  }
+]

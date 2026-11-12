@@ -21,10 +21,16 @@ class SclkStringError(TimeError):
     def spice_short(self) -> str:
         ...
 
+class WgcGpsError(TimeError):
+    ...
+
 class ContractError(TimeError):
     ...
 
 class DtdbError(TimeError):
+    ...
+
+def gps_seconds_to_week_tow(seconds: float, lsk: LeapSecondTable) -> str:
     ...
 
 class Calendar(str, Enum):

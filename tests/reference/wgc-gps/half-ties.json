@@ -1,0 +1,103 @@
+{
+  "request": {
+    "calculationType": "TIME_CONVERSION",
+    "kernels": [
+      {
+        "type": "KERNEL_SET",
+        "id": 2
+      }
+    ],
+    "timeSystem": "GPS",
+    "timeFormat": "SECONDS_PAST_GPS0",
+    "times": [
+      "0.0078125",
+      "-0.0078125",
+      "604800.0078125",
+      "-604800.0078125",
+      "0.0234375",
+      "-0.0234375",
+      "0",
+      "-0",
+      "-0.0"
+    ],
+    "timeStep": 1,
+    "timeStepUnits": "SECONDS",
+    "outputTimeSystem": "GPS",
+    "outputTimeFormat": "WEEK_TOW"
+  },
+  "created": {
+    "status": "OK",
+    "message": "The request was successful.",
+    "calculationId": "d3920b62-5e3e-48da-b0f0-8a7b60b72739",
+    "result": {
+      "phase": "COMPLETE",
+      "expiresIn": 600
+    }
+  },
+  "status": {
+    "status": "OK",
+    "message": "The request was successful.",
+    "calculationId": "d3920b62-5e3e-48da-b0f0-8a7b60b72739",
+    "result": {
+      "phase": "COMPLETE",
+      "expiresIn": 598
+    }
+  },
+  "results": {
+    "status": "OK",
+    "message": "The request was successful.",
+    "calculationId": "d3920b62-5e3e-48da-b0f0-8a7b60b72739",
+    "columns": [
+      {
+        "name": "Seconds past GPS zero time",
+        "type": "NUMBER",
+        "units": "",
+        "outputID": "DATE"
+      },
+      {
+        "name": "Week past GPS zero time, TOW (s)",
+        "type": "DATE",
+        "units": "",
+        "outputID": "DATE2"
+      }
+    ],
+    "rows": [
+      [
+        0.007813,
+        "0, 0.007813"
+      ],
+      [
+        -0.007813,
+        "0, -0.007813"
+      ],
+      [
+        604800.007813,
+        "1, 0.007813"
+      ],
+      [
+        -604800.007813,
+        "-1, -0.007813"
+      ],
+      [
+        0.023438,
+        "0, 0.023438"
+      ],
+      [
+        -0.023438,
+        "0, -0.023438"
+      ],
+      [
+        0.0,
+        "0, 0.000000"
+      ],
+      [
+        0.0,
+        "0, 0.000000"
+      ],
+      [
+        0.0,
+        "0, 0.000000"
+      ]
+    ]
+  }
+}

@@ -18,6 +18,7 @@ class TimeError(ValueError):
         self.code = code or message.split('(')[0].split(' {')[0].strip('"')
 class SclkStringError(TimeError):
     def spice_short(self): return str(self)
+class WgcGpsError(TimeError): pass
 class ContractError(TimeError): pass
 class DtdbError(TimeError): pass
 
@@ -25,9 +26,9 @@ def _call(fn, *args):
     try: return fn(*args)
     except ValueError as e:
         message = str(e)
-        cls = SclkStringError if message.startswith('SPICE(') else ContractError if message.startswith(('Time(', 'Scientific(', 'NonFinite', 'EpochOutOfRange', 'HistoricalUtc', 'NaifKernel', 'InvalidNaif')) else TimeError
+        cls = WgcGpsError if message.startswith('WgcGps(') else SclkStringError if message.startswith('SPICE(') else ContractError if message.startswith(('Time(', 'Scientific(', 'NonFinite', 'EpochOutOfRange', 'HistoricalUtc', 'NaifKernel', 'InvalidNaif')) else TimeError
         code = message.split('(')[0].split(' {')[0].strip('"')
-        if code in ('Time', 'Scientific'):
+        if code in ('Time', 'Scientific', 'WgcGps'):
             code = message.split('(', 1)[1].split('(')[0].split(' {')[0].rstrip(')')
         index = getattr(e,'index',None)
         detail = message if index is None else f'{message}; batch index {index}'
@@ -49,6 +50,13 @@ def _text(value):
     if isinstance(value,bytes): return value.decode('utf-8')
     if not isinstance(value,str): raise TypeError('UTF-8 text or bytes required')
     return value
+
+def gps_seconds_to_week_tow(seconds,lsk):
+    if isinstance(seconds,bool) or not isinstance(seconds,(int,float)): raise TypeError('number required')
+    if not isinstance(lsk,LeapSecondTable): raise TypeError('LeapSecondTable required')
+    value=float(seconds)
+    if isinstance(seconds,int) and int(value)!=seconds: raise OverflowError('integer cannot be represented exactly as binary64')
+    return _call(_n.wgc_gps_week_tow,value,lsk._n)
 
 class _Immutable:
     __slots__ = ('_n',)

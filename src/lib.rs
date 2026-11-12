@@ -86,6 +86,7 @@ pub mod sclk;
 pub mod series;
 pub mod tdb;
 pub mod timescale;
+pub mod wgc_gps;
 
 mod dtdb_table;
 mod math;

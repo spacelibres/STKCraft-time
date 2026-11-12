@@ -1,0 +1,133 @@
+{
+  "request": {
+    "calculationType": "TIME_CONVERSION",
+    "kernels": [
+      {
+        "type": "KERNEL_SET",
+        "id": 2
+      }
+    ],
+    "timeSystem": "GPS",
+    "timeFormat": "SECONDS_PAST_GPS0",
+    "times": [
+      "-2147483649",
+      "-2147483648",
+      "-2147483647",
+      "-2147040001",
+      "-2147040000",
+      "-2147039999",
+      "2147039999",
+      "2147040000",
+      "2147040001",
+      "2147483646",
+      "2147483647",
+      "2147483648",
+      "2147483649",
+      "2147483647.5",
+      "-2147483648.5"
+    ],
+    "timeStep": 1,
+    "timeStepUnits": "SECONDS",
+    "outputTimeSystem": "GPS",
+    "outputTimeFormat": "WEEK_TOW"
+  },
+  "created": {
+    "status": "OK",
+    "message": "The request was successful.",
+    "calculationId": "29549ae7-a1cc-4bf1-a12d-cf840e728e61",
+    "result": {
+      "phase": "COMPLETE",
+      "expiresIn": 600
+    }
+  },
+  "status": {
+    "status": "OK",
+    "message": "The request was successful.",
+    "calculationId": "29549ae7-a1cc-4bf1-a12d-cf840e728e61",
+    "result": {
+      "phase": "COMPLETE",
+      "expiresIn": 599
+    }
+  },
+  "results": {
+    "status": "OK",
+    "message": "The request was successful.",
+    "calculationId": "29549ae7-a1cc-4bf1-a12d-cf840e728e61",
+    "columns": [
+      {
+        "name": "Seconds past GPS zero time",
+        "type": "NUMBER",
+        "units": "",
+        "outputID": "DATE"
+      },
+      {
+        "name": "Week past GPS zero time, TOW (s)",
+        "type": "DATE",
+        "units": "",
+        "outputID": "DATE2"
+      }
+    ],
+    "rows": [
+      [
+        -2147483649.0,
+        "-3550, -443649.000000"
+      ],
+      [
+        -2147483648.0,
+        "-3550, -443648.000000"
+      ],
+      [
+        -2147483647.0,
+        "-3550, -443647.000000"
+      ],
+      [
+        -2147040001.0,
+        "-3550, -1.000000"
+      ],
+      [
+        -2147040000.0,
+        "-3550, -0.000000"
+      ],
+      [
+        -2147039999.0,
+        "-3549, -604799.000000"
+      ],
+      [
+        2147039999.0,
+        "3549, 604799.000000"
+      ],
+      [
+        2147040000.0,
+        "3550, 0.000000"
+      ],
+      [
+        2147040001.0,
+        "3550, 1.000000"
+      ],
+      [
+        2147483646.0,
+        "3550, 443646.000000"
+      ],
+      [
+        2147483647.0,
+        "3550, 443647.000000"
+      ],
+      [
+        2147483648.0,
+        "3550, 443648.000000"
+      ],
+      [
+        2147483649.0,
+        "3550, 443649.000000"
+      ],
+      [
+        2147483647.5,
+        "3550, 443647.500000"
+      ],
+      [
+        -2147483648.5,
+        "-3550, -443648.500000"
+      ]
+    ]
+  }
+}

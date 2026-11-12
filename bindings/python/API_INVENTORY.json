@@ -1664,5 +1664,19 @@
     "status": "wrapped",
     "source": "src/timescale.rs:10",
     "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "wgc_gps::WgcGpsError",
+    "python": "WgcGpsError",
+    "status": "wrapped",
+    "source": "src/wgc_gps.rs:12",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "wgc_gps::gps_seconds_to_week_tow",
+    "python": "gps_seconds_to_week_tow",
+    "status": "wrapped",
+    "source": "src/wgc_gps.rs:42",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
   }
 ]

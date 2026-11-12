@@ -1,0 +1,128 @@
+{
+  "request": {
+    "calculationType": "TIME_CONVERSION",
+    "kernels": [
+      {
+        "type": "KERNEL_SET",
+        "id": 2
+      }
+    ],
+    "timeSystem": "GPS",
+    "timeFormat": "SECONDS_PAST_GPS0",
+    "times": [
+      "1e10",
+      "-1e10",
+      "1e12",
+      "-1e12",
+      "1e15",
+      "-1e15",
+      "1e18",
+      "-1e18",
+      "1e20",
+      "-1e20",
+      "1e24",
+      "-1e24",
+      "1e30",
+      "-1e30"
+    ],
+    "timeStep": 1,
+    "timeStepUnits": "SECONDS",
+    "outputTimeSystem": "GPS",
+    "outputTimeFormat": "WEEK_TOW"
+  },
+  "created": {
+    "status": "OK",
+    "message": "The request was successful.",
+    "calculationId": "b3942136-a27e-49ab-ba7b-ca093fcf14bf",
+    "result": {
+      "phase": "COMPLETE",
+      "expiresIn": 600
+    }
+  },
+  "status": {
+    "status": "OK",
+    "message": "The request was successful.",
+    "calculationId": "b3942136-a27e-49ab-ba7b-ca093fcf14bf",
+    "result": {
+      "phase": "COMPLETE",
+      "expiresIn": 597
+    }
+  },
+  "results": {
+    "status": "OK",
+    "message": "The request was successful.",
+    "calculationId": "b3942136-a27e-49ab-ba7b-ca093fcf14bf",
+    "columns": [
+      {
+        "name": "Seconds past GPS zero time",
+        "type": "NUMBER",
+        "units": "",
+        "outputID": "DATE"
+      },
+      {
+        "name": "Week past GPS zero time, TOW (s)",
+        "type": "DATE",
+        "units": "",
+        "outputID": "DATE2"
+      }
+    ],
+    "rows": [
+      [
+        10000000000.0,
+        "3550, 236800.000000"
+      ],
+      [
+        -10000000000.0,
+        "-3550, -236800.000000"
+      ],
+      [
+        1000000000000.0,
+        "3550, 92800.000000"
+      ],
+      [
+        -1000000000000.0,
+        "-3550, -92800.000000"
+      ],
+      [
+        1000000000000000.0,
+        "3550, 265600.000000"
+      ],
+      [
+        -1000000000000000.0,
+        "-3550, -265600.000000"
+      ],
+      [
+        1e+18,
+        "3550, 92800.000000"
+      ],
+      [
+        -1e+18,
+        "-3550, -92800.000000"
+      ],
+      [
+        1e+20,
+        "3550, 208000.000000"
+      ],
+      [
+        -1e+20,
+        "-3550, -208000.000000"
+      ],
+      [
+        1e+24,
+        "3550, 249984.000000"
+      ],
+      [
+        -1e+24,
+        "-3550, -249984.000000"
+      ],
+      [
+        1e+30,
+        "3550, 249856.000000"
+      ],
+      [
+        -1e+30,
+        "-3550, -249856.000000"
+      ]
+    ]
+  }
+}

@@ -43,7 +43,7 @@ absolute days <=700,000,000,000; `etcal` supports absolute ET <=1e16 seconds.
 Precision is accepted through 18 and follows the core's nine-digit clamp.
 Legacy inverse adapters preflight the actual inverse Epoch-constructor input;
 values that would panic, overflow, wrap years, or produce NaN are errors.
-This validation mirrors the exact operation order of the pinned 0.1.33 core
+This validation mirrors the exact operation order of the pinned 0.1.34 core
 convert/tdb/dtdb/coord implementations (including std sine and fixed-point
 iteration). Its result is discarded; the original core converter supplies
 every accepted return value. Review these guards whenever the core pin changes.
@@ -52,6 +52,15 @@ calling the original decoder, preserving valid field values without wrapping.
 EOP sample MJDs must fit the same day guard; UT1 inverse correction candidates
 must fit Epoch. These boundary guards do not change accepted ordinary mission
 data or any golden-reference calculation.
+
+`gps_seconds_to_week_tow(seconds, lsk)` delegates the observed WGC GPS
+week/TOW output path to Rust; it preserves the tested six-decimal display,
+week saturation and signed-zero behavior. Input week/TOW strings and other
+WGC time-output formats are not provided by this function. The tested
+non-finite inputs return WGC's literal `0, NaN`, not a numeric epoch.
+Finite input with non-finite kernel arithmetic raises `WgcGpsError`; integer
+inputs not exactly representable as binary64 raise `OverflowError` instead
+of being silently rounded.
 
 Partitioned type-1 clock strings use `SclkKernel.encode_native_sclk` and
 `decode_native_sclk`. To retain NAIF component-parser history across calls,

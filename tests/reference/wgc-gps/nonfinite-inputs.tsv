@@ -1,0 +1,4 @@
+input_gps_seconds	week_tow
+NaN	0, NaN
+Infinity	0, NaN
+-Infinity	0, NaN

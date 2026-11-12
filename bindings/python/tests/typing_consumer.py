@@ -8,3 +8,6 @@ bdt: Bdt = Bdt.from_et(et,ctx)
 e = bdt.to_epoch()
 # Runtime model separation is also part of the static contract.
 ctx.to_epoch(scientific)  # type: ignore[arg-type]
+
+from stkcraft_time import LeapSecondTable, gps_seconds_to_week_tow
+gps_week_tow: str = gps_seconds_to_week_tow(0.0078125, LeapSecondTable.builtin())

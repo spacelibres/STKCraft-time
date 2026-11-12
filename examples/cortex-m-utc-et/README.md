@@ -1,6 +1,6 @@
 # Minimal Cortex-M UTC/ET benchmark
 
-This independent example calls the local stkcraft-time 0.1.33 Rust crate
+This independent example calls the local stkcraft-time 0.1.34 Rust crate
 with default features disabled. It does not modify the calculation kernel.
 The supplied memory layout is for STM32F407VG (Cortex-M4): 1 MiB FLASH and
 128 KiB main SRAM; the separate CCM region is not used. Adapt memory.x before

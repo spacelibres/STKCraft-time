@@ -1,0 +1,118 @@
+{
+  "request": {
+    "calculationType": "TIME_CONVERSION",
+    "kernels": [
+      {
+        "type": "KERNEL_SET",
+        "id": 2
+      }
+    ],
+    "timeSystem": "GPS",
+    "timeFormat": "SECONDS_PAST_GPS0",
+    "times": [
+      "-1209600.5",
+      "-604801",
+      "-604800",
+      "-604799",
+      "-1",
+      "-0.0000005",
+      "0",
+      "0.0000005",
+      "604799.9999995",
+      "604800",
+      "604800.0000005",
+      "1209600"
+    ],
+    "timeStep": 1,
+    "timeStepUnits": "SECONDS",
+    "outputTimeSystem": "GPS",
+    "outputTimeFormat": "WEEK_TOW"
+  },
+  "created": {
+    "status": "OK",
+    "message": "The request was successful.",
+    "calculationId": "393c0e29-5f9c-4f8a-bfb7-ae86c42008e6",
+    "result": {
+      "phase": "COMPLETE",
+      "expiresIn": 600
+    }
+  },
+  "status": {
+    "status": "OK",
+    "message": "The request was successful.",
+    "calculationId": "393c0e29-5f9c-4f8a-bfb7-ae86c42008e6",
+    "result": {
+      "phase": "COMPLETE",
+      "expiresIn": 596
+    }
+  },
+  "results": {
+    "status": "OK",
+    "message": "The request was successful.",
+    "calculationId": "393c0e29-5f9c-4f8a-bfb7-ae86c42008e6",
+    "columns": [
+      {
+        "name": "Seconds past GPS zero time",
+        "type": "NUMBER",
+        "units": "",
+        "outputID": "DATE"
+      },
+      {
+        "name": "Week past GPS zero time, TOW (s)",
+        "type": "DATE",
+        "units": "",
+        "outputID": "DATE2"
+      }
+    ],
+    "rows": [
+      [
+        -1209600.5,
+        "-2, -0.500000"
+      ],
+      [
+        -604801.0,
+        "-1, -1.000000"
+      ],
+      [
+        -604800.0,
+        "-1, -0.000000"
+      ],
+      [
+        -604799.0,
+        "0, -604799.000000"
+      ],
+      [
+        -1.0,
+        "0, -1.000000"
+      ],
+      [
+        -0.0,
+        "0, -0.000000"
+      ],
+      [
+        0.0,
+        "0, 0.000000"
+      ],
+      [
+        0.0,
+        "0, 0.000000"
+      ],
+      [
+        604800.0,
+        "0, 604800.000000"
+      ],
+      [
+        604800.0,
+        "1, 0.000000"
+      ],
+      [
+        604800.0,
+        "1, 0.000000"
+      ],
+      [
+        1209600.0,
+        "2, 0.000000"
+      ]
+    ]
+  }
+}

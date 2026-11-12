@@ -79,6 +79,24 @@ variables, fractional entries or a new MCP input mode. Empty/nonfinite guards
 are explicit checked-input errors; out-of-domain raw dates are checked before
 integer arithmetic. See [the raw API example](API.md#raw-native-leap-table-errors).
 
+## WebGeocalc GPS display convention
+
+`wgc_gps::gps_seconds_to_week_tow` accepts binary64 GPS seconds past the
+1980 GPS origin and the selected LSK. It intentionally applies the observed
+NAIF TAI→TDB→TAI round-trip before producing the six-decimal WGC week/TOW
+string. The week field uses the tested saturating i32-seconds conversion;
+the full remainder is formatted with shortest-decimal half-away rounding,
+including signed zero and a rounded `604800.000000` without week carry.
+Tested non-finite inputs return WGC's literal `0, NaN`, which is a display
+string and must not be treated as a valid numeric epoch. This is a display-
+compatibility path, not exact integer epoch arithmetic.
+
+The live WGC2 and independent CSPICE fixtures cover selected samples and the
+recorded kernel/runtime configurations only. They do not prove behavior for
+all kernels, input grammars, formatting options or platforms. The server's
+exact LSK file bytes have not been independently verified. Consult
+`tests/reference/wgc-gps/README.md` for requests, kernel metadata and hashes.
+
 ## Scientific convention
 
 `ScientificContext` must be selected explicitly. It realizes TT through

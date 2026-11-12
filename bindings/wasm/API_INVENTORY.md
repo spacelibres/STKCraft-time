@@ -264,6 +264,8 @@ ScientificContext enforces its model interval.
 | tdb.tai_to_tdb | fn | toScale(TDB.Compact) | TimeContext TDB.Compact scale; models.compactMinusTt |
 | tdb.tdb_to_tai | fn | fromScale(TDB.Compact) | TimeContext TDB.Compact scale; models.compactMinusTt |
 | timescale.TimeScale | enum | Scale string union plus UTC/TAI/BDT class methods | Scale string union plus UTC/TAI/BDT class methods |
+| wgc_gps.WgcGpsError | enum | Unavailable: WGC GPS week/TOW formatting is not yet exposed in JavaScript | Unavailable: WGC GPS week/TOW formatting is not yet exposed in JavaScript |
+| wgc_gps.gps_seconds_to_week_tow | fn | Unavailable: WGC GPS week/TOW formatting is not yet exposed in JavaScript | Unavailable: WGC GPS week/TOW formatting is not yet exposed in JavaScript |
 | contract.naif_utc.NaifDeltet | struct | five-element deltet tuple passed to NaifUtcContext | Explicit raw native JDUTC context |
 | contract.naif_utc.NaifUtcContext | struct | NaifUtcContext class | Explicit raw native JDUTC context |
 | contract.naif_utc.from_raw_parts | fn | NaifUtcContext constructor | Explicit raw native JDUTC context |
