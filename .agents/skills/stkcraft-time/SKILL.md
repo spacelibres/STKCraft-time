@@ -106,6 +106,14 @@ cargo build --locked --no-default-features --target thumbv7em-none-eabi
   `format::iso8601_with(&utc, &FormatOptions::new(p).with_leap_seconds(&lsk).with_calendar(cal))`;
   `rfc3339_with`, `spice_calendar_with`, `strftime_with` and
   `Formatter::with_options` take the same options.
+- Kernel `@date` literals: `kernel_date::parse_kernel_date(text)` returns
+  seconds past J2000 with normalized calendar fields. It is N0067 TPARSE
+  arithmetic only: no UTC/TT/TDB conversion, no LSK, pre-1972 dates are
+  valid constants, and a day past its month rolls forward. Unsupported
+  literals return `KernelDateUnsupported`; never report them as
+  `LskMissing`/`SclkMissing` and never substitute an epoch. LSK
+  `DELTET/DELTA_AT` dates stay strict: an impossible day is `LskParse`, not
+  a roll-forward.
 - `SCLK01_OFFSETS` is the first displayed value: encode as
   `field - offset`, decode as `encoded + offset`.
 - UT1 interpolation is performed on continuous `UT1 - TAI`, so missing

@@ -119,6 +119,24 @@ Complete terrestrial/celestial frame transformation also needs the
 appropriate precession/nutation, polar motion and Earth-rotation model.
 Neither capability can be inferred merely from a numerical TDB result.
 
+### Kernel date constants
+
+A text-kernel literal such as `@2000-JAN-01-12:00:00` is resolved by
+N0067 `TPARSE` into seconds past J2000 using proleptic-Gregorian calendar
+arithmetic. It is a raw kernel constant:
+
+- no UTC, TT or TDB conversion is performed;
+- no leap-second kernel is required or consulted, so pre-1972 dates are
+  ordinary values rather than `HistoricalUtcRequiresExplicitModel`;
+- a day past the end of its month rolls forward, as NAIF normalizes it;
+- an unsupported literal returns `KernelDateUnsupported`, never a
+  missing-kernel error and never a substitute epoch.
+
+A leap-second kernel's `DELTET/DELTA_AT` dates are a different case: they
+must name a real calendar day, so an impossible date makes the LSK
+invalid (`LskParse`) instead of rolling forward. Do not reuse the
+kernel-date roll-forward rule for leap-second data.
+
 ## Reproducibility and acceptance
 
 Record the library/revision and every input file's source URL, SHA-256,

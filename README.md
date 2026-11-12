@@ -36,13 +36,13 @@ NPARSD operation order; see [ATTRIBUTION.md](ATTRIBUTION.md) for provenance.
 - **Reference:** `cargo doc --open`
 
 **Install:** `cargo add stkcraft-time`, or add
-`stkcraft-time = "0.1.24"` to `[dependencies]`. With `no_std`, use `default-features = false`.
+`stkcraft-time = "0.1.25"` to `[dependencies]`. With `no_std`, use `default-features = false`.
 
 ## Project status
 
-- Latest release: **v0.1.24** on GitHub Releases, including release-mode
+- Latest release: **v0.1.25** on GitHub Releases, including release-mode
   binaries for Linux, macOS (x86_64 and arm64) and Windows.
-- Published on crates.io as **`stkcraft-time` 0.1.24**, with API docs on
+- Published on crates.io as **`stkcraft-time` 0.1.25**, with API docs on
   [docs.rs](https://docs.rs/stkcraft-time).
 - Minimum supported Rust version: **1.75**.
 - The library is `no_std` compatible with `alloc`; the optional MCP server
@@ -56,13 +56,13 @@ cargo add stkcraft-time
 
 ```toml
 [dependencies]
-stkcraft-time = "0.1.24"
+stkcraft-time = "0.1.25"
 ```
 
 `no_std` plus `alloc`:
 
 ```toml
-stkcraft-time = { version = "0.1.24", default-features = false }
+stkcraft-time = { version = "0.1.25", default-features = false }
 ```
 
 The MCP server and the validation binaries are optional:
@@ -74,7 +74,7 @@ cargo install stkcraft-time --features mcp --bin stkcraft-mcp
 To track the repository instead of a crates.io release, pin a tag:
 
 ```toml
-stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.24" }
+stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.25" }
 ```
 
 ## Releases
@@ -187,6 +187,27 @@ let et = tai_to_et(tai, &lsk);
 For complete call examples, including SCLK and EOP/UT1, see
 [`docs/API.md`](https://github.com/spacelibres/STKCraft-time/blob/main/docs/API.md) and the runnable
 [`examples/api_tour.rs`](https://github.com/spacelibres/STKCraft-time/blob/main/examples/api_tour.rs).
+
+### Kernel date literals
+
+A text kernel can write an epoch as `@2000-JAN-01-12:00:00`. NAIF
+resolves that literal with `TPARSE` into seconds past J2000, without any
+UTC, TT or TDB conversion and without a leap-second kernel.
+`stkcraft_time::kernel_date::parse_kernel_date` performs the same
+resolution:
+
+```rust
+use stkcraft_time::kernel_date::parse_kernel_date;
+
+let epoch = parse_kernel_date("@2001-FEB-29").expect("supported literal");
+assert_eq!(epoch.seconds_past_j2000, 36_676_800.0);
+assert_eq!((epoch.year, epoch.month, epoch.day), (2001, 3, 1));
+```
+
+A day past the end of its month rolls forward as NAIF does. Unsupported
+forms return `KernelDateUnsupported`, never a missing-kernel error and
+never a substitute epoch. Two-digit years and ordinal day-of-year forms
+(`@2000-060`) are rejected.
 
 ### Measured against the live WGC2 API
 
@@ -687,7 +708,7 @@ python tools/wgc2_compare.py        # live WGC2 (CSPICE front-end) check
 The library is `no_std` compatible with `alloc`:
 
 ```toml
-stkcraft-time = { version = "0.1.24", default-features = false }
+stkcraft-time = { version = "0.1.25", default-features = false }
 ```
 
 In `no_std` builds, `libm` supplies `sin`, `cos`, `floor` and `round`;

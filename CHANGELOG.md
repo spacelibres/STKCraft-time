@@ -4,6 +4,38 @@ All notable changes to `stkcraft-time` are documented here.
 
 The format follows Keep a Changelog. This crate uses semantic versioning.
 
+## [0.1.25] - 2026-11-12
+
+### Added
+
+- `kernel_date::parse_kernel_date` resolves a SPICE text-kernel `@date`
+  literal with N0067 TPARSE semantics. It returns the exact seconds past
+  J2000 together with the normalized proleptic-Gregorian fields, and
+  covers `Y-MON-D`, `D-MON-Y` and `MON-D-Y`, numeric month positions,
+  full or abbreviated month names, `-` or `/` date separators, and an
+  optional `HH:MM[:SS[.fff]]` time of day. A day past the end of its month
+  rolls forward, as NAIF normalizes `@2001-FEB-29` to `2001-03-01`.
+- `TimeError::KernelDateUnsupported` reports a literal the parser cannot
+  resolve. It is deliberately separate from `LskMissing`/`SclkMissing`,
+  so present but unsupported data is never reported as an absent kernel
+  variable and never replaced by a default epoch.
+- `tests/kernel_dates.rs` pins all eleven native literals from the
+  STKCraft-Geocalc frame-kernel capture: the exact IEEE-754 bit patterns
+  for the eight accepted values, and the explicit rejection of
+  `@2000-060`, `@`, and `@NOT_A_DATE`.
+
+### Fixed
+
+- A text kernel's date constants had no public resolver, so a caller that
+  needed an `EPOCH = @date` value could only classify the value as a
+  missing numeric constant. Kernel date constants now have an explicit
+  path and need no leap-second kernel, so a pre-1972 literal is an
+  ordinary value rather than `HistoricalUtcRequiresExplicitModel`.
+- Every existing kernel reader was re-audited for a silent date fallback.
+  `parse_lsk` and `SclkKernel::parse` already fail loudly on a non-numeric
+  token, and LSK `DELTET/DELTA_AT` dates remain strict: an impossible
+  calendar day is `LskParse`, not a roll-forward.
+
 ## [0.1.24] - 2026-11-12
 
 ### Added

@@ -13,6 +13,11 @@ pub enum TimeError {
     InvalidSecond,
     /// A formatting pattern contains an unsupported token.
     InvalidFormat,
+    /// A kernel `@date` literal is not in a supported N0067 form.
+    ///
+    /// This is deliberately distinct from a missing kernel variable: the
+    /// literal is present, it simply cannot be resolved.
+    KernelDateUnsupported,
     /// An EOP table was empty.
     EopMissing,
     /// An IERS EOP file could not be parsed.
@@ -52,6 +57,9 @@ impl fmt::Display for TimeError {
             }
             TimeError::InvalidSecond => write!(f, "invalid seconds component"),
             TimeError::InvalidFormat => write!(f, "unsupported formatting token"),
+            TimeError::KernelDateUnsupported => {
+                write!(f, "unsupported kernel date literal")
+            }
             TimeError::EopMissing => write!(f, "EOP table is empty"),
             TimeError::EopParse => write!(f, "could not parse the IERS EOP file"),
             TimeError::SclkParse => write!(f, "could not parse the spacecraft clock kernel"),

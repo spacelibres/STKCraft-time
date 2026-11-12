@@ -12,7 +12,7 @@
 
 # `stkcraft-time` API guide
 
-This guide shows how to call the public API of `stkcraft-time` 0.1.24. It
+This guide shows how to call the public API of `stkcraft-time` 0.1.25. It
 is task-oriented: each section answers "which function do I call, and what
 data do I need to load first?" For item-level reference documentation,
 run:
@@ -59,13 +59,13 @@ replaces it.
 
 ```toml
 [dependencies]
-stkcraft-time = "0.1.24"
+stkcraft-time = "0.1.25"
 
 # no_std + alloc:
-# stkcraft-time = { version = "0.1.24", default-features = false }
+# stkcraft-time = { version = "0.1.25", default-features = false }
 
 # or pin the repository:
-# stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.24" }
+# stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.25" }
 ```
 
 The internal epoch representation is integer seconds plus nanoseconds;
@@ -92,6 +92,42 @@ needs a mission-specific **SCLK**. SPK/PCK/FK/IK contain geometry and
 trajectory data; a pure time conversion neither loads nor needs them.
 UT1 is the exception among time scales: it needs an independent **EOP**
 table because it measures the actual rotation of the Earth.
+
+### 2.1 Kernel date literals
+
+A text kernel can give an epoch as a literal that begins with `@`, for
+example `EPOCH = @2000-JAN-01-12:00:00`. NAIF resolves that literal with
+`TPARSE` into **seconds past J2000**. It is a bare kernel constant, not a
+UTC, TT or TDB value: no time-scale conversion takes place and no
+leap-second kernel is consulted, so a date before 1972 is valid here even
+when the UTC contract rejects it.
+
+`stkcraft_time::kernel_date::parse_kernel_date` performs the same
+resolution and also reports the normalized calendar fields:
+
+```rust
+use stkcraft_time::kernel_date::parse_kernel_date;
+
+let epoch = parse_kernel_date("@2001-FEB-29")?;
+assert_eq!(epoch.seconds_past_j2000, 36_676_800.0);
+assert_eq!((epoch.year, epoch.month, epoch.day), (2001, 3, 1));
+# Ok::<(), stkcraft_time::TimeError>(())
+```
+
+| Literal form | Example |
+|---|---|
+| `Y-MON-D` / `Y-MM-D` | `@2000-JAN-01` |
+| `D-MON-Y` | `@31-JAN-1987` |
+| `MON-D-Y` with `-` or `/` | `@March-7-1987`, `@feb/4/1987` |
+| Any of the above with `HH:MM[:SS[.fff]]` | `@2000-JAN-01-12:00:00` |
+
+A month may be a three-letter abbreviation or a full English name in any
+case. A day past the end of its month rolls forward exactly as NAIF does
+(`@2001-FEB-29` is `2001-03-01`). Two-digit years, ordinal day-of-year
+forms (`@2000-060`), empty literals, and free text return
+`TimeError::KernelDateUnsupported`. That error is deliberately separate
+from `LskMissing`/`SclkMissing`: a present but unsupported literal must
+never be reported as an absent kernel variable.
 
 ## 3. Quick start
 
@@ -603,6 +639,7 @@ unsupported token returns `TimeError::InvalidFormat`.
 | `SclkPartitionsUnsupported` | Field/string conversion requested for a partitioned clock; encoded ticks↔ET remain usable. |
 | `LskParse` / `LskMissing` | LSK text or required `DELTET` variable. |
 | `InvalidFormat` | Unsupported `strftime` token. |
+| `KernelDateUnsupported` | Unsupported N0067 `@date` literal; never a missing-kernel report. |
 | `Overflow` | Reserved for checked arithmetic. |
 
 With the default `std` feature, `TimeError` implements
@@ -671,6 +708,22 @@ pub fn calendar_to_jd(
 ) -> Result<f64, TimeError>;
 pub fn jd_to_mjd(jd: f64) -> f64;
 pub fn mjd_to_jd(mjd: f64) -> f64;
+```
+
+### `kernel_date`
+
+```rust
+pub struct KernelDate {
+    pub seconds_past_j2000: f64,
+    pub year: i32,
+    pub month: u8,
+    pub day: u8,
+    pub hour: u8,
+    pub minute: u8,
+    pub second: f64,
+}
+
+pub fn parse_kernel_date(text: &str) -> Result<KernelDate, TimeError>;
 ```
 
 ### `epoch`
@@ -1101,6 +1154,7 @@ pub enum TimeError {
     InvalidTime { hour: u8, minute: u8 },
     InvalidSecond,
     InvalidFormat,
+    KernelDateUnsupported,
     EopMissing,
     EopParse,
     SclkParse,

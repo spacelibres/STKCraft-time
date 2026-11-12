@@ -76,6 +76,7 @@ pub mod eop;
 pub mod epoch;
 pub mod error;
 pub mod format;
+pub mod kernel_date;
 pub mod leap;
 pub mod lsk;
 #[cfg(feature = "mcp")]
@@ -97,6 +98,7 @@ pub use duration::Duration;
 pub use eop::{EopSample, EopSeries, EopTable};
 pub use epoch::{Epoch, UtcDateTime};
 pub use error::TimeError;
+pub use kernel_date::{parse_kernel_date, KernelDate};
 pub use leap::{LeapEntry, LeapSecondPolicy, LeapSecondSource, LeapSecondTable};
 pub use sclk::{SclkKernel, SclkTimeSystem};
 pub use series::TimeSeries;
