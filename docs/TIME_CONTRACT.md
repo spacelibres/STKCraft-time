@@ -128,10 +128,15 @@ arithmetic. It is a raw kernel constant:
 - no UTC, TT or TDB conversion is performed;
 - no leap-second kernel is required or consulted, so pre-1972 dates are
   ordinary values rather than `HistoricalUtcRequiresExplicitModel`;
-- calendar and clock overflow follow native normalization, with short-year
-  expansion over the default 1969--2068 interval;
-- mixed separators, Julian dates and exercised ISO ordinal productions
-  are supported; complete TPARSE grammar conformance is not claimed;
+- calendar and clock overflow follow native normalization. Year tokens in
+  `0..=99` expand over the default 1969--2068 interval, and token
+  precedence is that of N0067 `TPARTV`, so a `DD-MON-YY` reading must not
+  be assumed (`@19-JAN-87` is 2019-03-28);
+- mixed dash/slash separators, month-name prefixes, `JD`-marked Julian
+  dates and the exercised ISO ordinal productions are supported, while
+  standalone `@2000-060` is a native rejection. Complete TPARSE grammar
+  conformance is not claimed; see
+  [`reference/KERNEL_DATE_GRAMMAR.md`](reference/KERNEL_DATE_GRAMMAR.md);
 - an unsupported literal returns `KernelDateUnsupported`, never a
   missing-kernel error and never a substitute epoch.
 

@@ -3,8 +3,12 @@
 The original N0067 FURNSH/GDPOOL capture contains 163 literals: 158 accepted
 numeric constants and five native errors. Before the arithmetic repair,
 the Time parser accepted 59 of those literals: 52 matched exactly and seven
-differed by one ULP. It explicitly rejected the other 99 native-valid inputs.
-These coverage failures remain open; they are not numerical passes.
+differed by one ULP. It explicitly rejected the other 99 native-valid
+inputs. The arithmetic repair described here fixed the seven ULP
+mismatches. The 99 coverage failures were subsequently resolved by the
+grammar repair documented in
+[the grammar scope](KERNEL_DATE_GRAMMAR.md); neither repair widens the
+claim beyond the exercised corpus.
 
 The seven counterexamples are independently pinned in
 `tests/kernel_date_fractional_exact.rs`. The test failed with all seven

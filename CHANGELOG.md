@@ -4,6 +4,33 @@ All notable changes to `stkcraft-time` are documented here.
 
 The format follows Keep a Changelog. This crate uses semantic versioning.
 
+## [0.1.29] - 2026-11-12
+
+### Changed
+
+- Documentation alignment with the 0.1.28 kernel-date resolver. There is
+  no library, kernel-format or numerical change.
+- `README.md`, `docs/API.md`, `docs/TIME_CONTRACT.md` and the project wiki
+  now state N0067 `TPARTV` token precedence explicitly instead of implying
+  a `DD-MON-YY` reading: `@31-JAN-1987` is 1987-01-31, while `@19-JAN-87`
+  is 2019-03-28. The API guide also states that a month name is any
+  prefix of at least three letters and that a decimal is accepted only in
+  the final numeric component of a literal.
+
+### Fixed
+
+- `docs/reference/KERNEL_DATE_EXACT.md` still described the 99 native-valid
+  rejections as open. The 0.1.28 grammar repair resolved them; the
+  document now separates the arithmetic repair it evidences from that
+  later repair and keeps both claims bounded to the captured corpus.
+- Wiki pages still advertised 0.1.26, the superseded 163/176 test counts
+  and the previous claim that two-digit years are rejected. They now match
+  the current release, the measured 165/178 counts, and the exercised
+  grammar.
+- Wiki `Troubleshooting`, `Design-and-Non-Goals` and `API-Map` no longer
+  claim that no kernel date parser exists, and `Reproducing the
+  comparisons` records the native kernel-date corpus and its commands.
+
 ## [0.1.28] - 2026-11-12
 
 ### Fixed

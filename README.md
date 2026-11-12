@@ -36,13 +36,13 @@ NPARSD operation order; see [ATTRIBUTION.md](ATTRIBUTION.md) for provenance.
 - **Reference:** `cargo doc --open`
 
 **Install:** `cargo add stkcraft-time`, or add
-`stkcraft-time = "0.1.28"` to `[dependencies]`. With `no_std`, use `default-features = false`.
+`stkcraft-time = "0.1.29"` to `[dependencies]`. With `no_std`, use `default-features = false`.
 
 ## Project status
 
-- Latest release: **v0.1.28** on GitHub Releases, including release-mode
+- Latest release: **v0.1.29** on GitHub Releases, including release-mode
   binaries for Linux, macOS (x86_64 and arm64) and Windows.
-- Published on crates.io as **`stkcraft-time` 0.1.28**, with API docs on
+- Published on crates.io as **`stkcraft-time` 0.1.29**, with API docs on
   [docs.rs](https://docs.rs/stkcraft-time).
 - Minimum supported Rust version: **1.75**.
 - The library is `no_std` compatible with `alloc`; the optional MCP server
@@ -56,13 +56,13 @@ cargo add stkcraft-time
 
 ```toml
 [dependencies]
-stkcraft-time = "0.1.28"
+stkcraft-time = "0.1.29"
 ```
 
 `no_std` plus `alloc`:
 
 ```toml
-stkcraft-time = { version = "0.1.28", default-features = false }
+stkcraft-time = { version = "0.1.29", default-features = false }
 ```
 
 The MCP server and the validation binaries are optional:
@@ -74,7 +74,7 @@ cargo install stkcraft-time --features mcp --bin stkcraft-mcp
 To track the repository instead of a crates.io release, pin a tag:
 
 ```toml
-stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.28" }
+stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.29" }
 ```
 
 ## Releases
@@ -204,13 +204,22 @@ assert_eq!(epoch.seconds_past_j2000, 36_676_800.0);
 assert_eq!((epoch.year, epoch.month, epoch.day), (2001, 3, 1));
 ```
 
-A day past the end of its month rolls forward as NAIF does. Unsupported
-forms return `KernelDateUnsupported`, never a missing-kernel error and
-never a substitute epoch. Short years use the native default 1969--2068
-window. Mixed separators, month prefixes, normalized overflow, JD literals
-and exercised ISO ordinal forms are supported. Standalone `@2000-060`
-remains a native rejection. See the [exact grammar scope](docs/reference/KERNEL_DATE_GRAMMAR.md);
-full TPARSE grammar conformance is not claimed.
+A day past the end of its month rolls forward as NAIF does. Year selection
+follows N0067 `TPARTV` token precedence, not an assumed `DD-MON-YY`
+reading: an integer token of at least 1000 is a year, and a year token in
+`0..=99` expands over the native 1969--2068 window. `@31-JAN-1987` is
+1987-01-31, while `@19-JAN-87` is 2019-03-28: token `19` is the year and
+token `87` is an out-of-range day that rolls forward, exactly as native
+SPICE resolves it.
+
+Mixed dash/slash separators, month-name prefixes of at least three
+letters, normalized month/day/clock overflow, `JD`-marked Julian dates and
+the exercised ISO ordinal productions are supported. Standalone
+`@2000-060`, empty literals and unsupported grammar return
+`KernelDateUnsupported`, never a missing-kernel error and never a
+substitute epoch. See the [exact grammar scope](docs/reference/KERNEL_DATE_GRAMMAR.md)
+for the 416-input native corpus and the residual limits; full TPARSE
+grammar conformance is not claimed.
 
 ### Measured against the live WGC2 API
 
@@ -364,11 +373,14 @@ Implemented:
 - SCLK type-1 kernel parsing and tick/time conversion (`sclk` module)
 - ISO 8601, RFC 3339, RFC 2822 and C89 `strftime`-style formatting
 - `etcal` (no kernel required)
+- Kernel `@date` literal parsing (`kernel_date` module, exercised N0067
+  `TPARTV`/`TPARSE` profile)
 
 Not implemented in this version:
 
-- Full SPICE `str2et` token grammar (this version provides typed
-  constructors only)
+- Full SPICE `str2et` token grammar for arbitrary civil text. The
+  `kernel_date` module resolves the exercised kernel `@date` literals;
+  civil UTC still uses typed constructors.
 - SCLK partition-aware field/string conversion and clock types other
   than type 1
 - Automatic policy selection without an explicit date (the caller
@@ -711,7 +723,7 @@ python tools/wgc2_compare.py        # live WGC2 (CSPICE front-end) check
 The library is `no_std` compatible with `alloc`:
 
 ```toml
-stkcraft-time = { version = "0.1.28", default-features = false }
+stkcraft-time = { version = "0.1.29", default-features = false }
 ```
 
 In `no_std` builds, `libm` supplies `sin`, `cos`, `floor` and `round`;

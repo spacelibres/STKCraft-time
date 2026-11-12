@@ -12,7 +12,7 @@
 
 # `stkcraft-time` API guide
 
-This guide shows how to call the public API of `stkcraft-time` 0.1.28. It
+This guide shows how to call the public API of `stkcraft-time` 0.1.29. It
 is task-oriented: each section answers "which function do I call, and what
 data do I need to load first?" For item-level reference documentation,
 run:
@@ -59,13 +59,13 @@ replaces it.
 
 ```toml
 [dependencies]
-stkcraft-time = "0.1.28"
+stkcraft-time = "0.1.29"
 
 # no_std + alloc:
-# stkcraft-time = { version = "0.1.28", default-features = false }
+# stkcraft-time = { version = "0.1.29", default-features = false }
 
 # or pin the repository:
-# stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.28" }
+# stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.29" }
 ```
 
 The internal epoch representation is integer seconds plus nanoseconds;
@@ -117,20 +117,29 @@ assert_eq!((epoch.year, epoch.month, epoch.day), (2001, 3, 1));
 | Literal form | Example |
 |---|---|
 | `Y-MON-D` / `Y-MM-D` | `@2000-JAN-01` |
-| `D-MON-Y` | `@31-JAN-1987` |
+| `D-MON-Y` when the year token is four digits | `@31-JAN-1987` |
 | `MON-D-Y` with `-` or `/` | `@March-7-1987`, `@feb/4/1987` |
-| Any of the above with `HH:MM[:SS[.fff]]` | `@2000-JAN-01-12:00:00` |
+| Any of the above with `HH[:MM[:SS]]` | `@2000-JAN-01-12:00:00` |
 
-A month may be a three-letter abbreviation or a full English name in any
-case. A day past the end of its month rolls forward exactly as NAIF does
-(`@2001-FEB-29` is `2001-03-01`). Short years use the native 1969--2068
-window; mixed separators, month prefixes, normalized month/clock fields,
-Julian dates and exercised ISO ordinal forms are supported. Standalone
-`@2000-060`, empty literals and unsupported grammar return
-`TimeError::KernelDateUnsupported`. See [the exact scope](reference/KERNEL_DATE_GRAMMAR.md);
-complete TPARSE grammar conformance is not claimed. That error is deliberately separate
-from `LskMissing`/`SclkMissing`: a present but unsupported literal must
-never be reported as an absent kernel variable.
+A month name is any prefix of at least three letters (`JAN`, `JANU`,
+`JANUARY`), in any case. A decimal is accepted only in the final numeric
+component of the literal, meaning the day or the clock's last field. A day
+past the end of its month rolls forward exactly as NAIF does
+(`@2001-FEB-29` is `2001-03-01`).
+
+Year selection follows N0067 `TPARTV` token precedence, not an assumed
+`DD-MON-YY` reading. An integer token of at least 1000 is a year; a year
+token in `0..=99` expands over the native 1969--2068 window. `@31-JAN-1987`
+is 1987-01-31, but `@19-JAN-87` is 2019-03-28: token `19` is the year and
+token `87` is an out-of-range day that rolls forward. Mixed dash/slash
+separators, `JD`-marked Julian dates and the exercised ISO ordinal forms
+are supported. Standalone `@2000-060`, empty literals and unsupported
+grammar return `TimeError::KernelDateUnsupported`; see the
+[exact grammar scope](reference/KERNEL_DATE_GRAMMAR.md), which records the
+416-input native corpus. Complete TPARSE grammar conformance is not
+claimed. The error is deliberately separate from `LskMissing`/`SclkMissing`:
+a present but unsupported literal must never be reported as an absent
+kernel variable.
 
 ## 3. Quick start
 
