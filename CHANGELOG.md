@@ -4,6 +4,19 @@ All notable changes to `stkcraft-time` are documented here.
 
 The format follows Keep a Changelog. This crate uses semantic versioning.
 
+## [0.1.21] - 2026-11-12
+
+### Added
+
+- `README.md` links to the project wiki, which documents the time-scale
+  definitions, kernel formats, leap-second rules, SCLK model, TDB models,
+  `no_std` support, the MCP server and the verification results with
+  reproduction commands.
+
+### Notes
+
+- No library, kernel-format or numerical change.
+
 ## [0.1.20] - 2026-11-11
 
 ### Removed

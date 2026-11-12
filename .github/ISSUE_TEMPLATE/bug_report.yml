@@ -12,7 +12,7 @@ body:
     id: version
     attributes:
       label: stkcraft-time version
-      placeholder: "0.1.20"
+      placeholder: "0.1.21"
     validations:
       required: true
   - type: dropdown
