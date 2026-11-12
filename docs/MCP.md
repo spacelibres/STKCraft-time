@@ -98,6 +98,11 @@ have no `lsk_path` argument. UTC tools accept `calendar`: `gregorian`
 | `tai_to_tt` | `tai_seconds`, or `sec` + `nanos` | TT seconds past J2000 TT. |
 | `tai_to_gps` | `tai_seconds`, or `sec` + `nanos` | GPS seconds past the GPS epoch. |
 | `gps_to_tai` | `gps_seconds` | TAI epoch. |
+| `wgc_week_tow_to_et` | `week_tow`, optional `lsk_path` | Checked ET for a WGC GPS week/TOW string. |
+| `wgc_gps_seconds_to_et` | `gps_seconds`, optional `lsk_path` | Checked ET for finite GPS seconds past GPS zero. |
+| `wgc_et_to_gps_seconds` | `et`, optional `lsk_path` | WGC's six-decimal numeric GPS seconds display cell. |
+| `wgc_gps_seconds_to_week_tow` | `gps_seconds`, optional `lsk_path` | WGC's six-decimal GPS week/TOW display. |
+| `wgc_et_to_calendar` | `et`, `system`, `format`, optional `lsk_path` | WGC-style six-decimal `ymd` or `doy` calendar string. |
 | `utc_to_ut1` | UTC fields, `eop_path` | UT1 seconds past `2000-01-01T00:00:00 UT1`. |
 | `ut1_to_utc` | `ut1_seconds`, `eop_path` | Civil UTC fields and ISO 8601. |
 | `sclk_to_et` | `sclk_path`, `spacecraft_id`, and `ticks` or `clock_string` | Ticks, optional fields, ET and TAI. |
@@ -107,6 +112,14 @@ have no `lsk_path` argument. UTC tools accept `calendar`: `gregorian`
 
 EOP tools also accept `eop_series` (`a`, `b`, `final`) and
 `observed_only` (boolean). `sclk_path` must be a type-1 SCLK kernel.
+
+The WGC calendar `system` is one of `UTC`, `TDB`, `TT`, `TDT`, or `GPS`.
+The WGC tools expose explicit conversions, not the WGC request dispatcher or
+arbitrary custom pictures. JSON cannot carry NaN or infinity as a number;
+checked ET conversions also reject non-finite week/TOW values. GPS seconds
+and calendar output cells are display-rounded, not lossless epoch values.
+The server enables round-trip binary64 JSON parsing so that an encoded
+finite number is not silently shifted to a neighboring binary64 value.
 
 `format_utc` accepts `calendar` (`gregorian`, `julian`, `mixed`) and
 `lsk_path`. Rounding uses that kernel's day lengths, so
@@ -190,11 +203,14 @@ block):
 - Non-finite EOP samples are rejected with `EopParse`.
 - UT1 requires bracketing EOP samples around the UTC day; the last
   sample day is not usable as an epoch boundary.
-- SCLK support is limited to type-1 clocks. Partitioned clock strings use
+- SCLK support is limited to type-1 clocks. Clocks with partition metadata use
   the native string path and a parser context retained per stdio session.
   The `et_to_sclk` response reports continuous `ticks` when available. At
   a boundary accepted only by the discrete string conversion, `ticks` and
-  `fields` are null. `clock_string` is null if discrete decoding fails.
+  `fields` are null. A failed partitioned discrete string decode returns an
+  MCP tool error containing its error symbol instead of a successful null.
+  A single zero-start partition still yields a native partition prefix and
+  padded clock fields. The legacy `SclkMap` field interface remains separate.
   Field-vector operations retain their documented partition limits.
 - Tool arguments are JSON numbers/strings. To pass a leap-second label,
   use `"second": 60.5`; do not pass a formatted string as a number.

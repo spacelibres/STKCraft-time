@@ -7,6 +7,15 @@ type UtcFields = (i32, u8, u8, u8, u8, f64);
 fn err(e: impl std::fmt::Debug) -> PyErr {
     PyValueError::new_err(format!("{e:?}"))
 }
+
+fn native_sclk_error(error: c::sclk::NativeSclkError) -> PyErr {
+    match error {
+        c::sclk::NativeSclkError::String(error) | c::sclk::NativeSclkError::Native(error) => {
+            PyValueError::new_err(error.spice_short())
+        }
+        c::sclk::NativeSclkError::Time(error) => err(error),
+    }
+}
 fn indexed(e: PyErr, index: usize) -> PyErr {
     Python::attach(|py| {
         let _ = e.value(py).setattr("index", index);
@@ -554,6 +563,38 @@ impl NativeSclk {
         .map_err(err)
         .and_then(finite)
     }
+    fn native_clock_to_et(&self, clock: &str, lsk: &NativeLsk) -> PyResult<f64> {
+        c::sclk::SclkClock {
+            kernel: &self.0,
+            lsk: &lsk.0,
+        }
+        .native_sclk_to_et(clock)
+        .map_err(native_sclk_error)
+        .and_then(finite)
+    }
+    fn native_clock_to_et_with_context(
+        &self,
+        clock: &str,
+        lsk: &NativeLsk,
+        context: &mut NativeSclkStringContext,
+    ) -> PyResult<f64> {
+        c::sclk::SclkClock {
+            kernel: &self.0,
+            lsk: &lsk.0,
+        }
+        .native_sclk_to_et_with_context(clock, &mut context.0)
+        .map_err(native_sclk_error)
+        .and_then(finite)
+    }
+    fn native_clock_from_et(&self, et: f64, lsk: &NativeLsk) -> PyResult<String> {
+        finite(et)?;
+        c::sclk::SclkClock {
+            kernel: &self.0,
+            lsk: &lsk.0,
+        }
+        .native_et_to_sclk(et)
+        .map_err(native_sclk_error)
+    }
     fn clock_from_et(&self, et: f64, lsk: &NativeLsk) -> PyResult<String> {
         use c::sclk::SclkMap;
         finite(et)?;
@@ -697,7 +738,7 @@ fn legacy_to(e: &NativeEpoch, l: &NativeLsk, scale: &str) -> PyResult<f64> {
         _ => return Err(err("InvalidScale")),
     })
 }
-// VALIDATION ONLY, tied to the exact =0.1.34 std core dependency. These
+// VALIDATION ONLY, tied to the exact =0.2.0 std core dependency. These
 // discarded f64 intermediates mirror convert/tdb/dtdb/coord inverse order to
 // check the argument before their infallible Epoch constructor. Every returned
 // scientific result still comes from the original public core function below.
@@ -882,6 +923,62 @@ fn wgc_gps_week_tow(seconds: f64, lsk: &NativeLsk) -> PyResult<String> {
         .map_err(|error| PyValueError::new_err(format!("WgcGps({error:?})")))
 }
 
+#[pyfunction]
+fn wgc_parse_week_tow(value: &str) -> PyResult<f64> {
+    c::wgc_gps::parse_week_tow(value)
+        .map_err(|error| PyValueError::new_err(format!("WgcGps({error:?})")))
+}
+
+#[pyfunction]
+fn wgc_week_to_et(value: &str, lsk: &NativeLsk) -> PyResult<f64> {
+    c::wgc_gps::week_tow_to_et(value, &lsk.0)
+        .map(|et| et.seconds())
+        .map_err(|error| PyValueError::new_err(format!("WgcGps({error:?})")))
+}
+
+#[pyfunction]
+fn wgc_gps_seconds_to_et(value: f64, lsk: &NativeLsk) -> PyResult<f64> {
+    c::wgc_gps::gps_seconds_to_et(value, &lsk.0)
+        .map(|et| et.seconds())
+        .map_err(|error| PyValueError::new_err(format!("WgcGps({error:?})")))
+}
+
+#[pyfunction]
+fn wgc_et_to_gps_display_seconds(et: f64, lsk: &NativeLsk) -> PyResult<f64> {
+    let et = NaifEt::from_seconds(et).map_err(err)?;
+    c::wgc_gps::et_to_gps_display_seconds(et, &lsk.0)
+        .map_err(|error| PyValueError::new_err(format!("WgcGps({error:?})")))
+}
+
+#[pyfunction]
+fn wgc_calendar_doy(et: f64, system: &str, lsk: &NativeLsk) -> PyResult<String> {
+    wgc_calendar_format(et, system, lsk, false)
+}
+
+#[pyfunction]
+fn wgc_calendar_ymd(et: f64, system: &str, lsk: &NativeLsk) -> PyResult<String> {
+    wgc_calendar_format(et, system, lsk, true)
+}
+
+fn wgc_calendar_format(et: f64, system: &str, lsk: &NativeLsk, ymd: bool) -> PyResult<String> {
+    use c::wgc_gps::WgcCalendarSystem;
+    let system = match system {
+        "UTC" => WgcCalendarSystem::Utc,
+        "TDB" => WgcCalendarSystem::Tdb,
+        "TT" => WgcCalendarSystem::Tt,
+        "TDT" => WgcCalendarSystem::Tdt,
+        "GPS" => WgcCalendarSystem::Gps,
+        _ => return Err(PyValueError::new_err("InvalidTimeSystem")),
+    };
+    let et = NaifEt::from_seconds(et).map_err(err)?;
+    if ymd {
+        c::wgc_gps::et_to_calendar_ymd(et, system, &lsk.0)
+    } else {
+        c::wgc_gps::et_to_calendar_doy(et, system, &lsk.0)
+    }
+    .map_err(err)
+}
+
 #[pymodule]
 fn _native(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<NativeEpoch>()?;
@@ -921,7 +1018,13 @@ fn _native(m: &Bound<'_, PyModule>) -> PyResult<()> {
         etcal,
         validate_format,
         raw_julian,
-        wgc_gps_week_tow
+        wgc_gps_week_tow,
+        wgc_parse_week_tow,
+        wgc_week_to_et,
+        wgc_gps_seconds_to_et,
+        wgc_et_to_gps_display_seconds,
+        wgc_calendar_doy,
+        wgc_calendar_ymd
     );
     m.add("VERSION", env!("CARGO_PKG_VERSION"))?;
     Ok(())

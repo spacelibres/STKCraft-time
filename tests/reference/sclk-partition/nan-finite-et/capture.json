@@ -1,0 +1,119 @@
+{
+  "scope": "Finite ET 0 with an underflow-scale positive SCLK coefficient. Native non-finite intermediate; process isolated.",
+  "cspice": "CSPICE_N0067",
+  "spiceypy": "8.3.0",
+  "lsk_sha256": "c3c6c3d1736b8518869b85cace7d4fdc57fedc87ffc402a2a7ac5e67169f8757",
+  "windows_library_sha256": "7fd2dcc58d73ed5293847e67109897caba34240b8f9c38ad739c0b2ec6ce7715",
+  "linux_library_sha256": "1d9273fc9afce5201e904569a9439a0b010d2461dfc88c0de549d2a1b5ecdf84",
+  "linux_python_archive_sha256": "3288c54cea3db350052019b3f8b558dd8a3da8afa6fda573f5fd2bcb37635b4a",
+  "rows": [
+    {
+      "name": "single",
+      "kernel_sha256": "cc8bd9e64124b8cc0dc4a26a519010a6fcc0a61528ade08645f09e5c42c205ba",
+      "windows_result": "SPICE(VALUEOUTOFRANGE)",
+      "linux_result": {
+        "error": "SPICE(VALUEOUTOFRANGE)"
+      },
+      "outcome": "ERROR"
+    },
+    {
+      "name": "onefield",
+      "kernel_sha256": "005e71fe39a517c202e2ee75a5e7353325d4a590ac6522234e8dcc4d4ab7fe69",
+      "windows_result": "2/000",
+      "linux_result": {
+        "string": "2/000"
+      },
+      "outcome": "RESULT"
+    },
+    {
+      "name": "twofield",
+      "kernel_sha256": "d2d95dd27c9e17b275a6b4d557603cffac7fa81b26e57647731f8f6dfc5f4c48",
+      "windows_result": "2/00:00",
+      "linux_result": {
+        "string": "2/00:00"
+      },
+      "outcome": "RESULT"
+    },
+    {
+      "name": "threefield",
+      "kernel_sha256": "98914e80d3b13bccb1a813b24759738861d909ff2c07a389ff31609669b612d8",
+      "windows_result": "2/000:00:000",
+      "linux_result": {
+        "string": "2/000:00:000"
+      },
+      "outcome": "RESULT"
+    },
+    {
+      "name": "offsets",
+      "kernel_sha256": "bfae3878a87413d23cf641575808feb55dc0a4a5bc0a90f06ce352d82b995621",
+      "windows_result": "2/00.00.00",
+      "linux_result": {
+        "string": "2/00.00.00"
+      },
+      "outcome": "RESULT"
+    },
+    {
+      "name": "negative",
+      "kernel_sha256": "bf24deb7b27816ceef3b97beb47ee3fde14b983bf638986d45b491dfbb00a924",
+      "windows_result": "2/000-00-000",
+      "linux_result": {
+        "string": "2/000-00-000"
+      },
+      "outcome": "RESULT"
+    },
+    {
+      "name": "dot",
+      "kernel_sha256": "f7ee2c7f799ec900863c3ccca05d5f95f1079d3ad5cc3e9188af248ca561fa33",
+      "windows_result": "2/00.00",
+      "linux_result": {
+        "string": "2/00.00"
+      },
+      "outcome": "RESULT"
+    },
+    {
+      "name": "colon",
+      "kernel_sha256": "bf8a4e584b16b1db13511a367497e7ee29e3ab1eb17f3252b757c2f6a068191f",
+      "windows_result": "2/00:00",
+      "linux_result": {
+        "string": "2/00:00"
+      },
+      "outcome": "RESULT"
+    },
+    {
+      "name": "hyphen",
+      "kernel_sha256": "9b728246d0e555645353dd705d043163ec9a6d14b74226c423b1db1612c2cffb",
+      "windows_result": "2/00-00",
+      "linux_result": {
+        "string": "2/00-00"
+      },
+      "outcome": "RESULT"
+    },
+    {
+      "name": "comma",
+      "kernel_sha256": "23bf1a4d0758645ada5bc3ce0bc7637e5215aa9daaf9429324d0e7c6a0bc0d39",
+      "windows_result": "2/00,00",
+      "linux_result": {
+        "string": "2/00,00"
+      },
+      "outcome": "RESULT"
+    },
+    {
+      "name": "space",
+      "kernel_sha256": "fce1779cf4144309cbcc0edc31039fa93b2bdfe4d522d0af8f650d0b79e5db13",
+      "windows_result": "2/00 00",
+      "linux_result": {
+        "string": "2/00 00"
+      },
+      "outcome": "RESULT"
+    },
+    {
+      "name": "fourparts",
+      "kernel_sha256": "6cbb9c0f5c15fff2c30bdab583b9fc1a5b4f499e447abf4be241392825531ac3",
+      "windows_result": "2/00:00",
+      "linux_result": {
+        "string": "2/00:00"
+      },
+      "outcome": "RESULT"
+    }
+  ]
+}

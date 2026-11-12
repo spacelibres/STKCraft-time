@@ -251,6 +251,10 @@ SCLK/LSK/kernel-date parsers and are not exported as a second scientific API.
 | `sclk::SclkKernel::parse_string` | `SclkKernel.parse_string` | wrapped | Direct core delegation; integer narrowing and finite checks occur at the boundary. |
 | `sclk::SclkKernel::format_string` | `SclkKernel.format_string` | wrapped | Direct core delegation; integer narrowing and finite checks occur at the boundary. |
 | `sclk::SclkClock` | `SclkClock` | wrapped | Direct core delegation; integer narrowing and finite checks occur at the boundary. |
+| `sclk::NativeSclkError` | `TimeError` | wrapped | Native string and verified range symbols use SclkStringError; other time errors use TimeError. |
+| `sclk::SclkClock::native_sclk_to_et` | `SclkClock.native_sclk_to_et` | wrapped | Direct core delegation; integer narrowing and finite checks occur at the boundary. |
+| `sclk::SclkClock::native_sclk_to_et_with_context` | `SclkClock.native_sclk_to_et_with_context` | wrapped | Direct core delegation; integer narrowing and finite checks occur at the boundary. |
+| `sclk::SclkClock::native_et_to_sclk` | `SclkClock.native_et_to_sclk` | wrapped | Direct core delegation; integer narrowing and finite checks occur at the boundary. |
 | `sclk::SclkMap` | `SclkClock` | protocol | Owned SclkClock represents SclkMap; Python structural methods replace Rust trait/lifetimes. |
 | `series::TimeSeries` | `TimeSeries` | wrapped | Direct core delegation; integer narrowing and finite checks occur at the boundary. |
 | `series::TimeSeries::inclusive` | `TimeSeries.inclusive` | wrapped | Direct core delegation; integer narrowing and finite checks occur at the boundary. |
@@ -260,4 +264,12 @@ SCLK/LSK/kernel-date parsers and are not exported as a second scientific API.
 | `tdb::tdb_to_tai` | `compat.tdb_to_tai` | wrapped | Direct core delegation; integer narrowing and finite checks occur at the boundary. |
 | `timescale::TimeScale` | `TimeScale` | wrapped | Direct core delegation; integer narrowing and finite checks occur at the boundary. |
 | `wgc_gps::WgcGpsError` | `WgcGpsError` | wrapped | Direct core delegation; integer narrowing and finite checks occur at the boundary. |
+| `wgc_gps::WgcCalendarSystem` | `WgcCalendarSystem` | wrapped | Direct core delegation; integer narrowing and finite checks occur at the boundary. |
+| `wgc_gps::parse_week_tow` | `parse_wgc_week_tow` | wrapped | Direct core delegation; integer narrowing and finite checks occur at the boundary. |
+| `wgc_gps::gps_seconds_to_et` | `wgc_gps_seconds_to_et` | wrapped | Direct core delegation; integer narrowing and finite checks occur at the boundary. |
+| `wgc_gps::week_tow_to_et` | `wgc_week_tow_to_et` | wrapped | Direct core delegation; integer narrowing and finite checks occur at the boundary. |
+| `wgc_gps::et_to_gps_display_seconds` | `et_to_wgc_gps_display_seconds` | wrapped | Direct core delegation; integer narrowing and finite checks occur at the boundary. |
+| `wgc_gps::et_to_utc_calendar_doy` | `et_to_wgc_calendar_doy` | wrapped | Select UTC explicitly in the shared Python day-of-year formatter. |
+| `wgc_gps::et_to_calendar_doy` | `et_to_wgc_calendar_doy` | wrapped | Direct core delegation; integer narrowing and finite checks occur at the boundary. |
+| `wgc_gps::et_to_calendar_ymd` | `et_to_wgc_calendar_ymd` | wrapped | Direct core delegation; integer narrowing and finite checks occur at the boundary. |
 | `wgc_gps::gps_seconds_to_week_tow` | `gps_seconds_to_week_tow` | wrapped | Direct core delegation; integer narrowing and finite checks occur at the boundary. |

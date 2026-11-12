@@ -1,0 +1,89 @@
+{
+  "request": {
+    "calculationType": "TIME_CONVERSION",
+    "kernels": [
+      {
+        "type": "KERNEL_SET",
+        "id": 2
+      }
+    ],
+    "timeSystem": "TDB",
+    "timeFormat": "SECONDS_PAST_J2000",
+    "times": [
+      "-63082281600",
+      "-63113904000",
+      "-31556952000",
+      "-63050745600",
+      "-63145440000",
+      "-63177062400",
+      "-315569952000",
+      "252455616000"
+    ],
+    "timeStep": 1,
+    "timeStepUnits": "SECONDS",
+    "outputTimeSystem": "UTC",
+    "outputTimeFormat": "CALENDAR_DOY"
+  },
+  "created": {
+    "status": "OK",
+    "message": "The request was successful.",
+    "calculationId": "8bd1f468-6080-4321-a17a-d0a09482b77d",
+    "result": {
+      "phase": "COMPLETE",
+      "expiresIn": 600
+    }
+  },
+  "results": {
+    "status": "OK",
+    "message": "The request was successful.",
+    "calculationId": "8bd1f468-6080-4321-a17a-d0a09482b77d",
+    "columns": [
+      {
+        "name": "TDB seconds past J2000",
+        "type": "NUMBER",
+        "units": "",
+        "outputID": "DATE"
+      },
+      {
+        "name": "UTC day-of-year date",
+        "type": "DATE",
+        "units": "",
+        "outputID": "DATE2"
+      }
+    ],
+    "rows": [
+      [
+        -63082281600.0,
+        "1 AD-001/11:59:18.815109 UTC"
+      ],
+      [
+        -63113904000.0,
+        "1 BC-001/11:59:18.815124 UTC"
+      ],
+      [
+        -31556952000.0,
+        "999 AD-365/23:59:18.815582 UTC"
+      ],
+      [
+        -63050745600.0,
+        "2 AD-001/11:59:18.815116 UTC"
+      ],
+      [
+        -63145440000.0,
+        "2 BC-001/11:59:18.815124 UTC"
+      ],
+      [
+        -63177062400.0,
+        "4 BC-365/11:59:18.815139 UTC"
+      ],
+      [
+        -315569952000.0,
+        "8002 BC-361/11:59:18.815490 UTC"
+      ],
+      [
+        252455616000.0,
+        "10000-001/11:58:50.817108 UTC"
+      ]
+    ]
+  }
+}

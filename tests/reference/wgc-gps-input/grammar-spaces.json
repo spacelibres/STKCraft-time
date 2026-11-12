@@ -1,0 +1,521 @@
+[
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "GPS",
+      "timeFormat": "WEEK_TOW",
+      "times": [
+        "1, 2"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeSystem": "GPS",
+      "outputTimeFormat": "SECONDS_PAST_GPS0"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "ef9eb6f2-2e00-4f3c-ba40-9a2cba62560a",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "GPS",
+      "timeFormat": "WEEK_TOW",
+      "times": [
+        "1,  2"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeSystem": "GPS",
+      "outputTimeFormat": "SECONDS_PAST_GPS0"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "3d562ccf-2c93-4fc7-b9ae-ee79a11f8c63",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "GPS",
+      "timeFormat": "WEEK_TOW",
+      "times": [
+        "1,\t2"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeSystem": "GPS",
+      "outputTimeFormat": "SECONDS_PAST_GPS0"
+    },
+    "created": {
+      "status": "ERROR",
+      "message": "The request has failed.",
+      "calculationId": "3b32448a-7eb1-421e-af31-0d0b4f3ca93f",
+      "error": {
+        "shortDescription": "Invalid format for Week past GPS zero time, TOW (seconds)."
+      }
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "GPS",
+      "timeFormat": "WEEK_TOW",
+      "times": [
+        " 1, 2"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeSystem": "GPS",
+      "outputTimeFormat": "SECONDS_PAST_GPS0"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "3b94b7d4-04aa-4f94-a631-07afab44cfb1",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "GPS",
+      "timeFormat": "WEEK_TOW",
+      "times": [
+        "1 , 2"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeSystem": "GPS",
+      "outputTimeFormat": "SECONDS_PAST_GPS0"
+    },
+    "created": {
+      "status": "ERROR",
+      "message": "The request has failed.",
+      "calculationId": "bfa0b773-4201-46c5-9443-36bcc7b2acea",
+      "error": {
+        "shortDescription": "Invalid format for Week past GPS zero time, TOW (seconds)."
+      }
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "GPS",
+      "timeFormat": "WEEK_TOW",
+      "times": [
+        "1, 2 "
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeSystem": "GPS",
+      "outputTimeFormat": "SECONDS_PAST_GPS0"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "678e51fa-89e3-4768-8a9b-fcae32f7b179",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "GPS",
+      "timeFormat": "WEEK_TOW",
+      "times": [
+        "+1, +2"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeSystem": "GPS",
+      "outputTimeFormat": "SECONDS_PAST_GPS0"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "92703ebd-af18-4391-b04c-bdd163cfb2e4",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "GPS",
+      "timeFormat": "WEEK_TOW",
+      "times": [
+        "01, 02"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeSystem": "GPS",
+      "outputTimeFormat": "SECONDS_PAST_GPS0"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "45a46c82-3259-476a-b03a-d1b58777585f",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "GPS",
+      "timeFormat": "WEEK_TOW",
+      "times": [
+        "-0, -0.0"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeSystem": "GPS",
+      "outputTimeFormat": "SECONDS_PAST_GPS0"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "be102795-8d92-48b9-a994-d26d69e38588",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "GPS",
+      "timeFormat": "WEEK_TOW",
+      "times": [
+        "1, 1e3"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeSystem": "GPS",
+      "outputTimeFormat": "SECONDS_PAST_GPS0"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "c95bde2a-1f69-4e2e-8afb-7ac3feca4cc1",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "GPS",
+      "timeFormat": "WEEK_TOW",
+      "times": [
+        "1, 0x1.0p2"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeSystem": "GPS",
+      "outputTimeFormat": "SECONDS_PAST_GPS0"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "324269fb-a379-43c1-9c0d-534b020152a7",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "GPS",
+      "timeFormat": "WEEK_TOW",
+      "times": [
+        "1, 1d"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeSystem": "GPS",
+      "outputTimeFormat": "SECONDS_PAST_GPS0"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "4723f994-28ff-44a9-bca9-2c23727b1109",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "GPS",
+      "timeFormat": "WEEK_TOW",
+      "times": [
+        "1, Infinity"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeSystem": "GPS",
+      "outputTimeFormat": "SECONDS_PAST_GPS0"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "917fe8f4-8707-434b-86dd-d727f537e1b9",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "GPS",
+      "timeFormat": "WEEK_TOW",
+      "times": [
+        "1, -Infinity"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeSystem": "GPS",
+      "outputTimeFormat": "SECONDS_PAST_GPS0"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "80c38164-5ac2-41a7-b501-d09b02463662",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "GPS",
+      "timeFormat": "WEEK_TOW",
+      "times": [
+        "1, nan"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeSystem": "GPS",
+      "outputTimeFormat": "SECONDS_PAST_GPS0"
+    },
+    "created": {
+      "status": "ERROR",
+      "message": "The request has failed.",
+      "calculationId": "6e2dde3f-e3e5-4686-a5e2-2329dd5dda7d",
+      "error": {
+        "shortDescription": "Invalid format for Week past GPS zero time, TOW (seconds)."
+      }
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "GPS",
+      "timeFormat": "WEEK_TOW",
+      "times": [
+        "1, NaN"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeSystem": "GPS",
+      "outputTimeFormat": "SECONDS_PAST_GPS0"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "1a107865-833e-44e9-a373-bca776a18ad3",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 599
+      }
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "GPS",
+      "timeFormat": "WEEK_TOW",
+      "times": [
+        "2147483647, 0"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeSystem": "GPS",
+      "outputTimeFormat": "SECONDS_PAST_GPS0"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "26634eb4-2378-46a3-bb4c-4556288f71e8",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "GPS",
+      "timeFormat": "WEEK_TOW",
+      "times": [
+        "-2147483648, 0"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeSystem": "GPS",
+      "outputTimeFormat": "SECONDS_PAST_GPS0"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "914ba57b-97fd-4f94-ad0f-e31ce5d9f0d6",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    }
+  }
+]

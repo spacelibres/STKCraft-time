@@ -1,6 +1,6 @@
 [package]
 name = "stkcraft-time"
-version = "0.1.34"
+version = "0.2.0"
 edition = "2021"
 rust-version = "1.75"
 authors = ["STKCraft"]
@@ -16,7 +16,7 @@ categories = ["aerospace", "date-and-time", "science", "no-std", "parsing"]
 
 [dependencies]
 libm = "0.2"
-serde_json = { version = "1", optional = true }
+serde_json = { version = "1", optional = true, features = ["float_roundtrip"] }
 
 [features]
 default = ["std"]

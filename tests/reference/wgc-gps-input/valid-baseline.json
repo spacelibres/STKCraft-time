@@ -1,0 +1,113 @@
+{
+  "request": {
+    "calculationType": "TIME_CONVERSION",
+    "kernels": [
+      {
+        "type": "KERNEL_SET",
+        "id": 2
+      }
+    ],
+    "timeSystem": "GPS",
+    "timeFormat": "WEEK_TOW",
+    "times": [
+      "0, -1",
+      "-1, -1",
+      "1, 0",
+      "0, 604800",
+      "1, -1",
+      "1024, 0",
+      "+1, +2",
+      "1, 1e3",
+      "1, NaN",
+      "1, Infinity",
+      "1, -Infinity"
+    ],
+    "timeStep": 1,
+    "timeStepUnits": "SECONDS",
+    "outputTimeSystem": "GPS",
+    "outputTimeFormat": "SECONDS_PAST_GPS0"
+  },
+  "created": {
+    "status": "OK",
+    "message": "The request was successful.",
+    "calculationId": "f0b94018-855b-45a9-a2e5-c4bd2eed0b9c",
+    "result": {
+      "phase": "COMPLETE",
+      "expiresIn": 600
+    }
+  },
+  "status": {
+    "status": "OK",
+    "message": "The request was successful.",
+    "calculationId": "f0b94018-855b-45a9-a2e5-c4bd2eed0b9c",
+    "result": {
+      "phase": "COMPLETE",
+      "expiresIn": 598
+    }
+  },
+  "results": {
+    "status": "OK",
+    "message": "The request was successful.",
+    "calculationId": "f0b94018-855b-45a9-a2e5-c4bd2eed0b9c",
+    "columns": [
+      {
+        "name": "Week past GPS zero time, TOW (s)",
+        "type": "DATE",
+        "units": "",
+        "outputID": "DATE"
+      },
+      {
+        "name": "Seconds past GPS zero time",
+        "type": "NUMBER",
+        "units": "",
+        "outputID": "DATE2"
+      }
+    ],
+    "rows": [
+      [
+        "0, -1.000000",
+        -1.0
+      ],
+      [
+        "-1, -1.000000",
+        -604801.0
+      ],
+      [
+        "1, 0.000000",
+        604800.0
+      ],
+      [
+        "1, 0.000000",
+        604800.0
+      ],
+      [
+        "0, 604799.000000",
+        604799.0
+      ],
+      [
+        "1024, 0.000000",
+        619315200.0
+      ],
+      [
+        "1, 2.000000",
+        604802.0
+      ],
+      [
+        "1, 1000.000000",
+        605800.0
+      ],
+      [
+        "0, NaN",
+        "NaN"
+      ],
+      [
+        "0, NaN",
+        "NaN"
+      ],
+      [
+        "0, NaN",
+        "NaN"
+      ]
+    ]
+  }
+}

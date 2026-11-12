@@ -14,3 +14,4 @@ docs/reference/native-jdutc/** -text -whitespace
 tests/reference/native-jdutc/** -text -whitespace
 tests/reference/sclk-partition/** -text -whitespace
 tests/reference/wgc-gps/** -text -whitespace
+tests/reference/wgc-gps-input/** -text -whitespace

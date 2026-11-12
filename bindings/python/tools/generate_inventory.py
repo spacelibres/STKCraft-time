@@ -9,7 +9,7 @@ for p in sorted((ROOT/'src').rglob('*.rs')):
  if 'bin' in p.relative_to(ROOT/'src').parts:continue
  text=p.read_text(encoding="utf-8").split('#[cfg(test)]')[0];owner=None;depth=0;impl_depth=None
  for line_no,line in enumerate(text.splitlines(),1):
-  im=re.match(r'impl(?:<.*?>)?\s+(\w+)',line)
+  im=re.match(r'impl(?:<.*?>)?\s+(\w+)(?:<[^>]+>)?',line)
   if im and '{' in line:owner=im[1];impl_depth=depth
   found=re.match(r'\s*pub (fn|struct|enum|const|type|trait) (\w+)',line)
   if found:
@@ -24,6 +24,13 @@ for p in sorted((ROOT/'src').rglob('*.rs')):
      target=ALIASES.get((owner,name),owner+'.'+name)
      if name in ('checked_from_parts','checked_from_tai_seconds','checked_from_seconds_f64','checked_from_seconds','checked_from_nanoseconds'):reason='Checked core constructor; raises instead of returning Rust Option.'
     elif module=='lsk':target='LeapSecondTable.from_lsk' if name=='parse_lsk' else 'LeapSecondTable.builtin'
+    elif module=='wgc_gps':
+     target={'parse_week_tow':'parse_wgc_week_tow','gps_seconds_to_et':'wgc_gps_seconds_to_et',
+             'week_tow_to_et':'wgc_week_tow_to_et','et_to_gps_display_seconds':'et_to_wgc_gps_display_seconds',
+             'et_to_calendar_doy':'et_to_wgc_calendar_doy','et_to_calendar_ymd':'et_to_wgc_calendar_ymd',
+             'et_to_utc_calendar_doy':'et_to_wgc_calendar_doy'}.get(name,name)
+     if name=='et_to_utc_calendar_doy':reason='Select UTC explicitly in the shared Python day-of-year formatter.'
+    elif module=='sclk' and name=='NativeSclkError':target='TimeError';reason='Native string and verified range symbols use SclkStringError; other time errors use TimeError.'
     elif module in ('convert','coord','tdb','dtdb') and (name.startswith('tai_to_') or name.endswith('_to_tai') or module=='convert' or name=='tcg_minus_tt'):target='compat.'+name
     else:target=name
    rows.append(dict(core=core,python=target,status=status,source=f'{p.relative_to(ROOT).as_posix()}:{line_no}',reason=reason))

@@ -1,0 +1,3202 @@
+[
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "UTC",
+      "timeFormat": "CALENDAR",
+      "times": [
+        "2000-01-01T12:00:00"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeCustomFormat": "YYYY-DOY/HR:MN:SC.######",
+      "outputTimeSystem": "UTC",
+      "outputTimeFormat": "CALENDAR"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "df10b589-4c45-45e1-8b95-04a680591cdf",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "df10b589-4c45-45e1-8b95-04a680591cdf",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 598
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "df10b589-4c45-45e1-8b95-04a680591cdf",
+      "columns": [
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "2000-01-01 12:00:00.000000 UTC",
+          "2000-01-01 12:00:00.000000 UTC"
+        ]
+      ]
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "UTC",
+      "timeFormat": "CALENDAR",
+      "times": [
+        "2000-01-01T12:00:00"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeCustomFormat": "YYYY-DOY/HR:MN:SC.######",
+      "outputTimeSystem": "UTC",
+      "outputTimeFormat": "CALENDAR_YMD"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "6c0bd1bc-c415-488b-9d9b-7b39bad49578",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "6c0bd1bc-c415-488b-9d9b-7b39bad49578",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 599
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "6c0bd1bc-c415-488b-9d9b-7b39bad49578",
+      "columns": [
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "2000-01-01 12:00:00.000000 UTC",
+          "2000-01-01 12:00:00.000000 UTC"
+        ]
+      ]
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "UTC",
+      "timeFormat": "CALENDAR",
+      "times": [
+        "2000-01-01T12:00:00"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeCustomFormat": "YYYY-DOY/HR:MN:SC.######",
+      "outputTimeSystem": "UTC",
+      "outputTimeFormat": "CALENDAR_DOY"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "0076e3b0-bb25-4994-90e9-ffefd13dc09f",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "0076e3b0-bb25-4994-90e9-ffefd13dc09f",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 599
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "0076e3b0-bb25-4994-90e9-ffefd13dc09f",
+      "columns": [
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "UTC day-of-year date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "2000-01-01 12:00:00.000000 UTC",
+          "2000-001/12:00:00.000000 UTC"
+        ]
+      ]
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "UTC",
+      "timeFormat": "CALENDAR",
+      "times": [
+        "2000-01-01T12:00:00"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeCustomFormat": "YYYY-DOY/HR:MN:SC.######",
+      "outputTimeSystem": "UTC",
+      "outputTimeFormat": "JULIAN"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "b749583d-7e09-4f2c-ad84-395e791a7c40",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "b749583d-7e09-4f2c-ad84-395e791a7c40",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 599
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "b749583d-7e09-4f2c-ad84-395e791a7c40",
+      "columns": [
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "UTC Julian date",
+          "type": "NUMBER",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "2000-01-01 12:00:00.000000 UTC",
+          "2451545.0000000000 JD UTC"
+        ]
+      ]
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "UTC",
+      "timeFormat": "CALENDAR",
+      "times": [
+        "2000-01-01T12:00:00"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeCustomFormat": "YYYY-DOY/HR:MN:SC.######",
+      "outputTimeSystem": "UTC",
+      "outputTimeFormat": "SECONDS_PAST_GPS0"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "a7e8027c-8cf6-47d3-90b3-5b5216e6388e",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "a7e8027c-8cf6-47d3-90b3-5b5216e6388e",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 599
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "a7e8027c-8cf6-47d3-90b3-5b5216e6388e",
+      "columns": [
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "UTC calendar date",
+          "type": "NUMBER",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "2000-01-01 12:00:00.000000 UTC",
+          "2000-01-01 12:00:00.000000 UTC"
+        ]
+      ]
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "UTC",
+      "timeFormat": "CALENDAR",
+      "times": [
+        "2000-01-01T12:00:00"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeCustomFormat": "YYYY-DOY/HR:MN:SC.######",
+      "outputTimeSystem": "UTC",
+      "outputTimeFormat": "SECONDS_PAST_J2000"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "b75170e7-8abe-4945-81af-793ce7d7ae85",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "b75170e7-8abe-4945-81af-793ce7d7ae85",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 598
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "b75170e7-8abe-4945-81af-793ce7d7ae85",
+      "columns": [
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "UTC seconds past J2000",
+          "type": "NUMBER",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "2000-01-01 12:00:00.000000 UTC",
+          0.0
+        ]
+      ]
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "UTC",
+      "timeFormat": "CALENDAR",
+      "times": [
+        "2000-01-01T12:00:00"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeCustomFormat": "YYYY-DOY/HR:MN:SC.######",
+      "outputTimeSystem": "UTC",
+      "outputTimeFormat": "SPACECRAFT_CLOCK_STRING"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "edce5374-b12a-45cf-a920-eed3c5b8fdde",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "edce5374-b12a-45cf-a920-eed3c5b8fdde",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 598
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "edce5374-b12a-45cf-a920-eed3c5b8fdde",
+      "columns": [
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "2000-01-01 12:00:00.000000 UTC",
+          "2000-01-01 12:00:00.000000 UTC"
+        ]
+      ]
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "UTC",
+      "timeFormat": "CALENDAR",
+      "times": [
+        "2000-01-01T12:00:00"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeCustomFormat": "YYYY-DOY/HR:MN:SC.######",
+      "outputTimeSystem": "UTC",
+      "outputTimeFormat": "SPACECRAFT_CLOCK_TICKS"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "59b89e48-d8f9-49ab-9c19-5587573435aa",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "59b89e48-d8f9-49ab-9c19-5587573435aa",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 598
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "59b89e48-d8f9-49ab-9c19-5587573435aa",
+      "columns": [
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "2000-01-01 12:00:00.000000 UTC",
+          "2000-01-01 12:00:00.000000 UTC"
+        ]
+      ]
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "UTC",
+      "timeFormat": "CALENDAR",
+      "times": [
+        "2000-01-01T12:00:00"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeCustomFormat": "YYYY-DOY/HR:MN:SC.######",
+      "outputTimeSystem": "UTC",
+      "outputTimeFormat": "CUSTOM"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "0df96b3c-02e3-4928-9e9e-aee8a3b62128",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "0df96b3c-02e3-4928-9e9e-aee8a3b62128",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 599
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "0df96b3c-02e3-4928-9e9e-aee8a3b62128",
+      "columns": [
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "UTC custom date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "2000-01-01 12:00:00.000000 UTC",
+          "2000-001/12:00:00.000000"
+        ]
+      ]
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "UTC",
+      "timeFormat": "CALENDAR",
+      "times": [
+        "2000-01-01T12:00:00"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeCustomFormat": "YYYY-DOY/HR:MN:SC.######",
+      "outputTimeSystem": "UTC",
+      "outputTimeFormat": "WEEK_TOW"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "d57231dd-513e-4277-b21e-23aac0601a47",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "d57231dd-513e-4277-b21e-23aac0601a47",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 598
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "d57231dd-513e-4277-b21e-23aac0601a47",
+      "columns": [
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "2000-01-01 12:00:00.000000 UTC",
+          "2000-01-01 12:00:00.000000 UTC"
+        ]
+      ]
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "UTC",
+      "timeFormat": "CALENDAR",
+      "times": [
+        "2000-01-01T12:00:00"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeCustomFormat": "YYYY-DOY/HR:MN:SC.######",
+      "outputTimeSystem": "TDB",
+      "outputTimeFormat": "CALENDAR"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "2bf236fb-3709-43e9-a1bd-0364c264bc12",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "2bf236fb-3709-43e9-a1bd-0364c264bc12",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 599
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "2bf236fb-3709-43e9-a1bd-0364c264bc12",
+      "columns": [
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "TDB calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "2000-01-01 12:00:00.000000 UTC",
+          "2000-01-01 12:01:04.183927 TDB"
+        ]
+      ]
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "UTC",
+      "timeFormat": "CALENDAR",
+      "times": [
+        "2000-01-01T12:00:00"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeCustomFormat": "YYYY-DOY/HR:MN:SC.######",
+      "outputTimeSystem": "TDB",
+      "outputTimeFormat": "CALENDAR_YMD"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "45cd2b51-3214-4c81-b3ae-4f293f3b8f88",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "45cd2b51-3214-4c81-b3ae-4f293f3b8f88",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 598
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "45cd2b51-3214-4c81-b3ae-4f293f3b8f88",
+      "columns": [
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "TDB calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "2000-01-01 12:00:00.000000 UTC",
+          "2000-01-01 12:01:04.183927 TDB"
+        ]
+      ]
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "UTC",
+      "timeFormat": "CALENDAR",
+      "times": [
+        "2000-01-01T12:00:00"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeCustomFormat": "YYYY-DOY/HR:MN:SC.######",
+      "outputTimeSystem": "TDB",
+      "outputTimeFormat": "CALENDAR_DOY"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "f4afbef9-170a-46d3-b629-b4942ab6859c",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "f4afbef9-170a-46d3-b629-b4942ab6859c",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 599
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "f4afbef9-170a-46d3-b629-b4942ab6859c",
+      "columns": [
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "TDB day-of-year date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "2000-01-01 12:00:00.000000 UTC",
+          "2000-001/12:01:04.183927 TDB"
+        ]
+      ]
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "UTC",
+      "timeFormat": "CALENDAR",
+      "times": [
+        "2000-01-01T12:00:00"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeCustomFormat": "YYYY-DOY/HR:MN:SC.######",
+      "outputTimeSystem": "TDB",
+      "outputTimeFormat": "JULIAN"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "065c4795-4977-49d2-a8be-1c134e4275d0",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "065c4795-4977-49d2-a8be-1c134e4275d0",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 598
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "065c4795-4977-49d2-a8be-1c134e4275d0",
+      "columns": [
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "TDB Julian date",
+          "type": "NUMBER",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "2000-01-01 12:00:00.000000 UTC",
+          "2451545.0007428695 JD TDB"
+        ]
+      ]
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "UTC",
+      "timeFormat": "CALENDAR",
+      "times": [
+        "2000-01-01T12:00:00"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeCustomFormat": "YYYY-DOY/HR:MN:SC.######",
+      "outputTimeSystem": "TDB",
+      "outputTimeFormat": "SECONDS_PAST_GPS0"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "6a9b54fa-37a3-4c32-9df2-de13a6b70193",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "6a9b54fa-37a3-4c32-9df2-de13a6b70193",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 599
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "6a9b54fa-37a3-4c32-9df2-de13a6b70193",
+      "columns": [
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "TDB calendar date",
+          "type": "NUMBER",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "2000-01-01 12:00:00.000000 UTC",
+          "2000-01-01 12:01:04.183927 TDB"
+        ]
+      ]
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "UTC",
+      "timeFormat": "CALENDAR",
+      "times": [
+        "2000-01-01T12:00:00"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeCustomFormat": "YYYY-DOY/HR:MN:SC.######",
+      "outputTimeSystem": "TDB",
+      "outputTimeFormat": "SECONDS_PAST_J2000"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "64cc4012-4929-4b78-a98e-b32a1fd25989",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "64cc4012-4929-4b78-a98e-b32a1fd25989",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 598
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "64cc4012-4929-4b78-a98e-b32a1fd25989",
+      "columns": [
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "TDB seconds past J2000",
+          "type": "NUMBER",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "2000-01-01 12:00:00.000000 UTC",
+          64.183927
+        ]
+      ]
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "UTC",
+      "timeFormat": "CALENDAR",
+      "times": [
+        "2000-01-01T12:00:00"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeCustomFormat": "YYYY-DOY/HR:MN:SC.######",
+      "outputTimeSystem": "TDB",
+      "outputTimeFormat": "SPACECRAFT_CLOCK_STRING"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "c112165b-f29e-400e-9d6f-058a7022172e",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "c112165b-f29e-400e-9d6f-058a7022172e",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 598
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "c112165b-f29e-400e-9d6f-058a7022172e",
+      "columns": [
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "TDB calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "2000-01-01 12:00:00.000000 UTC",
+          "2000-01-01 12:01:04.183927 TDB"
+        ]
+      ]
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "UTC",
+      "timeFormat": "CALENDAR",
+      "times": [
+        "2000-01-01T12:00:00"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeCustomFormat": "YYYY-DOY/HR:MN:SC.######",
+      "outputTimeSystem": "TDB",
+      "outputTimeFormat": "SPACECRAFT_CLOCK_TICKS"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "9c870f47-e763-47e7-a681-26832ee31208",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "9c870f47-e763-47e7-a681-26832ee31208",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 597
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "9c870f47-e763-47e7-a681-26832ee31208",
+      "columns": [
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "TDB calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "2000-01-01 12:00:00.000000 UTC",
+          "2000-01-01 12:01:04.183927 TDB"
+        ]
+      ]
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "UTC",
+      "timeFormat": "CALENDAR",
+      "times": [
+        "2000-01-01T12:00:00"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeCustomFormat": "YYYY-DOY/HR:MN:SC.######",
+      "outputTimeSystem": "TDB",
+      "outputTimeFormat": "CUSTOM"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "de088e03-b8b8-4a88-86cc-f23cfa3df574",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "de088e03-b8b8-4a88-86cc-f23cfa3df574",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 599
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "de088e03-b8b8-4a88-86cc-f23cfa3df574",
+      "columns": [
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "TDB custom date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "2000-01-01 12:00:00.000000 UTC",
+          "2000-001/12:01:04.183927"
+        ]
+      ]
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "UTC",
+      "timeFormat": "CALENDAR",
+      "times": [
+        "2000-01-01T12:00:00"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeCustomFormat": "YYYY-DOY/HR:MN:SC.######",
+      "outputTimeSystem": "TDB",
+      "outputTimeFormat": "WEEK_TOW"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "af03095d-3800-4159-a7aa-e6cda6a60fe0",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "af03095d-3800-4159-a7aa-e6cda6a60fe0",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 599
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "af03095d-3800-4159-a7aa-e6cda6a60fe0",
+      "columns": [
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "TDB calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "2000-01-01 12:00:00.000000 UTC",
+          "2000-01-01 12:01:04.183927 TDB"
+        ]
+      ]
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "UTC",
+      "timeFormat": "CALENDAR",
+      "times": [
+        "2000-01-01T12:00:00"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeCustomFormat": "YYYY-DOY/HR:MN:SC.######",
+      "outputTimeSystem": "TT",
+      "outputTimeFormat": "CALENDAR"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "3cdd2806-ff65-48bb-8d03-8c8112f5e9cd",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "3cdd2806-ff65-48bb-8d03-8c8112f5e9cd",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 599
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "3cdd2806-ff65-48bb-8d03-8c8112f5e9cd",
+      "columns": [
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "TT calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "2000-01-01 12:00:00.000000 UTC",
+          "2000-01-01 12:01:04.184000 TT"
+        ]
+      ]
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "UTC",
+      "timeFormat": "CALENDAR",
+      "times": [
+        "2000-01-01T12:00:00"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeCustomFormat": "YYYY-DOY/HR:MN:SC.######",
+      "outputTimeSystem": "TT",
+      "outputTimeFormat": "CALENDAR_YMD"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "ba914b27-27b4-4098-9ee0-99da9cef611f",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "ba914b27-27b4-4098-9ee0-99da9cef611f",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 599
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "ba914b27-27b4-4098-9ee0-99da9cef611f",
+      "columns": [
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "TT calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "2000-01-01 12:00:00.000000 UTC",
+          "2000-01-01 12:01:04.184000 TT"
+        ]
+      ]
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "UTC",
+      "timeFormat": "CALENDAR",
+      "times": [
+        "2000-01-01T12:00:00"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeCustomFormat": "YYYY-DOY/HR:MN:SC.######",
+      "outputTimeSystem": "TT",
+      "outputTimeFormat": "CALENDAR_DOY"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "43672f6d-6122-4097-accc-2c96de2cda09",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "43672f6d-6122-4097-accc-2c96de2cda09",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 598
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "43672f6d-6122-4097-accc-2c96de2cda09",
+      "columns": [
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "TT day-of-year date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "2000-01-01 12:00:00.000000 UTC",
+          "2000-001/12:01:04.184000 TT"
+        ]
+      ]
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "UTC",
+      "timeFormat": "CALENDAR",
+      "times": [
+        "2000-01-01T12:00:00"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeCustomFormat": "YYYY-DOY/HR:MN:SC.######",
+      "outputTimeSystem": "TT",
+      "outputTimeFormat": "JULIAN"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "8b1242ea-9e91-40a8-b431-68b5bacf286d",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "8b1242ea-9e91-40a8-b431-68b5bacf286d",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 599
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "8b1242ea-9e91-40a8-b431-68b5bacf286d",
+      "columns": [
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "TT Julian date",
+          "type": "NUMBER",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "2000-01-01 12:00:00.000000 UTC",
+          "2451545.0007428704 JD TT"
+        ]
+      ]
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "UTC",
+      "timeFormat": "CALENDAR",
+      "times": [
+        "2000-01-01T12:00:00"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeCustomFormat": "YYYY-DOY/HR:MN:SC.######",
+      "outputTimeSystem": "TT",
+      "outputTimeFormat": "SECONDS_PAST_GPS0"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "3fec3163-3f47-4568-b502-4568b55e791d",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "3fec3163-3f47-4568-b502-4568b55e791d",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 598
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "3fec3163-3f47-4568-b502-4568b55e791d",
+      "columns": [
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "TT calendar date",
+          "type": "NUMBER",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "2000-01-01 12:00:00.000000 UTC",
+          "2000-01-01 12:01:04.184000 TT"
+        ]
+      ]
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "UTC",
+      "timeFormat": "CALENDAR",
+      "times": [
+        "2000-01-01T12:00:00"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeCustomFormat": "YYYY-DOY/HR:MN:SC.######",
+      "outputTimeSystem": "TT",
+      "outputTimeFormat": "SECONDS_PAST_J2000"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "7925cf87-6bb6-4e9f-99ac-7dc7422a84ec",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "7925cf87-6bb6-4e9f-99ac-7dc7422a84ec",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 599
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "7925cf87-6bb6-4e9f-99ac-7dc7422a84ec",
+      "columns": [
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "TT seconds past J2000",
+          "type": "NUMBER",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "2000-01-01 12:00:00.000000 UTC",
+          64.184
+        ]
+      ]
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "UTC",
+      "timeFormat": "CALENDAR",
+      "times": [
+        "2000-01-01T12:00:00"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeCustomFormat": "YYYY-DOY/HR:MN:SC.######",
+      "outputTimeSystem": "TT",
+      "outputTimeFormat": "SPACECRAFT_CLOCK_STRING"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "85c63e73-baf0-47d5-b04e-9e3dab2a9b7d",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "85c63e73-baf0-47d5-b04e-9e3dab2a9b7d",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 597
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "85c63e73-baf0-47d5-b04e-9e3dab2a9b7d",
+      "columns": [
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "TT calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "2000-01-01 12:00:00.000000 UTC",
+          "2000-01-01 12:01:04.184000 TT"
+        ]
+      ]
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "UTC",
+      "timeFormat": "CALENDAR",
+      "times": [
+        "2000-01-01T12:00:00"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeCustomFormat": "YYYY-DOY/HR:MN:SC.######",
+      "outputTimeSystem": "TT",
+      "outputTimeFormat": "SPACECRAFT_CLOCK_TICKS"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "8fa46806-3e99-4ab9-8408-b6ac8c595cc5",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "8fa46806-3e99-4ab9-8408-b6ac8c595cc5",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 599
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "8fa46806-3e99-4ab9-8408-b6ac8c595cc5",
+      "columns": [
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "TT calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "2000-01-01 12:00:00.000000 UTC",
+          "2000-01-01 12:01:04.184000 TT"
+        ]
+      ]
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "UTC",
+      "timeFormat": "CALENDAR",
+      "times": [
+        "2000-01-01T12:00:00"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeCustomFormat": "YYYY-DOY/HR:MN:SC.######",
+      "outputTimeSystem": "TT",
+      "outputTimeFormat": "CUSTOM"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "00304821-8222-443e-8aaa-c00256ce7c97",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "00304821-8222-443e-8aaa-c00256ce7c97",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 599
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "00304821-8222-443e-8aaa-c00256ce7c97",
+      "columns": [
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "TT custom date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "2000-01-01 12:00:00.000000 UTC",
+          "2000-001/12:01:04.184000"
+        ]
+      ]
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "UTC",
+      "timeFormat": "CALENDAR",
+      "times": [
+        "2000-01-01T12:00:00"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeCustomFormat": "YYYY-DOY/HR:MN:SC.######",
+      "outputTimeSystem": "TT",
+      "outputTimeFormat": "WEEK_TOW"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "eb334639-0db5-440e-8211-f068bb8cc0bd",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "eb334639-0db5-440e-8211-f068bb8cc0bd",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 599
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "eb334639-0db5-440e-8211-f068bb8cc0bd",
+      "columns": [
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "TT calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "2000-01-01 12:00:00.000000 UTC",
+          "2000-01-01 12:01:04.184000 TT"
+        ]
+      ]
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "UTC",
+      "timeFormat": "CALENDAR",
+      "times": [
+        "2000-01-01T12:00:00"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeCustomFormat": "YYYY-DOY/HR:MN:SC.######",
+      "outputTimeSystem": "TDT",
+      "outputTimeFormat": "CALENDAR"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "9ba6d3c9-c0c3-466e-9fd0-458af04d5776",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "9ba6d3c9-c0c3-466e-9fd0-458af04d5776",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 599
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "9ba6d3c9-c0c3-466e-9fd0-458af04d5776",
+      "columns": [
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "TDT calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "2000-01-01 12:00:00.000000 UTC",
+          "2000-01-01 12:01:04.184000 TDT"
+        ]
+      ]
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "UTC",
+      "timeFormat": "CALENDAR",
+      "times": [
+        "2000-01-01T12:00:00"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeCustomFormat": "YYYY-DOY/HR:MN:SC.######",
+      "outputTimeSystem": "TDT",
+      "outputTimeFormat": "CALENDAR_YMD"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "d1b6386e-e5d2-432a-a922-b289f9cd32dd",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "d1b6386e-e5d2-432a-a922-b289f9cd32dd",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 597
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "d1b6386e-e5d2-432a-a922-b289f9cd32dd",
+      "columns": [
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "TDT calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "2000-01-01 12:00:00.000000 UTC",
+          "2000-01-01 12:01:04.184000 TDT"
+        ]
+      ]
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "UTC",
+      "timeFormat": "CALENDAR",
+      "times": [
+        "2000-01-01T12:00:00"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeCustomFormat": "YYYY-DOY/HR:MN:SC.######",
+      "outputTimeSystem": "TDT",
+      "outputTimeFormat": "CALENDAR_DOY"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "3b04e456-7d3c-4c71-9914-e546e98f935e",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "3b04e456-7d3c-4c71-9914-e546e98f935e",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 598
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "3b04e456-7d3c-4c71-9914-e546e98f935e",
+      "columns": [
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "TDT day-of-year date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "2000-01-01 12:00:00.000000 UTC",
+          "2000-001/12:01:04.184000 TDT"
+        ]
+      ]
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "UTC",
+      "timeFormat": "CALENDAR",
+      "times": [
+        "2000-01-01T12:00:00"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeCustomFormat": "YYYY-DOY/HR:MN:SC.######",
+      "outputTimeSystem": "TDT",
+      "outputTimeFormat": "JULIAN"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "05d5abfb-c7da-406a-abf4-a4346ec664c5",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "05d5abfb-c7da-406a-abf4-a4346ec664c5",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 599
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "05d5abfb-c7da-406a-abf4-a4346ec664c5",
+      "columns": [
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "TDT Julian date",
+          "type": "NUMBER",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "2000-01-01 12:00:00.000000 UTC",
+          "2451545.0007428704 JD TDT"
+        ]
+      ]
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "UTC",
+      "timeFormat": "CALENDAR",
+      "times": [
+        "2000-01-01T12:00:00"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeCustomFormat": "YYYY-DOY/HR:MN:SC.######",
+      "outputTimeSystem": "TDT",
+      "outputTimeFormat": "SECONDS_PAST_GPS0"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "7c963113-8c09-4267-9292-8e5e9e377a74",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "7c963113-8c09-4267-9292-8e5e9e377a74",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 599
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "7c963113-8c09-4267-9292-8e5e9e377a74",
+      "columns": [
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "TDT calendar date",
+          "type": "NUMBER",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "2000-01-01 12:00:00.000000 UTC",
+          "2000-01-01 12:01:04.184000 TDT"
+        ]
+      ]
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "UTC",
+      "timeFormat": "CALENDAR",
+      "times": [
+        "2000-01-01T12:00:00"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeCustomFormat": "YYYY-DOY/HR:MN:SC.######",
+      "outputTimeSystem": "TDT",
+      "outputTimeFormat": "SECONDS_PAST_J2000"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "d76838f8-e4e8-4669-937c-ec927143c9f9",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "d76838f8-e4e8-4669-937c-ec927143c9f9",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 599
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "d76838f8-e4e8-4669-937c-ec927143c9f9",
+      "columns": [
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "TDT seconds past J2000",
+          "type": "NUMBER",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "2000-01-01 12:00:00.000000 UTC",
+          64.184
+        ]
+      ]
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "UTC",
+      "timeFormat": "CALENDAR",
+      "times": [
+        "2000-01-01T12:00:00"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeCustomFormat": "YYYY-DOY/HR:MN:SC.######",
+      "outputTimeSystem": "TDT",
+      "outputTimeFormat": "SPACECRAFT_CLOCK_STRING"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "7e189ffa-a148-44bd-ba43-bbc2c769d3e4",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "7e189ffa-a148-44bd-ba43-bbc2c769d3e4",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 598
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "7e189ffa-a148-44bd-ba43-bbc2c769d3e4",
+      "columns": [
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "TDT calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "2000-01-01 12:00:00.000000 UTC",
+          "2000-01-01 12:01:04.184000 TDT"
+        ]
+      ]
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "UTC",
+      "timeFormat": "CALENDAR",
+      "times": [
+        "2000-01-01T12:00:00"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeCustomFormat": "YYYY-DOY/HR:MN:SC.######",
+      "outputTimeSystem": "TDT",
+      "outputTimeFormat": "SPACECRAFT_CLOCK_TICKS"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "c501cc01-401e-4bee-ad99-e67a382b087e",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "c501cc01-401e-4bee-ad99-e67a382b087e",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 598
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "c501cc01-401e-4bee-ad99-e67a382b087e",
+      "columns": [
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "TDT calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "2000-01-01 12:00:00.000000 UTC",
+          "2000-01-01 12:01:04.184000 TDT"
+        ]
+      ]
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "UTC",
+      "timeFormat": "CALENDAR",
+      "times": [
+        "2000-01-01T12:00:00"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeCustomFormat": "YYYY-DOY/HR:MN:SC.######",
+      "outputTimeSystem": "TDT",
+      "outputTimeFormat": "CUSTOM"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "2dab3980-81a6-4ff4-bb5d-b7c65eb10ebd",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "2dab3980-81a6-4ff4-bb5d-b7c65eb10ebd",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 598
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "2dab3980-81a6-4ff4-bb5d-b7c65eb10ebd",
+      "columns": [
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "TDT custom date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "2000-01-01 12:00:00.000000 UTC",
+          "2000-001/12:01:04.184000"
+        ]
+      ]
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "UTC",
+      "timeFormat": "CALENDAR",
+      "times": [
+        "2000-01-01T12:00:00"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeCustomFormat": "YYYY-DOY/HR:MN:SC.######",
+      "outputTimeSystem": "TDT",
+      "outputTimeFormat": "WEEK_TOW"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "88429c60-82a8-4409-a3fc-7650044ddf1c",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "88429c60-82a8-4409-a3fc-7650044ddf1c",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 598
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "88429c60-82a8-4409-a3fc-7650044ddf1c",
+      "columns": [
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "TDT calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "2000-01-01 12:00:00.000000 UTC",
+          "2000-01-01 12:01:04.184000 TDT"
+        ]
+      ]
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "UTC",
+      "timeFormat": "CALENDAR",
+      "times": [
+        "2000-01-01T12:00:00"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeCustomFormat": "YYYY-DOY/HR:MN:SC.######",
+      "outputTimeSystem": "GPS",
+      "outputTimeFormat": "CALENDAR"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "01466233-54e8-4741-bed1-e0abd8483fca",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "01466233-54e8-4741-bed1-e0abd8483fca",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 598
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "01466233-54e8-4741-bed1-e0abd8483fca",
+      "columns": [
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "GPS calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "2000-01-01 12:00:00.000000 UTC",
+          "2000-01-01 12:00:13.000000 GPS"
+        ]
+      ]
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "UTC",
+      "timeFormat": "CALENDAR",
+      "times": [
+        "2000-01-01T12:00:00"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeCustomFormat": "YYYY-DOY/HR:MN:SC.######",
+      "outputTimeSystem": "GPS",
+      "outputTimeFormat": "CALENDAR_YMD"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "bfd6aabe-ba39-4d22-84d6-4b06001f4795",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "bfd6aabe-ba39-4d22-84d6-4b06001f4795",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 599
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "bfd6aabe-ba39-4d22-84d6-4b06001f4795",
+      "columns": [
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "GPS calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "2000-01-01 12:00:00.000000 UTC",
+          "2000-01-01 12:00:13.000000 GPS"
+        ]
+      ]
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "UTC",
+      "timeFormat": "CALENDAR",
+      "times": [
+        "2000-01-01T12:00:00"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeCustomFormat": "YYYY-DOY/HR:MN:SC.######",
+      "outputTimeSystem": "GPS",
+      "outputTimeFormat": "CALENDAR_DOY"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "fb06d33f-2c46-449a-b024-d891382e865e",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "fb06d33f-2c46-449a-b024-d891382e865e",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 599
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "fb06d33f-2c46-449a-b024-d891382e865e",
+      "columns": [
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "GPS day-of-year date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "2000-01-01 12:00:00.000000 UTC",
+          "2000-001/12:00:13.000000 GPS"
+        ]
+      ]
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "UTC",
+      "timeFormat": "CALENDAR",
+      "times": [
+        "2000-01-01T12:00:00"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeCustomFormat": "YYYY-DOY/HR:MN:SC.######",
+      "outputTimeSystem": "GPS",
+      "outputTimeFormat": "JULIAN"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "23f024d6-355e-407b-81af-8a300f34d063",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "23f024d6-355e-407b-81af-8a300f34d063",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 596
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "23f024d6-355e-407b-81af-8a300f34d063",
+      "columns": [
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "GPS calendar date",
+          "type": "NUMBER",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "2000-01-01 12:00:00.000000 UTC",
+          "2451545.0007428695 JD GPS"
+        ]
+      ]
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "UTC",
+      "timeFormat": "CALENDAR",
+      "times": [
+        "2000-01-01T12:00:00"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeCustomFormat": "YYYY-DOY/HR:MN:SC.######",
+      "outputTimeSystem": "GPS",
+      "outputTimeFormat": "SECONDS_PAST_GPS0"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "9ee7bf7e-779b-447a-81e2-ad029a275978",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "9ee7bf7e-779b-447a-81e2-ad029a275978",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 599
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "9ee7bf7e-779b-447a-81e2-ad029a275978",
+      "columns": [
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "Seconds past GPS zero time",
+          "type": "NUMBER",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "2000-01-01 12:00:00.000000 UTC",
+          630763213.0
+        ]
+      ]
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "UTC",
+      "timeFormat": "CALENDAR",
+      "times": [
+        "2000-01-01T12:00:00"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeCustomFormat": "YYYY-DOY/HR:MN:SC.######",
+      "outputTimeSystem": "GPS",
+      "outputTimeFormat": "SECONDS_PAST_J2000"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "c4e04526-1e7a-4e8f-85bf-66d0575e1435",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "c4e04526-1e7a-4e8f-85bf-66d0575e1435",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 599
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "c4e04526-1e7a-4e8f-85bf-66d0575e1435",
+      "columns": [
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "GPS calendar date",
+          "type": "NUMBER",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "2000-01-01 12:00:00.000000 UTC",
+          64.183927
+        ]
+      ]
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "UTC",
+      "timeFormat": "CALENDAR",
+      "times": [
+        "2000-01-01T12:00:00"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeCustomFormat": "YYYY-DOY/HR:MN:SC.######",
+      "outputTimeSystem": "GPS",
+      "outputTimeFormat": "SPACECRAFT_CLOCK_STRING"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "2df29d40-41d9-4a94-8972-1c165891ffb9",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "2df29d40-41d9-4a94-8972-1c165891ffb9",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 599
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "2df29d40-41d9-4a94-8972-1c165891ffb9",
+      "columns": [
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "GPS calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "2000-01-01 12:00:00.000000 UTC",
+          "2000-01-01 12:00:13.000000 GPS"
+        ]
+      ]
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "UTC",
+      "timeFormat": "CALENDAR",
+      "times": [
+        "2000-01-01T12:00:00"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeCustomFormat": "YYYY-DOY/HR:MN:SC.######",
+      "outputTimeSystem": "GPS",
+      "outputTimeFormat": "SPACECRAFT_CLOCK_TICKS"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "dbd4c8b7-beef-4ebe-b41a-3e7751e63bc6",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "dbd4c8b7-beef-4ebe-b41a-3e7751e63bc6",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 599
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "dbd4c8b7-beef-4ebe-b41a-3e7751e63bc6",
+      "columns": [
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "GPS calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "2000-01-01 12:00:00.000000 UTC",
+          "2000-01-01 12:00:13.000000 GPS"
+        ]
+      ]
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "UTC",
+      "timeFormat": "CALENDAR",
+      "times": [
+        "2000-01-01T12:00:00"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeCustomFormat": "YYYY-DOY/HR:MN:SC.######",
+      "outputTimeSystem": "GPS",
+      "outputTimeFormat": "CUSTOM"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "dabb1d1f-a5d3-4379-9a48-25300286bd2f",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "dabb1d1f-a5d3-4379-9a48-25300286bd2f",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 598
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "dabb1d1f-a5d3-4379-9a48-25300286bd2f",
+      "columns": [
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "GPS calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "2000-01-01 12:00:00.000000 UTC",
+          "2000-001/12:00:13.000000"
+        ]
+      ]
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "UTC",
+      "timeFormat": "CALENDAR",
+      "times": [
+        "2000-01-01T12:00:00"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeCustomFormat": "YYYY-DOY/HR:MN:SC.######",
+      "outputTimeSystem": "GPS",
+      "outputTimeFormat": "WEEK_TOW"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "adf48e4f-ee7b-40cc-9c4a-c186e4c40762",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "adf48e4f-ee7b-40cc-9c4a-c186e4c40762",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 597
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "adf48e4f-ee7b-40cc-9c4a-c186e4c40762",
+      "columns": [
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "Week past GPS zero time, TOW (s)",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "2000-01-01 12:00:00.000000 UTC",
+          "1042, 561613.000000"
+        ]
+      ]
+    }
+  }
+]

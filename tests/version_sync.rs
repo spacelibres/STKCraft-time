@@ -7,17 +7,19 @@
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
-/// Collects every `0.1.<digits>` occurrence in `text`.
+/// Collects every current major/minor series version occurrence in `text`.
 ///
 /// Only the crate's own version series is matched, so unrelated decimal
 /// constants in the documents cannot produce a false positive.
 fn crate_versions(text: &str) -> Vec<&str> {
     let mut found = Vec::new();
     let mut rest = text;
+    let (series, _) = VERSION.rsplit_once('.').expect("semantic version");
+    let prefix = format!("{series}.");
 
-    while let Some(index) = rest.find("0.1.") {
+    while let Some(index) = rest.find(&prefix) {
         let candidate = &rest[index..];
-        let digits = candidate[4..]
+        let digits = candidate[prefix.len()..]
             .char_indices()
             .take_while(|(_, ch)| ch.is_ascii_digit())
             .last()
@@ -25,9 +27,9 @@ fn crate_versions(text: &str) -> Vec<&str> {
             .unwrap_or(0);
 
         if digits > 0 {
-            found.push(&candidate[..4 + digits]);
+            found.push(&candidate[..prefix.len() + digits]);
         }
-        rest = &candidate[4..];
+        rest = &candidate[prefix.len()..];
     }
 
     found

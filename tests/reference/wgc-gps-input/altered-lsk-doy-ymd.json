@@ -1,0 +1,10 @@
+{
+  "source": "local CSPICE TIMOUT; not live WGC",
+  "seed": 749612,
+  "inputs": 400,
+  "rows": 3200,
+  "spiceypy": "8.3.0",
+  "cspice": "CSPICE_N0067",
+  "lsk_sha256": "35eb844ebe00cf1eb03fd0a85a0bb35622d3cdb505ebf21846cec74b04fc25d6",
+  "library_sha256": "7fd2dcc58d73ed5293847e67109897caba34240b8f9c38ad739c0b2ec6ce7715"
+}

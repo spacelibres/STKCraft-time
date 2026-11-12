@@ -43,7 +43,7 @@ use alloc::format;
 use alloc::string::{String, ToString};
 use alloc::vec::Vec;
 
-use crate::convert::{et_to_tai, tai_to_et, tai_to_tt, tt_to_tai};
+use crate::convert::{tai_to_et, tai_to_tt};
 use crate::epoch::Epoch;
 use crate::error::TimeError;
 use crate::leap::LeapSecondTable;
@@ -71,12 +71,13 @@ pub struct SclkCoefficient {
     pub rate: f64,
 }
 
-/// Native short error for partition-aware SCLK string conversion.
+/// Error symbol for partition-aware SCLK string conversion.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct SclkStringError(&'static str);
 
 impl SclkStringError {
-    /// Return the corresponding CSPICE short error symbol.
+    /// Return the CSPICE short error symbol, or `STKCRAFT(NONFINITE)` for
+    /// the library's explicit non-finite input guard.
     pub fn spice_short(self) -> &'static str {
         self.0
     }
@@ -124,7 +125,7 @@ impl SclkKernel {
         self.validate_native_string_metadata()?;
         let totals = self.partition_totals(false)?;
         if !ticks.is_finite() {
-            return Err(SclkStringError("SPICE(VALUEOUTOFRANGE)"));
+            return Err(SclkStringError("STKCRAFT(NONFINITE)"));
         }
         let ticks = native_nint(ticks);
         let last = *totals
@@ -306,6 +307,33 @@ impl SclkKernel {
             Some(1..=5) => Ok(()),
             Some(_) => Err(SclkStringError("SPICE(VALUEOUTOFRANGE)")),
         }
+    }
+
+    // SCDECD's LSTLED search selects partition 2 for a NaN tick when at
+    // least two partitions exist. The exercised N0067 SCFM01 builds render
+    // NaN components as zero-filled fields. This path is used only for an
+    // indeterminate intermediate generated from finite ET, not for a
+    // caller-supplied non-finite tick.
+    fn decode_indeterminate_ticks(&self) -> Result<String, SclkStringError> {
+        self.validate_native_string_metadata()?;
+        let totals = self.partition_totals(false)?;
+        if totals.len() < 2 {
+            return Err(SclkStringError("SPICE(VALUEOUTOFRANGE)"));
+        }
+        let mut parts = Vec::with_capacity(self.n_fields);
+        for index in 0..self.n_fields {
+            let max_width = self.moduli[index] as f64 + self.offsets[index] as f64 - 1.0;
+            if max_width + 0.5 <= 0.0 {
+                return Err(SclkStringError("SPICE(INVALIDSCLKSTRING)"));
+            }
+            let width = (native_log10(max_width + 0.5) as i32 + 1).max(0) as usize;
+            let mut field = String::new();
+            for _ in 0..width {
+                field.push('0');
+            }
+            parts.push(field);
+        }
+        Ok(format!("2/{}", parts.join(&self.delimiter.to_string())))
     }
 
     fn partition_totals(&self, round_endpoints: bool) -> Result<Vec<f64>, SclkStringError> {
@@ -607,6 +635,26 @@ impl SclkKernel {
         }
     }
 
+    pub(crate) fn classify_native_ticks_error(
+        &self,
+        ticks: f64,
+        error: TimeError,
+    ) -> NativeSclkError {
+        if error == TimeError::SclkParse
+            && ticks.is_finite()
+            && (ticks < 0.0
+                || self.max_encoded_ticks.is_some_and(|max| ticks > max)
+                || self
+                    .coefficients
+                    .first()
+                    .is_some_and(|first| ticks < first.ticks))
+        {
+            NativeSclkError::Native(SclkStringError("SPICE(VALUEOUTOFRANGE)"))
+        } else {
+            NativeSclkError::Time(error)
+        }
+    }
+
     /// Converts `ET` (TDB seconds past J2000) to encoded ticks.
     pub fn et_to_ticks(&self, et: f64, lsk: &LeapSecondTable) -> Result<f64, TimeError> {
         match self.time_system {
@@ -616,12 +664,20 @@ impl SclkKernel {
     }
 
     /// Converts encoded ticks to a TAI epoch.
+    ///
+    /// Returns [`TimeError::Overflow`] when the result cannot be represented
+    /// as a finite integer epoch.
     pub fn ticks_to_tai(&self, ticks: f64, lsk: &LeapSecondTable) -> Result<Epoch, TimeError> {
         let parallel = self.parallel_seconds(ticks)?;
-        Ok(match self.time_system {
-            SclkTimeSystem::Tdb => et_to_tai(parallel, lsk),
-            SclkTimeSystem::Tdt => tt_to_tai(parallel, lsk),
-        })
+        let tai = match self.time_system {
+            SclkTimeSystem::Tdb => {
+                let mean_anomaly = lsk.m0 + lsk.m1 * parallel;
+                let eccentric_anomaly = mean_anomaly + lsk.eb * math::sin(mean_anomaly);
+                parallel - lsk.delta_t_a + 43_200.0 - lsk.k * math::sin(eccentric_anomaly)
+            }
+            SclkTimeSystem::Tdt => parallel - lsk.delta_t_a + 43_200.0,
+        };
+        Epoch::checked_from_tai_seconds(tai).ok_or(TimeError::Overflow)
     }
 
     // SCET01 rounds the interpolated ticks before checking the clock range.
@@ -918,6 +974,116 @@ pub struct SclkClock<'a> {
     pub kernel: &'a SclkKernel,
     /// Leap-second kernel used to relate TT and ET.
     pub lsk: &'a LeapSecondTable,
+}
+
+/// Error from a native-style SCLK string/ET conversion.
+///
+/// String parsing errors retain their CSPICE short symbol. Errors from the
+/// existing time conversion path remain distinguishable and are not assigned
+/// a guessed CSPICE symbol.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum NativeSclkError {
+    /// Native clock string encoding or decoding failed.
+    String(SclkStringError),
+    /// A native tick/time range check failed with a CSPICE short symbol.
+    Native(SclkStringError),
+    /// The encoded ticks/ET conversion failed.
+    Time(TimeError),
+}
+
+impl core::fmt::Display for NativeSclkError {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        match self {
+            Self::String(error) | Self::Native(error) => error.fmt(f),
+            Self::Time(error) => error.fmt(f),
+        }
+    }
+}
+
+#[cfg(feature = "std")]
+impl std::error::Error for NativeSclkError {}
+
+impl SclkClock<'_> {
+    /// Convert a partition-aware native clock string to ET.
+    ///
+    /// # Errors
+    /// Preserves string errors separately from tick/time conversion errors.
+    pub fn native_sclk_to_et(&self, clock: &str) -> Result<f64, NativeSclkError> {
+        self.native_sclk_to_et_with_context(clock, &mut SclkStringContext::default())
+    }
+
+    /// Convert a native clock string to ET while retaining parser state.
+    ///
+    /// # Errors
+    /// Preserves string errors separately from tick/time conversion errors.
+    pub fn native_sclk_to_et_with_context(
+        &self,
+        clock: &str,
+        context: &mut SclkStringContext,
+    ) -> Result<f64, NativeSclkError> {
+        let ticks = self
+            .kernel
+            .encode_native_sclk_with_context(clock, context)
+            .map_err(NativeSclkError::String)?;
+        self.kernel
+            .ticks_to_et(ticks, self.lsk)
+            .map_err(|error| self.kernel.classify_native_ticks_error(ticks, error))
+    }
+
+    /// Convert ET to a partition-aware native clock string.
+    ///
+    /// # Errors
+    /// Preserves string errors separately from tick/time conversion errors.
+    pub fn native_et_to_sclk(&self, et: f64) -> Result<String, NativeSclkError> {
+        if et.is_finite() {
+            let parallel = match self.kernel.time_system {
+                SclkTimeSystem::Tdb => et,
+                SclkTimeSystem::Tdt => crate::naif::et_to_tt(et, self.lsk),
+            };
+            if parallel.is_finite() {
+                if let Ok(segment) = self.kernel.segment_for_seconds(parallel) {
+                    let rate = 1.0 / (segment.rate / self.kernel.ticks_per_msb());
+                    let ticks = native_nint(segment.ticks + rate * (parallel - segment.seconds));
+                    if ticks.is_nan() {
+                        return self
+                            .kernel
+                            .decode_indeterminate_ticks()
+                            .map_err(NativeSclkError::Native);
+                    }
+                }
+            }
+        }
+        let ticks = self
+            .kernel
+            .et_to_discrete_ticks(et, self.lsk)
+            .map_err(|error| {
+                if error == TimeError::SclkParse {
+                    let parallel = match self.kernel.time_system {
+                        SclkTimeSystem::Tdb => et,
+                        SclkTimeSystem::Tdt => crate::naif::et_to_tt(et, self.lsk),
+                    };
+                    if let Ok(segment) = self.kernel.segment_for_seconds(parallel) {
+                        let rate = 1.0 / (segment.rate / self.kernel.ticks_per_msb());
+                        let ticks =
+                            native_nint(segment.ticks + rate * (parallel - segment.seconds));
+                        if et.is_finite()
+                            && parallel.is_finite()
+                            && !ticks.is_nan()
+                            && (ticks < native_nint(self.kernel.coefficients[0].ticks)
+                                || self.kernel.max_encoded_ticks.is_some_and(|max| ticks > max))
+                        {
+                            return NativeSclkError::Native(SclkStringError(
+                                "SPICE(VALUEOUTOFRANGE)",
+                            ));
+                        }
+                    }
+                }
+                NativeSclkError::Time(error)
+            })?;
+        self.kernel
+            .decode_native_sclk(ticks)
+            .map_err(NativeSclkError::String)
+    }
 }
 
 impl SclkMap for SclkClock<'_> {

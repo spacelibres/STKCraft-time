@@ -1,0 +1,22 @@
+{
+  "platform": "Windows-10-10.0.26300-SP0",
+  "spiceypy": "8.3.0",
+  "cspice": "CSPICE_N0067",
+  "kernel_sha256": "38b3f1e23db3fcd0ec7966070b12aebe055ecc73aed3b9fb3c9ea276fcf5631d",
+  "lsk_sha256": "c3c6c3d1736b8518869b85cace7d4fdc57fedc87ffc402a2a7ac5e67169f8757",
+  "library_sha256": "7fd2dcc58d73ed5293847e67109897caba34240b8f9c38ad739c0b2ec6ce7715",
+  "rows": [
+    {
+      "clock": "1/001:00:001",
+      "result": "E:SPICE(VALUEOUTOFRANGE)"
+    },
+    {
+      "clock": "1/001:00:002",
+      "result": "E:SPICE(VALUEOUTOFRANGE)"
+    },
+    {
+      "clock": "1/001:00:011",
+      "result": "T:0000000000000000"
+    }
+  ]
+}

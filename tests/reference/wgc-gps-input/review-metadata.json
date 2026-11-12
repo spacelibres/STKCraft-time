@@ -1,0 +1,47 @@
+{
+  "captured_utc": "2026-11-12T16:25:28.365625+00:00",
+  "python": "3.11.15 (main, May 10 2026, 19:31:25) [MSC v.1944 64 bit (AMD64)]",
+  "platform": "Windows-10-10.0.26300-SP0",
+  "spiceypy": "8.3.0",
+  "toolkit": "CSPICE_N0067",
+  "adapter_version": "0.1.34",
+  "scope": "Installed Python Rust adapter versus local CSPICE; no NASA HTTP requests in this script.",
+  "wide_year_caveat": "Raw TIMOUT YYYY year presentation differs from WGC extended AD/BC year presentation. Component comparisons exclude that prefix; astronomical calendar years are separately checked using the recorded native year references. ETCAL/ET2UTC subsecond strings are not treated as TIMOUT rounding oracles.",
+  "inventory_unchanged": true,
+  "wide": {
+    "input_count": 2049,
+    "comparisons": 20490,
+    "raw_full_string_differences": 17950,
+    "component_mismatches": 0,
+    "calendar_year_mismatches": 0,
+    "examples": []
+  },
+  "altered_leaps": {
+    "profiles": [
+      35,
+      36,
+      38,
+      40,
+      0,
+      -100
+    ],
+    "comparisons": 49248,
+    "full_string_mismatches": 0,
+    "examples": []
+  },
+  "files": {
+    "probe.py": "8aa0f8fcff6426026168ee5c5c29793ff15fd4dea84cbdd1f131be06534a0370",
+    "wide-results.jsonl": "ef20f40f791cc92a9df30b76a4da2f2498c75f745924fbe6a9d41b23339fdeba",
+    "altered-leaps-results.jsonl": "04fae2876705218c926e7e5c1d972a912ee74bb5dea61a5127d9ce701dbc7cbd"
+  },
+  "captured_adapter_sha256": "a9199de615557e3d1f016418f897a54580e36298885901003281cdadd0fb4858",
+  "captured_source_sha256": {
+    "wgc_gps.rs": "c50343fcbaf50e034613f3ed57404f490fecd98e21b7ec94de48aedb6ed5c008",
+    "timout.c": "5015657e0e2a2a4ebf6dc2eaaae5c3f0a226e5c1b08de8a4442c26b231566679",
+    "ttrans.c": "9644a008c0dd12349b873eefb46821d444b224c24f9e26cb6e617bb95ec1d57d",
+    "unitim.c": "cdc57024ff54190648b8e858d7489d70bdb856c39832628c8ba8159c2c0325fd",
+    "rmaind.c": "af5291c4e0eb9f7f60fa1bfaeeee05cd6936291fe18dec4992551a86ddc50a7a",
+    "etcal.c": "3073a5f9e9c8c1bc77c23406a4ba433156b6d9a04a384791a689b11ad3a7c3ca",
+    "et2utc.c": "41a687a63cb9723389c77dbdc58ddfcb8f1b85037f49e8442bb076e8abcf14ac"
+  }
+}

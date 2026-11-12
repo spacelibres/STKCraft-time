@@ -24,6 +24,13 @@ class SclkStringError(TimeError):
 class WgcGpsError(TimeError):
     ...
 
+class WgcCalendarSystem(str, Enum):
+    Utc = 'UTC'
+    Tdb = 'TDB'
+    Tt = 'TT'
+    Tdt = 'TDT'
+    Gps = 'GPS'
+
 class ContractError(TimeError):
     ...
 
@@ -31,6 +38,24 @@ class DtdbError(TimeError):
     ...
 
 def gps_seconds_to_week_tow(seconds: float, lsk: LeapSecondTable) -> str:
+    ...
+
+def parse_wgc_week_tow(value: str | bytes) -> float:
+    ...
+
+def wgc_week_tow_to_et(value: str | bytes, lsk: LeapSecondTable) -> NaifEt:
+    ...
+
+def wgc_gps_seconds_to_et(value: float, lsk: LeapSecondTable) -> NaifEt:
+    ...
+
+def et_to_wgc_gps_display_seconds(et: NaifEt, lsk: LeapSecondTable) -> float:
+    ...
+
+def et_to_wgc_calendar_doy(et: NaifEt, system: str | WgcCalendarSystem, lsk: LeapSecondTable) -> str:
+    ...
+
+def et_to_wgc_calendar_ymd(et: NaifEt, system: str | WgcCalendarSystem, lsk: LeapSecondTable) -> str:
     ...
 
 class Calendar(str, Enum):
@@ -624,6 +649,15 @@ class SclkClock:
         ...
 
     def et_to_sclk(self, et: NaifEt) -> str:
+        ...
+
+    def native_sclk_to_et(self, sclk: str) -> NaifEt:
+        ...
+
+    def native_sclk_to_et_with_context(self, sclk: str, context: SclkStringContext) -> NaifEt:
+        ...
+
+    def native_et_to_sclk(self, et: NaifEt) -> str:
         ...
 
 class TimeSeries:

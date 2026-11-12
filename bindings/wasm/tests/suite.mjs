@@ -3,7 +3,7 @@ export async function run(m,load){
  let count=0;const eq=(a,b,msg='')=>{count++;if(a!==b)throw Error(`${msg}: ${a} !== ${b}`)};
  const throws=(f,code)=>{count++;try{f()}catch(e){if(e instanceof WebAssembly.RuntimeError||typeof e.code!=='string')throw e;if(code&&e.code!==code)throw e;return}throw Error(`Expected error ${code}`)};
  const bits=x=>{const a=new DataView(new ArrayBuffer(8));a.setFloat64(0,x);return a.getBigUint64(0).toString(16).padStart(16,'0')};
- eq(m.version(),'0.1.34');
+ eq(m.version(),'0.2.0');
  for(const v of [-(1n<<63n),(1n<<63n)-1n,9007199254740993n]){const e=new Epoch(v);eq(e.seconds,v);eq(Epoch.fromJSON(JSON.parse(JSON.stringify(e))).seconds,v);e.free();throws(()=>e.seconds,'Disposed');}
  throws(()=>new Epoch(1n<<63n),'Overflow');throws(()=>new Epoch(-(1n<<63n)-1n),'Overflow');throws(()=>new Epoch(1),'Type');throws(()=>new Epoch(0n,1n<<64n),'Overflow');
  const e=new Epoch(0n,-1n);eq(e.seconds,-1n);eq(e.nanoseconds,999999999);eq(e.add(new Duration(1n)).seconds,0n);
@@ -53,5 +53,105 @@ export async function run(m,load){
  let coordinateCount=0,maxCoordinateError=0;
  for(const line of (await load('tests/golden/tcg_tcb.csv')).split(/\r?\n/).filter(l=>l&&!l.startsWith('#')&&!l.startsWith('tai,'))){const f=line.split(',');const a=f[0].match(/^(\d+)-(\d+)-(\d+)T(\d+):(\d+):([\d.]+)$/).slice(1).map(Number);const seconds=(calendar.toJdn(...a.slice(0,3))-2451545n)*86400n+BigInt(a[3]*3600+a[4]*60+Math.floor(a[5]));const epoch=new Epoch(seconds,BigInt(Math.round((a[5]%1)*1e9)));for(const [scale,index] of [['TT',1],['TDB.IAU',2],['TCG',3],['TCB.IAU',4]]){const actual=c.toScale(epoch,scale);const error=Math.abs(actual-Number(f[index]));maxCoordinateError=Math.max(maxCoordinateError,error);eq(error<(scale==='TCG'?5e-7:1e-6),true,`${scale} reference ${line}`);eq(Math.abs(c.fromScale(actual,scale).difference(epoch).toSeconds())<1e-6,true,`${scale} inverse ${line}`);}coordinateCount++;}
  eq(coordinateCount,950);
+
+ // Native partitioned clock and WebGeocalc display paths use captured oracles.
+ const mro=kernels.get(-74);
+ for(const line of (await load('tests/reference/sclk-partition/et.tsv')).trim().split(/\r?\n/).slice(1)){
+   const [clock,etBits,decoded]=line.split('\t');const et=fromBits(etBits);
+   eq(bits(mro.nativeSclkToEt(clock,c).seconds),etBits,line);
+   eq(mro.nativeEtToSclk(new NaifEt(et),c),decoded,line);
+ }
+ throws(()=>mro.nativeSclkToEt('PI/0',c),'SPICE(NOTINPART)');
+ const resetClock=new SclkKernel(await load('tests/kernels/synthetic_partition_reset.tsc'),-999);
+ throws(()=>resetClock.nativeEtToSclk(new NaifEt(fromBits('bf1a36e2eb1c432d')),c),'SPICE(VALUEOUTOFRANGE)');
+ const coefficientClock=new SclkKernel(await load('tests/reference/sclk-partition/coefficient-range.tsc'),-999);
+ throws(()=>coefficientClock.nativeSclkToEt('1/001:00:001',c),'SPICE(VALUEOUTOFRANGE)');
+
+ const clockGrid={mro,reset:resetClock,coeff:coefficientClock};
+ for(const line of (await load('tests/reference/sclk-partition/et-error-grid.tsv')).trim().split(/\r?\n/).slice(1)){
+   const [name,bitsText,expected]=line.split('\t');const clock=clockGrid[name];const et=new NaifEt(fromBits(bitsText));
+   if(expected.startsWith('E:'))throws(()=>clock.nativeEtToSclk(et,c),expected.slice(2));
+   else eq('S:'+clock.nativeEtToSclk(et,c),expected,line);
+ }
+ const tinyClock=new SclkKernel(await load('tests/reference/sclk-partition/tiny-rate.tsc'),-999);
+ for(const et of [-1,1])throws(()=>tinyClock.nativeEtToSclk(new NaifEt(et),c),'SPICE(VALUEOUTOFRANGE)');
+ tinyClock.free();
+
+ const overflowClock=new SclkKernel(await load('tests/reference/sclk-partition/overflow-rate.tsc'),-777);
+ eq(bits(overflowClock.nativeSclkToEt('1/001',c).seconds),'7fe1ccf385ebc89f');
+ throws(()=>overflowClock.nativeSclkToEt('1/002',c),'NonFinite');
+ throws(()=>overflowClock.ticksToEpoch(1,c),'EpochOutOfRange');
+ overflowClock.free();
+
+ const nanCases=JSON.parse(await load('tests/reference/sclk-partition/nan-finite-et/capture.json'));
+ for(const row of nanCases.rows){
+   const kernel=new SclkKernel(await load(`tests/reference/sclk-partition/nan-finite-et/${row.name}.tsc`),-777);
+   if(row.outcome==='ERROR')throws(()=>kernel.nativeEtToSclk(new NaifEt(0),c),row.windows_result);
+   else eq(kernel.nativeEtToSclk(new NaifEt(0),c),row.windows_result,row.name);
+   kernel.free();
+ }
+ resetClock.free();coefficientClock.free();
+
+ for(const line of (await load('tests/reference/sclk-partition/native.tsv')).trim().split(/\r?\n/).slice(1)){
+   const [op,input,expected]=line.split('\t');
+   if(expected.startsWith('E:')){throws(()=>op==='D'?mro.decodeNativeSclk(fromBits(input)):mro.encodeNativeSclk(input),expected.slice(2));}
+   else if(op==='D')eq('S:'+mro.decodeNativeSclk(fromBits(input)),expected,line);
+   else eq('T:'+bits(mro.encodeNativeSclk(input)),expected,line);
+ }
+ const state=new m.SclkStringContext();
+ eq(mro.encodeNativeSclkWithContext('1/0.0',state),0);
+ throws(()=>mro.encodeNativeSclkWithContext('1/UNKNOWN',state),'SPICE(INVALIDSCLKSTRING)');
+ throws(()=>mro.encodeNativeSclkWithContext('1/.1',state),'SPICE(INVALIDSCLKSTRING)');
+ eq(mro.encodeNativeSclkWithContext('1/0.0',state),0);
+ eq(mro.encodeNativeSclkWithContext('1/.1',state),1);
+ state.free();
+ for(const name of ['week-tow-cases.tsv','week-tow-edge-cases.tsv','decimal-ties.tsv','decimal-adjacent.tsv','seeded-half-grid.tsv','independent-half-probe.tsv','nonfinite-inputs.tsv']){
+   for(const line of (await load('tests/reference/wgc-gps/'+name)).trim().split(/\r?\n/).slice(1)){
+     const [input,expected]=line.split('\t');eq(c.gpsSecondsToWeekTow(Number(input)),expected,line);
+   }
+ }
+
+ for(const line of (await load('tests/reference/wgc-gps-input/grammar-unicode.tsv')).trim().split(/\r?\n/).slice(1)){
+   const [hex,accepted,expected]=line.split('\t');const input=new TextDecoder('utf-8',{fatal:true}).decode(Uint8Array.from(hex.match(/../g),x=>parseInt(x,16)));
+   if(accepted==='1')eq(bits(c.parseWgcWeekTow(input)),expected,line);else throws(()=>c.parseWgcWeekTow(input),'InvalidFormat');
+ }
+ for(const row of JSON.parse(await load('tests/reference/wgc-gps-input/grammar-matrix.json'))){
+   const input=row.request.times[0];const accepted=row.created.status==='OK';
+   if(accepted)c.parseWgcWeekTow(input);else throws(()=>c.parseWgcWeekTow(input),'InvalidFormat');
+ }
+
+ for(const file of ['gps-seconds-numeric.tsv','gps-numeric-rounding-grid.tsv','gps-signed-zero.tsv'])for(const line of (await load('tests/reference/wgc-gps-input/'+file)).trim().split(/\r?\n/).slice(1)){const [input,expected]=line.split('\t');eq(bits(c.etToWgcGpsDisplaySeconds(c.wgcGpsSecondsToEt(Number(input)))),expected,line);}
+ for(const line of (await load('tests/reference/wgc-gps-input/week-seconds-seeded.tsv')).trim().split(/\r?\n/).slice(1)){
+   const [input,expected]=line.split('\t');const et=c.wgcWeekTowToEt(input);
+   eq(bits(c.etToWgcGpsDisplaySeconds(et)),expected,line);
+ }
+
+ const alternateContext=new TimeContext(await load('tests/reference/wgc-gps-input/altered-lsk.tls'));
+ for(const line of (await load('tests/reference/wgc-gps-input/altered-lsk-doy-ymd.tsv')).trim().split(/\r?\n/).slice(1)){
+   const [style,system,etBits,expected]=line.split('\t');const et=new NaifEt(fromBits(etBits));
+   eq(style==='DOY'?alternateContext.etToWgcCalendarDoy(et,system):alternateContext.etToWgcCalendarYmd(et,system),expected,line);
+ }
+ alternateContext.free();
+
+ for(const line of (await load('tests/reference/wgc-gps-input/review-wide.tsv')).trim().split(/\r?\n/).slice(1)){
+   const [system,style,etBits,year,suffix]=line.split('\t');const et=new NaifEt(fromBits(etBits));
+   const value=style==='DOY'?c.etToWgcCalendarDoy(et,system):c.etToWgcCalendarYmd(et,system);
+   const sep=value.indexOf('-');const first=value.slice(0,sep);const actual=first.endsWith(' BC')?1-Number(first.slice(0,-3)):Number(first.replace(/ AD$/, ''));
+   eq(actual,Number(year),line);eq(value.slice(sep+1),suffix,line);
+ }
+ const lskText=await load('src/naif0012.tls');const leapContexts=new Map([35,36,38,40,0,-100].map(n=>[String(n),new TimeContext(lskText.replace('37,   @2017-JAN-1',`${n}, @2017-JAN-1`))]));
+ for(const line of (await load('tests/reference/wgc-gps-input/review-altered-leaps.tsv')).trim().split(/\r?\n/).slice(1)){
+   const [offset,style,etBits,expected]=line.split('\t');const context=leapContexts.get(offset);const et=new NaifEt(fromBits(etBits));
+   eq(style==='DOY'?context.etToWgcCalendarDoy(et,'UTC'):context.etToWgcCalendarYmd(et,'UTC'),expected,line);
+ }
+ for(const context of leapContexts.values())context.free();
+ for(const line of (await load('tests/reference/wgc-gps-input/cspice-doy-seeded.tsv')).trim().split(/\r?\n/).slice(1)){const [system,etBits,expected]=line.split('\t');eq(c.etToWgcCalendarDoy(new NaifEt(fromBits(etBits)),system),expected,line);}
+ for(const system of ['UTC','TDB','TT','GPS']){
+   for(const line of (await load(`tests/reference/wgc-gps-input/${system.toLowerCase()}-ymd-epochs.tsv`)).trim().split(/\r?\n/).slice(1)){const [et,expected]=line.split('\t');eq(c.etToWgcCalendarYmd(new NaifEt(Number(et)),system),expected,line);}
+   for(const suffix of ['seeded','epochs','leaps']){
+     const data=await load(`tests/reference/wgc-gps-input/${system.toLowerCase()}-doy-${suffix}.tsv`);
+     for(const line of data.trim().split(/\r?\n/).slice(1)){const [et,expected]=line.split('\t');eq(c.etToWgcCalendarDoy(new NaifEt(Number(et)),system),expected,line);}
+   }
+ }
  return {assertions:count,utcCount,maxUtcError,checkedUtcCount,sclkCount,dtdbCount,maxDtdbError,observerCount,coordinateCount,maxCoordinateError};
 }

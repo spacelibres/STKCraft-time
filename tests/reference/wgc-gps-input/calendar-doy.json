@@ -1,0 +1,354 @@
+[
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "UTC",
+      "timeFormat": "CALENDAR",
+      "times": [
+        "1980-01-06T00:00:00",
+        "2000-01-01T12:00:00",
+        "2016-12-31T23:59:59",
+        "2016-12-31T23:59:60",
+        "2017-01-01T00:00:00",
+        "2024-02-29T23:59:59.999999"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeSystem": "UTC",
+      "outputTimeFormat": "CALENDAR_DOY"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "c0da8f16-61db-4b2e-ba52-535ad855a1d6",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "c0da8f16-61db-4b2e-ba52-535ad855a1d6",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 598
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "c0da8f16-61db-4b2e-ba52-535ad855a1d6",
+      "columns": [
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "UTC day-of-year date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "1980-01-06 00:00:00.000000 UTC",
+          "1980-006/00:00:00.000000 UTC"
+        ],
+        [
+          "2000-01-01 12:00:00.000000 UTC",
+          "2000-001/12:00:00.000000 UTC"
+        ],
+        [
+          "2016-12-31 23:59:59.000000 UTC",
+          "2016-366/23:59:59.000000 UTC"
+        ],
+        [
+          "2016-12-31 23:59:60.000000 UTC",
+          "2016-366/23:59:60.000000 UTC"
+        ],
+        [
+          "2017-01-01 00:00:00.000000 UTC",
+          "2017-001/00:00:00.000000 UTC"
+        ],
+        [
+          "2024-02-29 23:59:59.999999 UTC",
+          "2024-060/23:59:59.999999 UTC"
+        ]
+      ]
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "UTC",
+      "timeFormat": "CALENDAR",
+      "times": [
+        "1980-01-06T00:00:00",
+        "2000-01-01T12:00:00",
+        "2016-12-31T23:59:59",
+        "2016-12-31T23:59:60",
+        "2017-01-01T00:00:00",
+        "2024-02-29T23:59:59.999999"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeSystem": "TDB",
+      "outputTimeFormat": "CALENDAR_DOY"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "45691f15-4bed-4021-8bd6-d38b3b569587",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "45691f15-4bed-4021-8bd6-d38b3b569587",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 599
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "45691f15-4bed-4021-8bd6-d38b3b569587",
+      "columns": [
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "TDB day-of-year date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "1980-01-06 00:00:00.000000 UTC",
+          "1980-006/00:00:51.184063 TDB"
+        ],
+        [
+          "2000-01-01 12:00:00.000000 UTC",
+          "2000-001/12:01:04.183927 TDB"
+        ],
+        [
+          "2016-12-31 23:59:59.000000 UTC",
+          "2017-001/00:01:07.183930 TDB"
+        ],
+        [
+          "2016-12-31 23:59:60.000000 UTC",
+          "2017-001/00:01:08.183930 TDB"
+        ],
+        [
+          "2017-01-01 00:00:00.000000 UTC",
+          "2017-001/00:01:09.183930 TDB"
+        ],
+        [
+          "2024-02-29 23:59:59.999999 UTC",
+          "2024-061/00:01:09.185384 TDB"
+        ]
+      ]
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "UTC",
+      "timeFormat": "CALENDAR",
+      "times": [
+        "1980-01-06T00:00:00",
+        "2000-01-01T12:00:00",
+        "2016-12-31T23:59:59",
+        "2016-12-31T23:59:60",
+        "2017-01-01T00:00:00",
+        "2024-02-29T23:59:59.999999"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeSystem": "TT",
+      "outputTimeFormat": "CALENDAR_DOY"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "aa679146-6749-4165-bb8d-5e4f27763b9b",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 599
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "aa679146-6749-4165-bb8d-5e4f27763b9b",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 598
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "aa679146-6749-4165-bb8d-5e4f27763b9b",
+      "columns": [
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "TT day-of-year date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "1980-01-06 00:00:00.000000 UTC",
+          "1980-006/00:00:51.184000 TT"
+        ],
+        [
+          "2000-01-01 12:00:00.000000 UTC",
+          "2000-001/12:01:04.184000 TT"
+        ],
+        [
+          "2016-12-31 23:59:59.000000 UTC",
+          "2017-001/00:01:07.184000 TT"
+        ],
+        [
+          "2016-12-31 23:59:60.000000 UTC",
+          "2017-001/00:01:08.184000 TT"
+        ],
+        [
+          "2017-01-01 00:00:00.000000 UTC",
+          "2017-001/00:01:09.184000 TT"
+        ],
+        [
+          "2024-02-29 23:59:59.999999 UTC",
+          "2024-061/00:01:09.183999 TT"
+        ]
+      ]
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "UTC",
+      "timeFormat": "CALENDAR",
+      "times": [
+        "1980-01-06T00:00:00",
+        "2000-01-01T12:00:00",
+        "2016-12-31T23:59:59",
+        "2016-12-31T23:59:60",
+        "2017-01-01T00:00:00",
+        "2024-02-29T23:59:59.999999"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeSystem": "GPS",
+      "outputTimeFormat": "CALENDAR_DOY"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "ded0239d-998c-4c66-b307-0561d718a3fe",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "ded0239d-998c-4c66-b307-0561d718a3fe",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 598
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "ded0239d-998c-4c66-b307-0561d718a3fe",
+      "columns": [
+        {
+          "name": "UTC calendar date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "GPS day-of-year date",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "1980-01-06 00:00:00.000000 UTC",
+          "1980-006/00:00:00.000000 GPS"
+        ],
+        [
+          "2000-01-01 12:00:00.000000 UTC",
+          "2000-001/12:00:13.000000 GPS"
+        ],
+        [
+          "2016-12-31 23:59:59.000000 UTC",
+          "2017-001/00:00:16.000000 GPS"
+        ],
+        [
+          "2016-12-31 23:59:60.000000 UTC",
+          "2017-001/00:00:17.000000 GPS"
+        ],
+        [
+          "2017-01-01 00:00:00.000000 UTC",
+          "2017-001/00:00:18.000000 GPS"
+        ],
+        [
+          "2024-02-29 23:59:59.999999 UTC",
+          "2024-061/00:00:17.999999 GPS"
+        ]
+      ]
+    }
+  }
+]

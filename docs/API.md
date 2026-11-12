@@ -12,7 +12,7 @@
 
 # `stkcraft-time` API guide
 
-This guide shows how to call the public API of `stkcraft-time` 0.1.34. It
+This guide shows how to call the public API of `stkcraft-time` 0.2.0. It
 is task-oriented: each section answers "which function do I call, and what
 data do I need to load first?" For item-level reference documentation,
 run:
@@ -59,13 +59,13 @@ replaces it.
 
 ```toml
 [dependencies]
-stkcraft-time = "0.1.34"
+stkcraft-time = "0.2.0"
 
 # no_std + alloc:
-# stkcraft-time = { version = "0.1.34", default-features = false }
+# stkcraft-time = { version = "0.2.0", default-features = false }
 
 # or pin the repository:
-# stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.34" }
+# stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.2.0" }
 ```
 
 The internal epoch representation is integer seconds plus nanoseconds;
@@ -346,6 +346,43 @@ verified only for the documented live WGC2 and native samples; arbitrary
 kernels, platforms, input strings and other WGC output formats remain open.
 See `tests/reference/wgc-gps/README.md` for captured inputs and provenance.
 
+`parse_week_tow` parses the observed WGC input syntax and reproduces the
+signed 32-bit week multiplication before adding the binary64 time of week.
+`week_tow_to_et` and `gps_seconds_to_et` return checked NAIF ET for finite
+values. `et_to_gps_display_seconds` returns the WGC six-decimal numeric
+display cell as binary64; it is not a lossless epoch. WGC accepts certain
+non-finite GPS inputs and displays `NaN`; checked ET constructors reject
+them rather than inventing an epoch.
+
+`et_to_calendar_doy` and `et_to_calendar_ymd` take a `WgcCalendarSystem`
+(`Utc`, `Tdb`, `Tt`, `Tdt`, or `Gps`) and return six-decimal WGC-style
+strings. UTC requires the IERS-only, table-driven native LSK model. Its
+pre-1972 behavior is the native TTRANS convention, not physical historical
+UTC. The implementation follows the observed N0067 TIMOUT rounding path,
+including its intermediate binary64 arithmetic and calendar reconstruction.
+See `tests/reference/wgc-gps-input/README.md` for exact sample coverage.
+
+These helpers do not implement the WGC request dispatcher, arbitrary CUSTOM
+`timout` pictures, or the complete format/time-system combination matrix.
+Some combinations documented as inapplicable are accepted or fall back in
+the live service; see `format-combinations.json` rather than assuming a
+validation error. The live server's kernel-set bytes were not independently
+retrieved. No exhaustive WGC parity is claimed.
+
+| WebGeocalc time format | Scope of these explicit helpers |
+| --- | --- |
+| `WEEK_TOW` | Tested input parsing and GPS display output; no generic request dispatch. |
+| `SECONDS_PAST_GPS0` | Finite GPS numeric input to ET and six-decimal GPS numeric output. |
+| `CALENDAR`, `CALENDAR_YMD`, `CALENDAR_DOY` | Tested YMD/DOY output; no complete WGC calendar-string input grammar. |
+| `JULIAN` | No complete WGC-shaped input/output contract; the separate native JDUTC API has a narrower contract. |
+| `SECONDS_PAST_J2000` | No WGC-shaped output-format/rounding contract in these helpers. |
+| `SPACECRAFT_CLOCK_STRING`, `SPACECRAFT_CLOCK_TICKS` | Separate type-1 native SCLK APIs and documented limits. |
+| `CUSTOM` | Arbitrary SPICE picture parsing/rendering is not provided. |
+
+The WGC server's observed handling of some inapplicable combinations differs
+from the published applicability table. See the captured requests rather
+than applying a guessed rejection policy.
+
 ### 6.1 Which TDB model should I use?
 
 For a checked integration surface, use `contract::TimeContext::new(&lsk)`
@@ -574,6 +611,27 @@ let ticks_from_tai = sclk.tai_to_ticks(tai, &lsk)?;
   `decode_native_sclk` for partition-aware strings. To reproduce native
   parser history across calls, retain an explicit `SclkStringContext` and
   call `encode_native_sclk_with_context`; a fresh context resets that history.
+  `SclkClock::native_sclk_to_et`, `native_sclk_to_et_with_context`, and
+  `native_et_to_sclk` retain string errors in `NativeSclkError::String`,
+  verified range errors in `NativeSclkError::Native`, and other time
+  conversion errors in `NativeSclkError::Time`. The older
+  `SclkMap` methods retain their existing `TimeError` interface.
+  A finite clock string can produce a non-finite native ET for extreme
+  coefficients, as observed in CSPICE; the raw Rust native ET method retains
+  that result. Checked Python and JavaScript `NaifEt` wrappers reject it.
+  Conversion to the bounded TAI `Epoch` returns `TimeError::Overflow` when
+  the result is non-finite or outside its representable range.
+  Non-finite native decode inputs return the library guard
+  `STKCRAFT(NONFINITE)`, not a claimed CSPICE short error. On the tested
+  Windows N0067 build, infinite inputs terminated a child process; NaN
+  produced a platform-specific string. See
+  `tests/reference/sclk-partition/nonfinite-process-windows.json`.
+  With an extremely small positive coefficient rate, a finite ET can
+  produce a NaN intermediate. The explicit native ET-to-string path covers
+  the recorded N0067 partition-selection and zero-field cases on Windows and
+  Linux; this is separate from accepting caller-supplied non-finite ticks.
+  See `tests/reference/sclk-partition/nan-finite-et/capture.json` for the
+  exercised kernels and the limits of this platform-specific evidence.
 - Tick/time conversions bound encoded ticks by the rounded accumulated raw
   partition durations. String encoding follows SCENCD endpoint rounding,
   which can differ for fractional endpoints. Clock resets are permitted.
@@ -946,9 +1004,19 @@ pub fn et_to_tai(et: f64, lsk: &LeapSecondTable) -> Epoch;
 pub fn tai_to_tt(epoch: Epoch, lsk: &LeapSecondTable) -> f64;
 pub fn tt_to_tai(tt: f64, lsk: &LeapSecondTable) -> Epoch;
 // In module `wgc_gps`:
-pub enum WgcGpsError { NonFinite }
+pub enum WgcGpsError { InvalidFormat, NonFinite }
+pub enum WgcCalendarSystem { Utc, Tdb, Tt, Tdt, Gps }
 pub fn gps_seconds_to_week_tow(seconds: f64, lsk: &LeapSecondTable)
     -> Result<String, WgcGpsError>;
+pub fn parse_week_tow(input: &str) -> Result<f64, WgcGpsError>;
+pub fn gps_seconds_to_et(seconds: f64, lsk: &LeapSecondTable) -> Result<NaifEt, WgcGpsError>;
+pub fn week_tow_to_et(input: &str, lsk: &LeapSecondTable) -> Result<NaifEt, WgcGpsError>;
+pub fn et_to_gps_display_seconds(et: NaifEt, lsk: &LeapSecondTable) -> Result<f64, WgcGpsError>;
+pub fn et_to_utc_calendar_doy(et: NaifEt, lsk: &LeapSecondTable) -> Result<String, ContractError>;
+pub fn et_to_calendar_doy(et: NaifEt, system: WgcCalendarSystem, lsk: &LeapSecondTable)
+    -> Result<String, ContractError>;
+pub fn et_to_calendar_ymd(et: NaifEt, system: WgcCalendarSystem, lsk: &LeapSecondTable)
+    -> Result<String, ContractError>;
 
 pub fn tai_to_gps(epoch: Epoch) -> f64;
 pub fn gps_to_tai(gps: f64) -> Epoch;
@@ -1015,6 +1083,7 @@ impl SclkStringError {
     pub fn spice_short(self) -> &'static str;
 }
 pub struct SclkStringContext { /* private fields */ }
+pub enum NativeSclkError { String(SclkStringError), Native(SclkStringError), Time(TimeError) }
 
 pub struct SclkKernel { /* private fields */ }
 
@@ -1057,6 +1126,12 @@ pub trait SclkMap {
 pub struct SclkClock<'a> {
     pub kernel: &'a SclkKernel,
     pub lsk: &'a LeapSecondTable,
+}
+impl SclkClock<'_> {
+    pub fn native_sclk_to_et(&self, clock: &str) -> Result<f64, NativeSclkError>;
+    pub fn native_sclk_to_et_with_context(&self, clock: &str, context: &mut SclkStringContext)
+        -> Result<f64, NativeSclkError>;
+    pub fn native_et_to_sclk(&self, et: f64) -> Result<String, NativeSclkError>;
 }
 impl SclkMap for SclkClock<'_>;
 ```

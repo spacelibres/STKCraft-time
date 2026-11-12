@@ -1,6 +1,6 @@
 ---
 name: stkcraft-time
-description: Use when changing the STKCraft-time Rust crate or converting UTC, TAI, TT, ET/TDB, GPS, UT1 or SCLK values. Covers the mandatory patch-version bump, versioned changelog entry, LSK/SCLK/EOP loading, API calls, and verification.
+description: Use when changing the STKCraft-time Rust crate or converting UTC, TAI, TT, ET/TDB, GPS, UT1 or SCLK values.
 ---
 
 # STKCraft-time development
@@ -86,7 +86,8 @@ cargo build --locked --no-default-features --target thumbv7em-none-eabi
   `LskMissing` rather than silently using compiled-in defaults.
   `LeapSecondTable::builtin()` is a snapshot of `naif0012.tls` and stops at
   the `2017-01-01` leap second.
-- Every conversion is a pure function of the supplied kernel.
+- Numeric conversions use the supplied kernel. Stateful native SCLK string
+  parsing also depends on the caller's `SclkStringContext` history.
   `coverage()` reports the trusted range for civil UTC conversions; dates
   before the first entry are rejected there. The explicit native JDUTC
   path selects a separate N0067 historical convention. Dates after the
@@ -110,8 +111,16 @@ cargo build --locked --no-default-features --target thumbv7em-none-eabi
   do not treat that string as a valid numeric epoch. It does not replace
   exact integer time arithmetic. The finite NASA
   and CSPICE evidence and kernel limitations are in
-  `tests/reference/wgc-gps/README.md`; input week strings and other WGC time
-  formats remain separate requirements.
+  `tests/reference/wgc-gps/README.md`. `parse_week_tow`, `week_tow_to_et`,
+  `gps_seconds_to_et`, and `et_to_gps_display_seconds` cover the exercised
+  input and numeric display paths. `et_to_calendar_doy` and
+  `et_to_calendar_ymd` use explicit UTC/TDB/TT/TDT/GPS labels and the
+  N0067 TIMOUT rounding/reconstruction order. UTC calendar output requires
+  IERS-only/TableDriven LSK settings and uses native TTRANS historical
+  convention, not SOFA historical UTC. Checked ET rejects non-finite input.
+  Live and CSPICE sample limits are in `tests/reference/wgc-gps-input/README.md`.
+  Generic WGC request dispatch and arbitrary CUSTOM pictures remain outside
+  these helpers; do not infer format-combination errors from the API docs.
 - UT1 needs an EOP table: `EopTable::from_finals2000a(text)` and
   `convert::utc_to_ut1(&utc, Calendar, &lsk, &eop)`. Use
   `convert::ut1_minus_utc` for the leap-aware offset;
@@ -132,6 +141,10 @@ cargo build --locked --no-default-features --target thumbv7em-none-eabi
   `encode_native_sclk_with_context` to preserve parser history across calls.
   `SclkClock` uses discrete ET-to-string conversion for multiple partitions
   or a nonzero first start; a single zero-start partition uses the legacy path.
+  Use explicit `native_sclk_to_et`, `native_sclk_to_et_with_context`, and
+  `native_et_to_sclk` to retain `NativeSclkError` categories and verified
+  native range symbols. Non-finite decode returns the library guard
+  `STKCRAFT(NONFINITE)` rather than a claimed CSPICE short symbol.
 - SCTE01/SCET01 bounds round each accumulated raw partition duration;
   SCENCD rounds endpoints separately. Do not conflate these domains. Clock
   resets are allowed. A map without partition metadata has no declared upper

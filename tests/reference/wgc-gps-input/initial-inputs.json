@@ -1,0 +1,436 @@
+[
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "GPS",
+      "timeFormat": "WEEK_TOW",
+      "times": [
+        "0, -1"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeSystem": "GPS",
+      "outputTimeFormat": "SECONDS_PAST_GPS0"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "acd0842f-4730-4dbc-be33-0b7fc39b7629",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "acd0842f-4730-4dbc-be33-0b7fc39b7629",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 598
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "acd0842f-4730-4dbc-be33-0b7fc39b7629",
+      "columns": [
+        {
+          "name": "Week past GPS zero time, TOW (s)",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "Seconds past GPS zero time",
+          "type": "NUMBER",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "0, -1.000000",
+          -1.0
+        ]
+      ]
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "GPS",
+      "timeFormat": "WEEK_TOW",
+      "times": [
+        "-1, -1"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeSystem": "GPS",
+      "outputTimeFormat": "SECONDS_PAST_GPS0"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "9d4bb158-0bbf-4dc3-8f12-d4f14e0874c6",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "9d4bb158-0bbf-4dc3-8f12-d4f14e0874c6",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 599
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "9d4bb158-0bbf-4dc3-8f12-d4f14e0874c6",
+      "columns": [
+        {
+          "name": "Week past GPS zero time, TOW (s)",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "Seconds past GPS zero time",
+          "type": "NUMBER",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "-1, -1.000000",
+          -604801.0
+        ]
+      ]
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "GPS",
+      "timeFormat": "WEEK_TOW",
+      "times": [
+        "1, 0"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeSystem": "GPS",
+      "outputTimeFormat": "SECONDS_PAST_GPS0"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "f042d99b-1e3f-4ff3-914f-6124482b5257",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "f042d99b-1e3f-4ff3-914f-6124482b5257",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 598
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "f042d99b-1e3f-4ff3-914f-6124482b5257",
+      "columns": [
+        {
+          "name": "Week past GPS zero time, TOW (s)",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "Seconds past GPS zero time",
+          "type": "NUMBER",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "1, 0.000000",
+          604800.0
+        ]
+      ]
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "GPS",
+      "timeFormat": "WEEK_TOW",
+      "times": [
+        "0, 604800"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeSystem": "GPS",
+      "outputTimeFormat": "SECONDS_PAST_GPS0"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "e6b0fd7b-8b22-4d8e-bdb3-d608d2363a47",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "e6b0fd7b-8b22-4d8e-bdb3-d608d2363a47",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 599
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "e6b0fd7b-8b22-4d8e-bdb3-d608d2363a47",
+      "columns": [
+        {
+          "name": "Week past GPS zero time, TOW (s)",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "Seconds past GPS zero time",
+          "type": "NUMBER",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "1, 0.000000",
+          604800.0
+        ]
+      ]
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "GPS",
+      "timeFormat": "WEEK_TOW",
+      "times": [
+        "1, -1"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeSystem": "GPS",
+      "outputTimeFormat": "SECONDS_PAST_GPS0"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "c0be25fe-ec86-47d8-afa5-cc7a647039b8",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "c0be25fe-ec86-47d8-afa5-cc7a647039b8",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 598
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "c0be25fe-ec86-47d8-afa5-cc7a647039b8",
+      "columns": [
+        {
+          "name": "Week past GPS zero time, TOW (s)",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "Seconds past GPS zero time",
+          "type": "NUMBER",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "0, 604799.000000",
+          604799.0
+        ]
+      ]
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "GPS",
+      "timeFormat": "WEEK_TOW",
+      "times": [
+        "0 1"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeSystem": "GPS",
+      "outputTimeFormat": "SECONDS_PAST_GPS0"
+    },
+    "created": {
+      "status": "ERROR",
+      "message": "The request has failed.",
+      "calculationId": "e22e3f62-83eb-4eca-aed4-a4c45ab8856d",
+      "error": {
+        "shortDescription": "Invalid format for Week past GPS zero time, TOW (seconds)."
+      }
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "GPS",
+      "timeFormat": "WEEK_TOW",
+      "times": [
+        "bad"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeSystem": "GPS",
+      "outputTimeFormat": "SECONDS_PAST_GPS0"
+    },
+    "created": {
+      "status": "ERROR",
+      "message": "The request has failed.",
+      "calculationId": "4399fa47-3fd5-4a35-8999-b683bdf26cfe",
+      "error": {
+        "shortDescription": "Invalid format for Week past GPS zero time, TOW (seconds)."
+      }
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "GPS",
+      "timeFormat": "WEEK_TOW",
+      "times": [
+        "1024, 0"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeSystem": "GPS",
+      "outputTimeFormat": "SECONDS_PAST_GPS0"
+    },
+    "created": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "226d0b3a-06d2-45b4-b32b-4ad6fa1fc490",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 600
+      }
+    },
+    "status": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "226d0b3a-06d2-45b4-b32b-4ad6fa1fc490",
+      "result": {
+        "phase": "COMPLETE",
+        "expiresIn": 599
+      }
+    },
+    "results": {
+      "status": "OK",
+      "message": "The request was successful.",
+      "calculationId": "226d0b3a-06d2-45b4-b32b-4ad6fa1fc490",
+      "columns": [
+        {
+          "name": "Week past GPS zero time, TOW (s)",
+          "type": "DATE",
+          "units": "",
+          "outputID": "DATE"
+        },
+        {
+          "name": "Seconds past GPS zero time",
+          "type": "NUMBER",
+          "units": "",
+          "outputID": "DATE2"
+        }
+      ],
+      "rows": [
+        [
+          "1024, 0.000000",
+          619315200.0
+        ]
+      ]
+    }
+  }
+]

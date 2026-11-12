@@ -45,7 +45,9 @@ def declaration(n,owner=None):
    if owner=='EopTable' and n.name=='samples':result='tuple[EopSample, ...]'
    if owner=='TimeContext' and n.name=='utc_to_et_batch':result='list[NaifEt]'
    if owner=='TimeContext' and n.name=='et_to_utc_batch':result='list[UtcDateTime]'
-   if n.name in ('decode_native_sclk','spice_short','gps_seconds_to_week_tow'):result='str'
+   if n.name in ('decode_native_sclk','spice_short','gps_seconds_to_week_tow','native_et_to_sclk','et_to_wgc_calendar_doy','et_to_wgc_calendar_ymd'):result='str'
+   if n.name in ('parse_wgc_week_tow','et_to_wgc_gps_display_seconds'):result='float'
+   if n.name in ('wgc_week_tow_to_et','wgc_gps_seconds_to_et','native_sclk_to_et','native_sclk_to_et_with_context'):result='NaifEt'
    if n.name in ('encode_native_sclk','encode_native_sclk_with_context'):result='float'
    if owner=='SclkKernel' and n.name=='ticks_to_et_batch':result='list[NaifEt]'
    if owner=='SclkKernel' and n.name=='et_to_ticks_batch':result='list[float]'
@@ -54,9 +56,18 @@ def declaration(n,owner=None):
    if n.name=='sclk_to_et':result='NaifEt'
    if n.name=='et_to_sclk':result='str'
    n.returns=ast.parse(result,mode='eval').body
-  if owner=='SclkKernel' and n.name=='encode_native_sclk_with_context':
+  if n.name in ('encode_native_sclk_with_context','native_sclk_to_et_with_context'):
    for arg in n.args.args:
     if arg.arg=='context':arg.annotation=ast.Name(id='SclkStringContext',ctx=ast.Load())
+  if n.name in ('parse_wgc_week_tow','wgc_week_tow_to_et'):
+   for arg in n.args.args:
+    if arg.arg=='value':arg.annotation=ast.parse('str | bytes',mode='eval').body
+  if n.name=='wgc_gps_seconds_to_et':
+   for arg in n.args.args:
+    if arg.arg=='value':arg.annotation=ast.Name(id='float',ctx=ast.Load())
+  if n.name in ('et_to_wgc_calendar_doy','et_to_wgc_calendar_ymd'):
+   for arg in n.args.args:
+    if arg.arg=='system':arg.annotation=ast.parse('str | WgcCalendarSystem',mode='eval').body
   n.body=[ast.Expr(value=ast.Constant(value=Ellipsis))];return n
  if isinstance(n,ast.ClassDef):
   if n.name.startswith('_'):return None

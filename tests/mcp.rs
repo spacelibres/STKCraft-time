@@ -30,6 +30,26 @@ fn request(value: Value) -> Value {
 }
 
 #[test]
+fn mcp_sclk_to_et_reports_unrepresentable_tai_without_panicking() {
+    let path = concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/tests/reference/sclk-partition/overflow-rate.tsc"
+    );
+    for clock in ["1/001", "1/002"] {
+        let response = request(json!({"jsonrpc":"2.0","id":1,"method":"tools/call",
+            "params":{"name":"sclk_to_et","arguments":{"sclk_path":path,"spacecraft_id":-777,"clock_string":clock}}}));
+        assert_eq!(response["result"]["isError"], true, "{response}");
+        assert!(
+            response["result"]["content"][0]["text"]
+                .as_str()
+                .unwrap()
+                .contains("overflow"),
+            "{response}"
+        );
+    }
+}
+
+#[test]
 fn initialize_reports_tools_capability() {
     let response = request(json!({
         "jsonrpc": "2.0",
@@ -69,6 +89,11 @@ fn tools_list_contains_the_documented_tools() {
         "utc_to_et",
         "tai_to_utc",
         "tai_to_gps",
+        "wgc_week_tow_to_et",
+        "wgc_gps_seconds_to_et",
+        "wgc_et_to_gps_seconds",
+        "wgc_gps_seconds_to_week_tow",
+        "wgc_et_to_calendar",
         "utc_to_ut1",
         "sclk_to_et",
         "format_utc",
@@ -408,4 +433,235 @@ fn partitioned_clock_mcp_preserves_discrete_boundary() {
         serde_json::from_str(response["result"]["content"][0]["text"].as_str().unwrap()).unwrap();
     assert_eq!(value["clock_string"], "1/001:00:001");
     assert!(value["ticks"].is_null());
+}
+
+#[test]
+fn mcp_partitioned_et_to_sclk_reports_native_metadata_error() {
+    let path = std::env::temp_dir().join(format!(
+        "stkcraft-sclk-missing-delimiter-{}.tsc",
+        std::process::id()
+    ));
+    let text = include_str!("kernels/synthetic_partition_reset.tsc")
+        .lines()
+        .filter(|line| !line.contains("SCLK01_OUTPUT_DELIM_999"))
+        .collect::<Vec<_>>()
+        .join("\n");
+    std::fs::write(&path, text).unwrap();
+    let response = request(
+        json!({"jsonrpc":"2.0","id":99,"method":"tools/call","params":{
+            "name":"et_to_sclk","arguments":{"sclk_path":path.to_str().unwrap(),"spacecraft_id":-999,"et":0.0}
+        }}),
+    );
+    std::fs::remove_file(path).unwrap();
+    assert_eq!(response["result"]["isError"], true, "{response}");
+    assert!(
+        response["result"]["content"][0]["text"]
+            .as_str()
+            .unwrap()
+            .contains("SPICE(KERNELVARNOTFOUND)"),
+        "{response}"
+    );
+}
+
+#[test]
+fn mcp_partitioned_et_to_sclk_reports_native_range_error() {
+    let path = concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/tests/kernels/synthetic_partition_reset.tsc"
+    );
+    let et = f64::from_bits(0xbf1a36e2eb1c432d);
+    let response = request(
+        json!({"jsonrpc":"2.0","id":100,"method":"tools/call","params":{
+            "name":"et_to_sclk","arguments":{"sclk_path":path,"spacecraft_id":-999,"et":et}
+        }}),
+    );
+    assert_eq!(response["result"]["isError"], true, "{response}");
+    assert!(
+        response["result"]["content"][0]["text"]
+            .as_str()
+            .unwrap()
+            .contains("SPICE(VALUEOUTOFRANGE)"),
+        "{response}"
+    );
+}
+
+#[test]
+fn mcp_sclk_string_before_first_coefficient_reports_native_range_error() {
+    let path = concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/tests/reference/sclk-partition/coefficient-range.tsc"
+    );
+    let response = request(
+        json!({"jsonrpc":"2.0","id":101,"method":"tools/call","params":{
+            "name":"sclk_to_et","arguments":{"sclk_path":path,"spacecraft_id":-999,"clock_string":"1/001:00:001"}
+        }}),
+    );
+    assert_eq!(response["result"]["isError"], true, "{response}");
+    assert!(
+        response["result"]["content"][0]["text"]
+            .as_str()
+            .unwrap()
+            .contains("SPICE(VALUEOUTOFRANGE)"),
+        "{response}"
+    );
+}
+
+#[test]
+fn mcp_single_zero_start_partition_matches_native_clock_strings() {
+    let path = concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/tests/reference/sclk-partition/single-zero-start.tsc"
+    );
+    for (et, expected) in [
+        (0.0, "1/000:00:001"),
+        (0.0001, "1/000:00:002"),
+        (1.0, "1/001:00:001"),
+        (2.0, "1/002:00:001"),
+    ] {
+        let response = request(
+            json!({"jsonrpc":"2.0","id":102,"method":"tools/call","params":{
+                "name":"et_to_sclk","arguments":{"sclk_path":path,"spacecraft_id":-999,"et":et}
+            }}),
+        );
+        assert!(response["result"]["isError"].is_null(), "{response}");
+        let value: Value =
+            serde_json::from_str(response["result"]["content"][0]["text"].as_str().unwrap())
+                .unwrap();
+        assert_eq!(value["clock_string"], expected, "{response}");
+    }
+}
+
+#[test]
+fn mcp_wgc_week_tow_and_gps_seconds_match_nasa_cells() {
+    for row in include_str!("reference/wgc-gps-input/week-seconds-seeded.tsv")
+        .lines()
+        .skip(1)
+    {
+        let (input, bits) = row.split_once('\t').unwrap();
+        let first = request(
+            json!({"jsonrpc":"2.0","id":110,"method":"tools/call","params":{
+                "name":"wgc_week_tow_to_et","arguments":{"week_tow":input}
+            }}),
+        );
+        assert!(first["result"]["isError"].is_null(), "{first}");
+        let first_value: Value =
+            serde_json::from_str(first["result"]["content"][0]["text"].as_str().unwrap()).unwrap();
+        let et = first_value["et"].as_f64().unwrap();
+        let second = request(
+            json!({"jsonrpc":"2.0","id":111,"method":"tools/call","params":{
+                "name":"wgc_et_to_gps_seconds","arguments":{"et":et}
+            }}),
+        );
+        assert!(second["result"]["isError"].is_null(), "{second}");
+        let second_value: Value =
+            serde_json::from_str(second["result"]["content"][0]["text"].as_str().unwrap()).unwrap();
+        assert_eq!(
+            second_value["gps_seconds"].as_f64().unwrap().to_bits(),
+            u64::from_str_radix(bits, 16).unwrap(),
+            "{row}"
+        );
+    }
+}
+
+#[test]
+fn mcp_wgc_calendar_formats_match_nasa() {
+    for (system, rows) in [
+        (
+            "UTC",
+            include_str!("reference/wgc-gps-input/utc-ymd-epochs.tsv"),
+        ),
+        (
+            "TDB",
+            include_str!("reference/wgc-gps-input/tdb-ymd-epochs.tsv"),
+        ),
+        (
+            "TT",
+            include_str!("reference/wgc-gps-input/tt-ymd-epochs.tsv"),
+        ),
+        (
+            "GPS",
+            include_str!("reference/wgc-gps-input/gps-ymd-epochs.tsv"),
+        ),
+    ] {
+        for row in rows.lines().skip(1) {
+            let (et, expected) = row.split_once('\t').unwrap();
+            let response = request(
+                json!({"jsonrpc":"2.0","id":112,"method":"tools/call","params":{
+                    "name":"wgc_et_to_calendar","arguments":{"et":et.parse::<f64>().unwrap(),"system":system,"format":"ymd"}
+                }}),
+            );
+            assert!(response["result"]["isError"].is_null(), "{response}");
+            let value: Value =
+                serde_json::from_str(response["result"]["content"][0]["text"].as_str().unwrap())
+                    .unwrap();
+            assert_eq!(value["calendar"], expected, "{row}");
+        }
+    }
+}
+
+#[test]
+fn mcp_wgc_seconds_and_error_paths_are_explicit() {
+    let call = |name: &str, arguments: Value| {
+        request(
+            json!({"jsonrpc":"2.0","id":113,"method":"tools/call","params":{"name":name,"arguments":arguments}}),
+        )
+    };
+    let et = call("wgc_gps_seconds_to_et", json!({"gps_seconds":0.0}));
+    assert!(et["result"]["isError"].is_null(), "{et}");
+    let et: Value =
+        serde_json::from_str(et["result"]["content"][0]["text"].as_str().unwrap()).unwrap();
+    let display = call("wgc_et_to_gps_seconds", json!({"et":et["et"]}));
+    let display: Value =
+        serde_json::from_str(display["result"]["content"][0]["text"].as_str().unwrap()).unwrap();
+    assert_eq!(display["gps_seconds"], 0.0);
+    let week = call("wgc_gps_seconds_to_week_tow", json!({"gps_seconds":0.0}));
+    let week: Value =
+        serde_json::from_str(week["result"]["content"][0]["text"].as_str().unwrap()).unwrap();
+    assert_eq!(week["week_tow"], "0, 0.000000");
+    for (name, args) in [
+        ("wgc_week_tow_to_et", json!({"week_tow":"1,2"})),
+        (
+            "wgc_et_to_calendar",
+            json!({"et":0.0,"system":"UTC","format":"custom"}),
+        ),
+        (
+            "wgc_et_to_calendar",
+            json!({"et":0.0,"system":"unknown","format":"ymd"}),
+        ),
+    ] {
+        assert_eq!(call(name, args)["result"]["isError"], true, "{name}");
+    }
+}
+
+#[test]
+fn mcp_native_clock_handles_finite_et_with_indeterminate_ticks() {
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/reference/sclk-partition/nan-finite-et");
+    for (name, expected) in [
+        ("single", "E:SPICE(VALUEOUTOFRANGE)"),
+        ("threefield", "S:2/000:00:000"),
+        ("space", "S:2/00 00"),
+    ] {
+        let path = root.join(format!("{name}.tsc"));
+        let response = request(
+            json!({"jsonrpc":"2.0","id":115,"method":"tools/call","params":{
+                "name":"et_to_sclk","arguments":{"sclk_path":path.to_str().unwrap(),"spacecraft_id":-777,"et":0.0}
+            }}),
+        );
+        if let Some(error) = expected.strip_prefix("E:") {
+            assert_eq!(response["result"]["isError"], true, "{response}");
+            assert!(response["result"]["content"][0]["text"]
+                .as_str()
+                .unwrap()
+                .contains(error));
+        } else {
+            assert!(response["result"]["isError"].is_null(), "{response}");
+            let value: Value =
+                serde_json::from_str(response["result"]["content"][0]["text"].as_str().unwrap())
+                    .unwrap();
+            assert_eq!(value["clock_string"], expected.strip_prefix("S:").unwrap());
+            assert!(value["ticks"].is_null());
+            assert!(value["fields"].is_null());
+        }
+    }
 }

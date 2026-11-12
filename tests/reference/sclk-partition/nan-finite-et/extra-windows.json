@@ -1,0 +1,43 @@
+{
+  "cspice": "CSPICE_N0067",
+  "scope": "Windows-only additional NaN-intermediate metadata and width probes",
+  "lsk_sha256": "c3c6c3d1736b8518869b85cace7d4fdc57fedc87ffc402a2a7ac5e67169f8757",
+  "rows": [
+    {
+      "name": "single-missing-delimiter",
+      "kernel_sha256": "0730b5cf27fdafd8dd137578c22c957774bef19dcb24d9bbf8b34926f75eef1f",
+      "windows_result": "SPICE(KERNELVARNOTFOUND)",
+      "outcome": "ERROR"
+    },
+    {
+      "name": "multi-missing-delimiter",
+      "kernel_sha256": "7fb8672773085fd485d6345b2f7fd781969477caadea412a0df7b2cb6adedc5a",
+      "windows_result": "SPICE(KERNELVARNOTFOUND)",
+      "outcome": "ERROR"
+    },
+    {
+      "name": "multi-invalid-delimiter",
+      "kernel_sha256": "6a36413106f62eda39096b2453a4649af365bcb0462bc2c10b72f4c090d38a53",
+      "windows_result": "SPICE(VALUEOUTOFRANGE)",
+      "outcome": "ERROR"
+    },
+    {
+      "name": "no-partitions",
+      "kernel_sha256": "76ff161cbb17c1cc1e13418942e9765aaa0cfacc09fc909e0b1504bed97e8ffd",
+      "windows_result": "SPICE(KERNELVARNOTFOUND)",
+      "outcome": "ERROR"
+    },
+    {
+      "name": "huge-fields",
+      "kernel_sha256": "d1de252e25e586ff8526e7d4323170d372cff5d725d34c76cffd6bcd876d1891",
+      "windows_result": "2/00000000000000000:00000000000000000",
+      "outcome": "RESULT"
+    },
+    {
+      "name": "eleven-fields",
+      "kernel_sha256": "c64ee452a9ca76aaabdebb4f3463dc96c63db97342a5132fa56ecc99a18abfab",
+      "windows_result": "SPICE(VALUEOUTOFRANGE)",
+      "outcome": "ERROR"
+    }
+  ]
+}

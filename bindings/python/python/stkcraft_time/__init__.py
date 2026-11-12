@@ -19,6 +19,12 @@ class TimeError(ValueError):
 class SclkStringError(TimeError):
     def spice_short(self): return str(self)
 class WgcGpsError(TimeError): pass
+class WgcCalendarSystem(str, Enum):
+    Utc='UTC'
+    Tdb='TDB'
+    Tt='TT'
+    Tdt='TDT'
+    Gps='GPS'
 class ContractError(TimeError): pass
 class DtdbError(TimeError): pass
 
@@ -57,6 +63,32 @@ def gps_seconds_to_week_tow(seconds,lsk):
     value=float(seconds)
     if isinstance(seconds,int) and int(value)!=seconds: raise OverflowError('integer cannot be represented exactly as binary64')
     return _call(_n.wgc_gps_week_tow,value,lsk._n)
+
+def parse_wgc_week_tow(value):
+    return _call(_n.wgc_parse_week_tow,_text(value))
+
+def wgc_week_tow_to_et(value,lsk):
+    if not isinstance(lsk,LeapSecondTable): raise TypeError('LeapSecondTable required')
+    return NaifEt(_call(_n.wgc_week_to_et,_text(value),lsk._n))
+
+def wgc_gps_seconds_to_et(value,lsk):
+    if isinstance(value,bool) or not isinstance(value,(int,float)): raise TypeError('number required')
+    if not isinstance(lsk,LeapSecondTable): raise TypeError('LeapSecondTable required')
+    seconds=float(value)
+    if isinstance(value,int) and int(seconds)!=value: raise OverflowError('integer cannot be represented exactly as binary64')
+    return NaifEt(_call(_n.wgc_gps_seconds_to_et,seconds,lsk._n))
+
+def et_to_wgc_gps_display_seconds(et,lsk):
+    if not isinstance(lsk,LeapSecondTable): raise TypeError('LeapSecondTable required')
+    return _call(_n.wgc_et_to_gps_display_seconds,_et(et),lsk._n)
+
+def et_to_wgc_calendar_doy(et,system,lsk):
+    if not isinstance(lsk,LeapSecondTable): raise TypeError('LeapSecondTable required')
+    return _call(_n.wgc_calendar_doy,_et(et),_text(system),lsk._n)
+
+def et_to_wgc_calendar_ymd(et,system,lsk):
+    if not isinstance(lsk,LeapSecondTable): raise TypeError('LeapSecondTable required')
+    return _call(_n.wgc_calendar_ymd,_et(et),_text(system),lsk._n)
 
 class _Immutable:
     __slots__ = ('_n',)
@@ -398,6 +430,9 @@ class SclkClock:
     lsk:LeapSecondTable
     def sclk_to_et(self,sclk): return NaifEt(_call(self.kernel._n.clock_to_et,sclk,self.lsk._n))
     def et_to_sclk(self,et): return _call(self.kernel._n.clock_from_et,_et(et),self.lsk._n)
+    def native_sclk_to_et(self,sclk): return NaifEt(_call(self.kernel._n.native_clock_to_et,sclk,self.lsk._n))
+    def native_sclk_to_et_with_context(self,sclk,context): return NaifEt(_call(self.kernel._n.native_clock_to_et_with_context,sclk,self.lsk._n,context._n))
+    def native_et_to_sclk(self,et): return _call(self.kernel._n.native_clock_from_et,_et(et),self.lsk._n)
 class TimeSeries:
     __slots__=('_n',)
     def __init__(self,start,end,step,inclusive=True):

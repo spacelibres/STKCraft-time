@@ -4,6 +4,41 @@ All notable changes to `stkcraft-time` are documented here.
 
 The format follows Keep a Changelog. This crate uses semantic versioning.
 
+## [0.2.0] - 2026-11-13
+
+### Added
+
+- Add explicit WebGeocalc-shaped GPS week/TOW input, GPS seconds conversion,
+  and UTC, TDB, TT, TDT and GPS calendar output methods for Rust, Python,
+  JavaScript and MCP. Captured NASA responses and independent CSPICE data
+  exercise grammar, rounding, leap boundaries and calendar formatting.
+- Add native-style partitioned SCLK string/ET methods with retained native
+  error symbols and parser history across Rust, Python and JavaScript.
+  Additional reference cases cover finite range errors, extreme coefficients
+  and clock metadata; reference hashes and replay tools are included.
+
+### Changed
+
+- **Breaking:** `WgcGpsError` gains `InvalidFormat`; exhaustive Rust matches
+  must handle the new variant. MCP `et_to_sclk` now honors partition metadata
+  for single-partition clocks and returns native errors instead of silently
+  omitting a failed string. MCP users should handle tool errors and the
+  partition prefix; JSON numeric input now retains binary64 round-trip bits.
+- The 0.2 series requires downstream crates to update their Cargo requirement
+  explicitly. Checked Python and JavaScript ET objects reject non-finite
+  results even where the raw Rust native conversion preserves them.
+
+### Fixed
+
+- Return an overflow error instead of panicking when an SCLK conversion to a
+  bounded TAI epoch is non-finite or outside the representable range.
+- Match the captured NASA calendar rounding operation order and the tested
+  native SCLK range, formatting and finite-input NaN-intermediate cases.
+
+The captures are finite observations, not a claim of exhaustive WebGeocalc
+or cross-platform parity. Generic WGC dispatch, CUSTOM pictures and other
+unsupported formats are documented in the API guide.
+
 ## [0.1.34] - 2026-11-12
 
 ### Added

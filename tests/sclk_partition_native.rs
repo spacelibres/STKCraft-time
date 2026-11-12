@@ -1,6 +1,59 @@
 use stkcraft_time::sclk::SclkKernel;
 
 #[test]
+fn native_sclk_et_overflow_and_checked_tai() {
+    use stkcraft_time::{error::TimeError, leap::LeapSecondTable, sclk::SclkClock};
+    let kernel = SclkKernel::parse(
+        include_str!("reference/sclk-partition/overflow-rate.tsc"),
+        -777,
+    )
+    .unwrap();
+    let lsk = LeapSecondTable::builtin().unwrap();
+    let clock = SclkClock {
+        kernel: &kernel,
+        lsk: &lsk,
+    };
+    for (input, expected) in [
+        ("1/000", 0x0000000000000000),
+        ("1/001", 0x7fe1ccf385ebc89f),
+        ("1/002", 0x7ff0000000000000),
+        ("1/003", 0x7ff0000000000000),
+    ] {
+        assert_eq!(clock.native_sclk_to_et(input).unwrap().to_bits(), expected);
+    }
+    assert_eq!(kernel.ticks_to_tai(1.0, &lsk), Err(TimeError::Overflow));
+    assert_eq!(kernel.ticks_to_tai(2.0, &lsk), Err(TimeError::Overflow));
+    let tdt = include_str!("reference/sclk-partition/overflow-rate.tsc")
+        .replace("SCLK01_TIME_SYSTEM_777=(1)", "SCLK01_TIME_SYSTEM_777=(2)");
+    let tdt_kernel = SclkKernel::parse(&tdt, -777).unwrap();
+    assert_eq!(tdt_kernel.ticks_to_tai(1.0, &lsk), Err(TimeError::Overflow));
+    assert_eq!(tdt_kernel.ticks_to_tai(2.0, &lsk), Err(TimeError::Overflow));
+}
+
+#[test]
+fn sclk_checked_tai_preserves_existing_conversion_arithmetic() {
+    use stkcraft_time::{convert, leap::LeapSecondTable};
+    let source = include_str!("kernels/synthetic_partition_reset.tsc");
+    let lsk = LeapSecondTable::builtin().unwrap();
+    for system in [1, 2] {
+        let text = source.replace(
+            "SCLK01_TIME_SYSTEM_999      = ( 1 )",
+            &format!("SCLK01_TIME_SYSTEM_999      = ( {system} )"),
+        );
+        let kernel = SclkKernel::parse(&text, -999).unwrap();
+        for ticks in [0.25, 1.5, 6000.25, 11999.75] {
+            let parallel = kernel.parallel_seconds(ticks).unwrap();
+            let expected = if system == 1 {
+                convert::et_to_tai(parallel, &lsk)
+            } else {
+                convert::tt_to_tai(parallel, &lsk)
+            };
+            assert_eq!(kernel.ticks_to_tai(ticks, &lsk).unwrap(), expected);
+        }
+    }
+}
+
+#[test]
 fn native_mro_partitioned_clock_strings() {
     let kernel = SclkKernel::parse(include_str!("kernels/MRO_SCLKSCET.00120.tsc"), -74).unwrap();
     let mut decode_count = 0;
@@ -603,5 +656,284 @@ fn native_sclk_field_width_near_powers_of_ten() {
             Err(error) => format!("E:{}", error.spice_short()),
         };
         assert_eq!(actual, expected, "{row}");
+    }
+}
+
+#[test]
+fn native_clock_et_interface_preserves_cspice_string_errors() {
+    use stkcraft_time::sclk::{NativeSclkError, SclkClock};
+    use stkcraft_time::LeapSecondTable;
+    let kernel = SclkKernel::parse(include_str!("kernels/MRO_SCLKSCET.00120.tsc"), -74).unwrap();
+    let lsk = LeapSecondTable::from_lsk(include_str!("../src/naif0012.tls")).unwrap();
+    let clock = SclkClock {
+        kernel: &kernel,
+        lsk: &lsk,
+    };
+    for row in include_str!("reference/sclk-partition/extra.tsv")
+        .lines()
+        .skip(1)
+    {
+        let (input, expected) = row.split_once('\t').unwrap();
+        if let Some(symbol) = expected.strip_prefix("E:") {
+            match clock.native_sclk_to_et(&input.replace("\\t", "\t")) {
+                Err(NativeSclkError::String(error)) => {
+                    assert_eq!(error.spice_short(), symbol, "{input}")
+                }
+                other => panic!("{input}: {other:?}"),
+            }
+        }
+    }
+    for row in include_str!("reference/sclk-partition/et.tsv")
+        .lines()
+        .skip(1)
+    {
+        let fields: Vec<_> = row.split('\t').collect();
+        let et = f64::from_bits(u64::from_str_radix(fields[1], 16).unwrap());
+        assert_eq!(
+            clock.native_sclk_to_et(fields[0]).unwrap().to_bits(),
+            et.to_bits()
+        );
+        assert_eq!(clock.native_et_to_sclk(et).unwrap(), fields[2]);
+    }
+}
+
+#[test]
+fn nonfinite_native_sclk_input_is_an_explicit_library_guard() {
+    let kernel = SclkKernel::parse(include_str!("kernels/MRO_SCLKSCET.00120.tsc"), -74).unwrap();
+    for value in [f64::NAN, f64::INFINITY, f64::NEG_INFINITY] {
+        assert_eq!(
+            kernel.decode_native_sclk(value).unwrap_err().spice_short(),
+            "STKCRAFT(NONFINITE)"
+        );
+    }
+}
+
+#[test]
+fn native_clock_et_out_of_range_matches_cspice_error_symbols() {
+    use stkcraft_time::sclk::SclkClock;
+    use stkcraft_time::LeapSecondTable;
+    let kernel =
+        SclkKernel::parse(include_str!("kernels/synthetic_partition_reset.tsc"), -999).unwrap();
+    let lsk = LeapSecondTable::from_lsk(include_str!("../src/naif0012.tls")).unwrap();
+    let clock = SclkClock {
+        kernel: &kernel,
+        lsk: &lsk,
+    };
+    for row in include_str!("reference/sclk-partition/et-boundaries.tsv")
+        .lines()
+        .skip(1)
+    {
+        let fields: Vec<_> = row.split('\t').collect();
+        if fields[0] != "D" {
+            continue;
+        }
+        let et = f64::from_bits(u64::from_str_radix(fields[2], 16).unwrap());
+        match fields[3].strip_prefix("E:") {
+            Some(symbol) => assert_eq!(
+                clock.native_et_to_sclk(et).unwrap_err().to_string(),
+                symbol,
+                "{row}"
+            ),
+            None => assert_eq!(
+                format!("S:{}", clock.native_et_to_sclk(et).unwrap()),
+                fields[3],
+                "{row}"
+            ),
+        }
+    }
+}
+
+#[test]
+fn native_sclk_to_et_reports_cspice_range_for_ticks_before_coefficients() {
+    use stkcraft_time::sclk::SclkClock;
+    let kernel = SclkKernel::parse(
+        include_str!("reference/sclk-partition/coefficient-range.tsc"),
+        -999,
+    )
+    .unwrap();
+    let lsk =
+        stkcraft_time::LeapSecondTable::from_lsk(include_str!("../src/naif0012.tls")).unwrap();
+    let clock = SclkClock {
+        kernel: &kernel,
+        lsk: &lsk,
+    };
+    for input in ["1/001:00:001", "1/001:00:002"] {
+        assert_eq!(
+            clock.native_sclk_to_et(input).unwrap_err().to_string(),
+            "SPICE(VALUEOUTOFRANGE)"
+        );
+    }
+    assert_eq!(
+        clock.native_sclk_to_et("1/001:00:011").unwrap().to_bits(),
+        0.0_f64.to_bits()
+    );
+}
+
+#[test]
+fn native_sclk_et_errors_match_cspice_finite_grid() {
+    use stkcraft_time::sclk::SclkClock;
+    let mro = SclkKernel::parse(include_str!("kernels/MRO_SCLKSCET.00120.tsc"), -74).unwrap();
+    let reset =
+        SclkKernel::parse(include_str!("kernels/synthetic_partition_reset.tsc"), -999).unwrap();
+    let coeff = SclkKernel::parse(
+        include_str!("reference/sclk-partition/coefficient-range.tsc"),
+        -999,
+    )
+    .unwrap();
+    let lsk =
+        stkcraft_time::LeapSecondTable::from_lsk(include_str!("../src/naif0012.tls")).unwrap();
+    let rows = include_str!("reference/sclk-partition/et-error-grid.tsv");
+    assert_eq!(rows.lines().count(), 661);
+    let mut mismatches = Vec::new();
+    for row in rows.lines().skip(1) {
+        let f: Vec<_> = row.split('\t').collect();
+        let kernel = match f[0] {
+            "mro" => &mro,
+            "reset" => &reset,
+            "coeff" => &coeff,
+            _ => panic!("unknown kernel"),
+        };
+        let et = f64::from_bits(u64::from_str_radix(f[1], 16).unwrap());
+        let actual = match (SclkClock { kernel, lsk: &lsk }).native_et_to_sclk(et) {
+            Ok(value) => format!("S:{value}"),
+            Err(error) => format!("E:{error}"),
+        };
+        if actual != f[2] {
+            mismatches.push(format!("{row}: {actual}"));
+        }
+    }
+    assert!(mismatches.is_empty(), "{}", mismatches.join("\n"));
+}
+
+#[test]
+fn native_sclk_extreme_positive_rate_reports_cspice_finite_range_error() {
+    use stkcraft_time::sclk::SclkClock;
+    let kernel =
+        SclkKernel::parse(include_str!("reference/sclk-partition/tiny-rate.tsc"), -999).unwrap();
+    let lsk =
+        stkcraft_time::LeapSecondTable::from_lsk(include_str!("../src/naif0012.tls")).unwrap();
+    let clock = SclkClock {
+        kernel: &kernel,
+        lsk: &lsk,
+    };
+    for et in [-1.0, 1.0] {
+        assert_eq!(
+            clock.native_et_to_sclk(et).unwrap_err().to_string(),
+            "SPICE(VALUEOUTOFRANGE)"
+        );
+    }
+}
+
+#[test]
+fn native_sclk_finite_et_with_nan_intermediate_matches_two_cspice_builds() {
+    use stkcraft_time::sclk::SclkClock;
+    let lsk =
+        stkcraft_time::LeapSecondTable::from_lsk(include_str!("../src/naif0012.tls")).unwrap();
+    let fixtures = [
+        (
+            include_str!("reference/sclk-partition/nan-finite-et/single.tsc"),
+            "E:SPICE(VALUEOUTOFRANGE)",
+        ),
+        (
+            include_str!("reference/sclk-partition/nan-finite-et/onefield.tsc"),
+            "S:2/000",
+        ),
+        (
+            include_str!("reference/sclk-partition/nan-finite-et/twofield.tsc"),
+            "S:2/00:00",
+        ),
+        (
+            include_str!("reference/sclk-partition/nan-finite-et/threefield.tsc"),
+            "S:2/000:00:000",
+        ),
+        (
+            include_str!("reference/sclk-partition/nan-finite-et/offsets.tsc"),
+            "S:2/00.00.00",
+        ),
+        (
+            include_str!("reference/sclk-partition/nan-finite-et/negative.tsc"),
+            "S:2/000-00-000",
+        ),
+        (
+            include_str!("reference/sclk-partition/nan-finite-et/dot.tsc"),
+            "S:2/00.00",
+        ),
+        (
+            include_str!("reference/sclk-partition/nan-finite-et/colon.tsc"),
+            "S:2/00:00",
+        ),
+        (
+            include_str!("reference/sclk-partition/nan-finite-et/hyphen.tsc"),
+            "S:2/00-00",
+        ),
+        (
+            include_str!("reference/sclk-partition/nan-finite-et/comma.tsc"),
+            "S:2/00,00",
+        ),
+        (
+            include_str!("reference/sclk-partition/nan-finite-et/space.tsc"),
+            "S:2/00 00",
+        ),
+        (
+            include_str!("reference/sclk-partition/nan-finite-et/fourparts.tsc"),
+            "S:2/00:00",
+        ),
+    ];
+    for (fixture, expected) in fixtures {
+        let kernel = SclkKernel::parse(fixture, -777).unwrap();
+        let clock = SclkClock {
+            kernel: &kernel,
+            lsk: &lsk,
+        };
+        let actual = match clock.native_et_to_sclk(0.0) {
+            Ok(value) => format!("S:{value}"),
+            Err(e) => format!("E:{e}"),
+        };
+        assert_eq!(actual, expected);
+    }
+}
+
+#[test]
+fn native_sclk_nan_intermediate_metadata_and_width_match_windows_cspice() {
+    use stkcraft_time::sclk::SclkClock;
+    let lsk =
+        stkcraft_time::LeapSecondTable::from_lsk(include_str!("../src/naif0012.tls")).unwrap();
+    let fixtures = [
+        (
+            include_str!("reference/sclk-partition/nan-finite-et/single-missing-delimiter.tsc"),
+            "E:SPICE(KERNELVARNOTFOUND)",
+        ),
+        (
+            include_str!("reference/sclk-partition/nan-finite-et/multi-missing-delimiter.tsc"),
+            "E:SPICE(KERNELVARNOTFOUND)",
+        ),
+        (
+            include_str!("reference/sclk-partition/nan-finite-et/multi-invalid-delimiter.tsc"),
+            "E:SPICE(VALUEOUTOFRANGE)",
+        ),
+        (
+            include_str!("reference/sclk-partition/nan-finite-et/no-partitions.tsc"),
+            "E:SPICE(KERNELVARNOTFOUND)",
+        ),
+        (
+            include_str!("reference/sclk-partition/nan-finite-et/huge-fields.tsc"),
+            "S:2/00000000000000000:00000000000000000",
+        ),
+        (
+            include_str!("reference/sclk-partition/nan-finite-et/eleven-fields.tsc"),
+            "E:SPICE(VALUEOUTOFRANGE)",
+        ),
+    ];
+    for (fixture, expected) in fixtures {
+        let kernel = SclkKernel::parse(fixture, -777).unwrap();
+        let clock = SclkClock {
+            kernel: &kernel,
+            lsk: &lsk,
+        };
+        let actual = match clock.native_et_to_sclk(0.0) {
+            Ok(value) => format!("S:{value}"),
+            Err(e) => format!("E:{e}"),
+        };
+        assert_eq!(actual, expected);
     }
 }

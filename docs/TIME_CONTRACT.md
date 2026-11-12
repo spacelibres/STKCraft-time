@@ -91,11 +91,25 @@ Tested non-finite inputs return WGC's literal `0, NaN`, which is a display
 string and must not be treated as a valid numeric epoch. This is a display-
 compatibility path, not exact integer epoch arithmetic.
 
+Week/TOW parsing uses the observed signed 32-bit wrapping multiplication;
+the finite input can be converted to `NaifEt` with `week_tow_to_et` or
+`gps_seconds_to_et`. Display-rounded numeric GPS seconds use
+`et_to_gps_display_seconds`. `et_to_calendar_doy` and
+`et_to_calendar_ymd` reproduce the exercised six-decimal TIMOUT rounding
+and reconstruction path for UTC, TDB, TT, TDT and GPS. The UTC version
+uses the native LSK model, including its formal pre-1972 convention. The
+checked ET interface rejects non-finite inputs even though WGC can render
+non-finite GPS values as `NaN`.
+
 The live WGC2 and independent CSPICE fixtures cover selected samples and the
 recorded kernel/runtime configurations only. They do not prove behavior for
 all kernels, input grammars, formatting options or platforms. The server's
 exact LSK file bytes have not been independently verified. Consult
-`tests/reference/wgc-gps/README.md` for requests, kernel metadata and hashes.
+`tests/reference/wgc-gps/README.md` and
+`tests/reference/wgc-gps-input/README.md` for requests, kernel metadata and
+hashes. Generic WGC format dispatch and arbitrary CUSTOM pictures are not
+implemented by these helpers; observed undocumented format fallbacks are
+recorded rather than treated as inferred validation failures.
 
 ## Scientific convention
 

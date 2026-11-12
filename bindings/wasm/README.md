@@ -1,6 +1,6 @@
 # JavaScript, TypeScript and WebAssembly
 
-Independent adapter crate and npm candidate `@stkcraft/time`, version 0.1.34.
+Independent adapter crate and npm candidate `@stkcraft/time`, version 0.2.0.
 The package name is a candidate until registry ownership is confirmed.
 Rust build floor: 1.88; tested Node 24, Chrome, and module Workers. Core
 retains its independent Rust 1.75 contract. Adapter uses the core's `std`
@@ -49,6 +49,19 @@ or boundary categories (`Type`, `Range`, `Overflow`, `NonFinite`, `Disposed`,
 JS Date adapters require an explicit loss choice for sub-millisecond values;
 default rejects loss. Leap labels always reject Date conversion. Civil
 constructors check field ranges; the context validates actual dates and leap data.
+
+`TimeContext` exposes WGC GPS week/TOW parsing and formatting, checked GPS
+seconds/week input to `NaifEt`, display-rounded GPS seconds, and YMD/DOY
+calendar output. Calendar output takes an explicit `UTC`, `TDB`, `TT`, `TDT`,
+or `GPS` label. These are sample-verified display paths, not the complete WGC
+request dispatcher or an arbitrary CUSTOM picture engine. Non-finite inputs
+cannot construct `NaifEt`.
+
+`SclkKernel.encodeNativeSclk`, `decodeNativeSclk`, `nativeSclkToEt`, and
+`nativeEtToSclk` expose native-style partitioned string operations. Retain a
+`SclkStringContext` for stateful component parsing. Native string errors use
+their short symbol in `TimeError.code`; the JS boundary rejects non-finite
+ticks as `NonFinite`. Reference corpora are not exhaustive.
 
 Build and verify (from this directory):
 

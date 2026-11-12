@@ -228,13 +228,13 @@ ScientificContext enforces its model interval.
 | mcp.handle_message_with_sclk_context | fn | Unavailable: Rust/server MCP transport; not a scientific binding API | Unavailable: Rust/server MCP transport; not a scientific binding API |
 | sclk.SclkTimeSystem | enum | SclkKernel methods/metadata plus explicit TimeContext | SclkKernel methods/metadata plus explicit TimeContext |
 | sclk.SclkCoefficient | struct | SclkKernel methods/metadata plus explicit TimeContext | SclkKernel methods/metadata plus explicit TimeContext |
-| sclk.SclkStringError | struct | Unavailable: native partition-aware string API not yet exposed in JavaScript | SclkKernel methods/metadata plus explicit TimeContext |
-| sclk.SclkStringError.spice_short | fn | Unavailable: native partition-aware string API not yet exposed in JavaScript | SclkKernel methods/metadata plus explicit TimeContext |
-| sclk.SclkStringContext | struct | Unavailable: native partition-aware string API not yet exposed in JavaScript | SclkKernel methods/metadata plus explicit TimeContext |
+| sclk.SclkStringError | struct | TimeError.code | SclkKernel methods/metadata plus explicit TimeContext |
+| sclk.SclkStringError.spice_short | fn | TimeError.code | SclkKernel methods/metadata plus explicit TimeContext |
+| sclk.SclkStringContext | struct | SclkStringContext | SclkKernel methods/metadata plus explicit TimeContext |
 | sclk.SclkKernel | struct | SclkKernel methods/metadata plus explicit TimeContext | SclkKernel methods/metadata plus explicit TimeContext |
-| sclk.SclkKernel.decode_native_sclk | fn | Unavailable: native partition-aware string API not yet exposed in JavaScript | SclkKernel methods/metadata plus explicit TimeContext |
-| sclk.SclkKernel.encode_native_sclk | fn | Unavailable: native partition-aware string API not yet exposed in JavaScript | SclkKernel methods/metadata plus explicit TimeContext |
-| sclk.SclkKernel.encode_native_sclk_with_context | fn | Unavailable: native partition-aware string API not yet exposed in JavaScript | SclkKernel methods/metadata plus explicit TimeContext |
+| sclk.SclkKernel.decode_native_sclk | fn | SclkKernel.decodeNativeSclk | SclkKernel methods/metadata plus explicit TimeContext |
+| sclk.SclkKernel.encode_native_sclk | fn | SclkKernel.encodeNativeSclk | SclkKernel methods/metadata plus explicit TimeContext |
+| sclk.SclkKernel.encode_native_sclk_with_context | fn | SclkKernel.encodeNativeSclkWithContext | SclkKernel methods/metadata plus explicit TimeContext |
 | sclk.SclkKernel.parse | fn | SclkKernel constructor / parseString; formatting pattern option | SclkKernel methods/metadata plus explicit TimeContext |
 | sclk.SclkKernel.spacecraft_id | fn | metadata.spacecraftId | SclkKernel methods/metadata plus explicit TimeContext |
 | sclk.SclkKernel.data_type | fn | metadata.dataType | SclkKernel methods/metadata plus explicit TimeContext |
@@ -255,8 +255,12 @@ ScientificContext enforces its model interval.
 | sclk.SclkKernel.tai_to_ticks | fn | epochToTicks | SclkKernel methods/metadata plus explicit TimeContext |
 | sclk.SclkKernel.parse_string | fn | parseString | SclkKernel methods/metadata plus explicit TimeContext |
 | sclk.SclkKernel.format_string | fn | formatString | SclkKernel methods/metadata plus explicit TimeContext |
-| sclk.SclkClock | struct | Legacy field composition only; native partition-aware strings unavailable | SclkKernel methods/metadata plus explicit TimeContext |
-| sclk.SclkMap | trait | Legacy field composition only; native partition-aware strings unavailable | SclkKernel methods/metadata plus explicit TimeContext |
+| sclk.SclkClock | struct | SclkKernel with TimeContext | SclkKernel methods/metadata plus explicit TimeContext |
+| sclk.NativeSclkError | enum | TimeError.code | SclkKernel methods/metadata plus explicit TimeContext |
+| sclk.SclkClock.native_sclk_to_et | fn | SclkKernel.nativeSclkToEt | SclkKernel methods/metadata plus explicit TimeContext |
+| sclk.SclkClock.native_sclk_to_et_with_context | fn | SclkKernel.nativeSclkToEtWithContext | SclkKernel methods/metadata plus explicit TimeContext |
+| sclk.SclkClock.native_et_to_sclk | fn | SclkKernel.nativeEtToSclk | SclkKernel methods/metadata plus explicit TimeContext |
+| sclk.SclkMap | trait | SclkKernel with TimeContext | SclkKernel methods/metadata plus explicit TimeContext |
 | series.TimeSeries | struct | TimeSeries lazy iterable; inclusive option | TimeSeries lazy iterable; inclusive option |
 | series.TimeSeries.inclusive | fn | TimeSeries inclusive:true | TimeSeries lazy iterable; inclusive option |
 | series.TimeSeries.exclusive | fn | TimeSeries inclusive:false | TimeSeries lazy iterable; inclusive option |
@@ -264,8 +268,16 @@ ScientificContext enforces its model interval.
 | tdb.tai_to_tdb | fn | toScale(TDB.Compact) | TimeContext TDB.Compact scale; models.compactMinusTt |
 | tdb.tdb_to_tai | fn | fromScale(TDB.Compact) | TimeContext TDB.Compact scale; models.compactMinusTt |
 | timescale.TimeScale | enum | Scale string union plus UTC/TAI/BDT class methods | Scale string union plus UTC/TAI/BDT class methods |
-| wgc_gps.WgcGpsError | enum | Unavailable: WGC GPS week/TOW formatting is not yet exposed in JavaScript | Unavailable: WGC GPS week/TOW formatting is not yet exposed in JavaScript |
-| wgc_gps.gps_seconds_to_week_tow | fn | Unavailable: WGC GPS week/TOW formatting is not yet exposed in JavaScript | Unavailable: WGC GPS week/TOW formatting is not yet exposed in JavaScript |
+| wgc_gps.WgcGpsError | enum | TimeError.code | TimeContext WGC GPS and calendar methods; display values are rounded |
+| wgc_gps.WgcCalendarSystem | enum | UTC | TDB | TT | TDT | GPS string union | TimeContext WGC GPS and calendar methods; display values are rounded |
+| wgc_gps.parse_week_tow | fn | TimeContext.parseWgcWeekTow | TimeContext WGC GPS and calendar methods; display values are rounded |
+| wgc_gps.gps_seconds_to_et | fn | TimeContext.wgcGpsSecondsToEt | TimeContext WGC GPS and calendar methods; display values are rounded |
+| wgc_gps.week_tow_to_et | fn | TimeContext.wgcWeekTowToEt | TimeContext WGC GPS and calendar methods; display values are rounded |
+| wgc_gps.et_to_gps_display_seconds | fn | TimeContext.etToWgcGpsDisplaySeconds | TimeContext WGC GPS and calendar methods; display values are rounded |
+| wgc_gps.et_to_utc_calendar_doy | fn | TimeContext.etToWgcCalendarDoy with UTC | TimeContext WGC GPS and calendar methods; display values are rounded |
+| wgc_gps.et_to_calendar_doy | fn | TimeContext.etToWgcCalendarDoy | TimeContext WGC GPS and calendar methods; display values are rounded |
+| wgc_gps.et_to_calendar_ymd | fn | TimeContext.etToWgcCalendarYmd | TimeContext WGC GPS and calendar methods; display values are rounded |
+| wgc_gps.gps_seconds_to_week_tow | fn | TimeContext.gpsSecondsToWeekTow | TimeContext WGC GPS and calendar methods; display values are rounded |
 | contract.naif_utc.NaifDeltet | struct | five-element deltet tuple passed to NaifUtcContext | Explicit raw native JDUTC context |
 | contract.naif_utc.NaifUtcContext | struct | NaifUtcContext class | Explicit raw native JDUTC context |
 | contract.naif_utc.from_raw_parts | fn | NaifUtcContext constructor | Explicit raw native JDUTC context |

@@ -1,0 +1,25 @@
+{
+  "cspice": "CSPICE_N0067",
+  "spiceypy": "8.3.0",
+  "kernel_sha256": "1e0a9e460e8d638389bc586e3a3766c5965b066e17e3f359f1ea28dc55bc02e7",
+  "lsk_sha256": "c3c6c3d1736b8518869b85cace7d4fdc57fedc87ffc402a2a7ac5e67169f8757",
+  "library_sha256": "7fd2dcc58d73ed5293847e67109897caba34240b8f9c38ad739c0b2ec6ce7715",
+  "rows": [
+    {
+      "et": 0.0,
+      "result": "S:1/000:00:001"
+    },
+    {
+      "et": 0.0001,
+      "result": "S:1/000:00:002"
+    },
+    {
+      "et": 1.0,
+      "result": "S:1/001:00:001"
+    },
+    {
+      "et": 2.0,
+      "result": "S:1/002:00:001"
+    }
+  ]
+}

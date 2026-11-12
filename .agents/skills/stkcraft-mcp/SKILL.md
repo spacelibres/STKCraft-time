@@ -57,6 +57,11 @@ return `-32600`. The server advertises only protocol version
 | `tai_to_tt` | `tai_seconds` |
 | `tai_to_gps` | `tai_seconds` |
 | `gps_to_tai` | `gps_seconds` |
+| `wgc_week_tow_to_et` | `week_tow`, optional `lsk_path` |
+| `wgc_gps_seconds_to_et` | `gps_seconds`, optional `lsk_path` |
+| `wgc_et_to_gps_seconds` | `et`, optional `lsk_path` |
+| `wgc_gps_seconds_to_week_tow` | `gps_seconds`, optional `lsk_path` |
+| `wgc_et_to_calendar` | `et`, `system`, `format`, optional `lsk_path` |
 | `utc_to_ut1` | UTC fields, `eop_path` |
 | `ut1_to_utc` | `ut1_seconds`, `eop_path` |
 | `sclk_to_et` | `sclk_path`, `spacecraft_id`, `ticks` or `clock_string` |
@@ -70,11 +75,19 @@ the bundled `naif0012.tls`. GPS tools and `etcal` take no leap-second
 kernel. EOP tools also accept `eop_series` (`a`, `b`, `final`) and
 `observed_only`. `precision` is limited to `0..=9`. TAI tools accept
 `tai_seconds`, or exact `sec` + `nanos`. SCLK tools accept continuous
-ticks. `fields` is null when unavailable. For multiple partitions or a
-nonzero start, `et_to_sclk` attempts discrete native clock-string decoding
-even when continuous ticks are non-integral; `clock_string` is null if
-decoding fails. At a boundary accepted only by discrete conversion, `ticks`
-and `fields` are null.
+ticks. `fields` is null when unavailable. Whenever partition metadata is
+present, `et_to_sclk` attempts discrete native clock-string decoding
+even when continuous ticks are non-integral; a decode or verified range
+failure returns an `isError` response carrying its native symbol. At a
+boundary accepted only by discrete conversion, `ticks` and `fields` are null.
+
+The WGC calendar tool accepts `system` values UTC, TDB, TT, TDT and GPS,
+and `format` values `ymd` and `doy`. Its strings and GPS numeric output
+are six-decimal display values. JSON numbers cannot encode NaN or infinity;
+the checked ET path rejects non-finite values. These explicit tools do not
+implement arbitrary WGC CUSTOM pictures or request-format fallbacks.
+Keep serde_json's `float_roundtrip` feature enabled: changing a decoded ET
+by one binary64 unit can change WGC GPS and calendar display results.
 
 ## Example call
 

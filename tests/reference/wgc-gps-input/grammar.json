@@ -1,0 +1,506 @@
+[
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "GPS",
+      "timeFormat": "WEEK_TOW",
+      "times": [
+        "1,2"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeSystem": "GPS",
+      "outputTimeFormat": "SECONDS_PAST_GPS0"
+    },
+    "created": {
+      "status": "ERROR",
+      "message": "The request has failed.",
+      "calculationId": "be1f3e0c-b33d-4ee3-b61f-c7f8ef353ce5",
+      "error": {
+        "shortDescription": "Invalid format for Week past GPS zero time, TOW (seconds)."
+      }
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "GPS",
+      "timeFormat": "WEEK_TOW",
+      "times": [
+        " 1 , 2 "
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeSystem": "GPS",
+      "outputTimeFormat": "SECONDS_PAST_GPS0"
+    },
+    "created": {
+      "status": "ERROR",
+      "message": "The request has failed.",
+      "calculationId": "55ba9024-43bd-4b29-bd91-6014dd80c2f7",
+      "error": {
+        "shortDescription": "Invalid format for Week past GPS zero time, TOW (seconds)."
+      }
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "GPS",
+      "timeFormat": "WEEK_TOW",
+      "times": [
+        "+1,+2"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeSystem": "GPS",
+      "outputTimeFormat": "SECONDS_PAST_GPS0"
+    },
+    "created": {
+      "status": "ERROR",
+      "message": "The request has failed.",
+      "calculationId": "de798c6b-5098-44df-8cfb-ff6fecccdf82",
+      "error": {
+        "shortDescription": "Invalid format for Week past GPS zero time, TOW (seconds)."
+      }
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "GPS",
+      "timeFormat": "WEEK_TOW",
+      "times": [
+        "01,02"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeSystem": "GPS",
+      "outputTimeFormat": "SECONDS_PAST_GPS0"
+    },
+    "created": {
+      "status": "ERROR",
+      "message": "The request has failed.",
+      "calculationId": "ea5833a7-c96f-46a7-b105-2834b2ba7a0f",
+      "error": {
+        "shortDescription": "Invalid format for Week past GPS zero time, TOW (seconds)."
+      }
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "GPS",
+      "timeFormat": "WEEK_TOW",
+      "times": [
+        "-0,-0.0"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeSystem": "GPS",
+      "outputTimeFormat": "SECONDS_PAST_GPS0"
+    },
+    "created": {
+      "status": "ERROR",
+      "message": "The request has failed.",
+      "calculationId": "30de3f95-df0d-4425-a4c9-37b2ad776aa6",
+      "error": {
+        "shortDescription": "Invalid format for Week past GPS zero time, TOW (seconds)."
+      }
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "GPS",
+      "timeFormat": "WEEK_TOW",
+      "times": [
+        "1,"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeSystem": "GPS",
+      "outputTimeFormat": "SECONDS_PAST_GPS0"
+    },
+    "created": {
+      "status": "ERROR",
+      "message": "The request has failed.",
+      "calculationId": "00d345fd-c09f-457b-80ec-5b07ca95ad7f",
+      "error": {
+        "shortDescription": "Invalid format for Week past GPS zero time, TOW (seconds)."
+      }
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "GPS",
+      "timeFormat": "WEEK_TOW",
+      "times": [
+        " ,1"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeSystem": "GPS",
+      "outputTimeFormat": "SECONDS_PAST_GPS0"
+    },
+    "created": {
+      "status": "ERROR",
+      "message": "The request has failed.",
+      "calculationId": "98765c42-abea-4367-8834-3f0bcc214138",
+      "error": {
+        "shortDescription": "Invalid format for Week past GPS zero time, TOW (seconds)."
+      }
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "GPS",
+      "timeFormat": "WEEK_TOW",
+      "times": [
+        "1,2,3"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeSystem": "GPS",
+      "outputTimeFormat": "SECONDS_PAST_GPS0"
+    },
+    "created": {
+      "status": "ERROR",
+      "message": "The request has failed.",
+      "calculationId": "675f5033-e6d2-4524-8772-1d5bc2033632",
+      "error": {
+        "shortDescription": "Invalid format for Week past GPS zero time, TOW (seconds)."
+      }
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "GPS",
+      "timeFormat": "WEEK_TOW",
+      "times": [
+        "1 2"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeSystem": "GPS",
+      "outputTimeFormat": "SECONDS_PAST_GPS0"
+    },
+    "created": {
+      "status": "ERROR",
+      "message": "The request has failed.",
+      "calculationId": "4377a788-8e9b-400f-a8da-1c6fbec04cdb",
+      "error": {
+        "shortDescription": "Invalid format for Week past GPS zero time, TOW (seconds)."
+      }
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "GPS",
+      "timeFormat": "WEEK_TOW",
+      "times": [
+        "1;2"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeSystem": "GPS",
+      "outputTimeFormat": "SECONDS_PAST_GPS0"
+    },
+    "created": {
+      "status": "ERROR",
+      "message": "The request has failed.",
+      "calculationId": "014cd5fb-c188-46df-8771-16b8ad058db7",
+      "error": {
+        "shortDescription": "Invalid format for Week past GPS zero time, TOW (seconds)."
+      }
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "GPS",
+      "timeFormat": "WEEK_TOW",
+      "times": [
+        "1.0,2"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeSystem": "GPS",
+      "outputTimeFormat": "SECONDS_PAST_GPS0"
+    },
+    "created": {
+      "status": "ERROR",
+      "message": "The request has failed.",
+      "calculationId": "b0faff17-4558-4d47-ba3c-6cadf84d98a6",
+      "error": {
+        "shortDescription": "Invalid format for Week past GPS zero time, TOW (seconds)."
+      }
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "GPS",
+      "timeFormat": "WEEK_TOW",
+      "times": [
+        "1e2,0"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeSystem": "GPS",
+      "outputTimeFormat": "SECONDS_PAST_GPS0"
+    },
+    "created": {
+      "status": "ERROR",
+      "message": "The request has failed.",
+      "calculationId": "d29ee7dd-6bab-400f-9805-276255bf0e81",
+      "error": {
+        "shortDescription": "Invalid format for Week past GPS zero time, TOW (seconds)."
+      }
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "GPS",
+      "timeFormat": "WEEK_TOW",
+      "times": [
+        "2147483648,0"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeSystem": "GPS",
+      "outputTimeFormat": "SECONDS_PAST_GPS0"
+    },
+    "created": {
+      "status": "ERROR",
+      "message": "The request has failed.",
+      "calculationId": "1ee8c72c-4caa-47c4-b704-98bf6dc24f67",
+      "error": {
+        "shortDescription": "Invalid format for Week past GPS zero time, TOW (seconds)."
+      }
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "GPS",
+      "timeFormat": "WEEK_TOW",
+      "times": [
+        "1,0x1.0p2"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeSystem": "GPS",
+      "outputTimeFormat": "SECONDS_PAST_GPS0"
+    },
+    "created": {
+      "status": "ERROR",
+      "message": "The request has failed.",
+      "calculationId": "fe3b493f-740f-4884-b5e3-f02f3eb62abf",
+      "error": {
+        "shortDescription": "Invalid format for Week past GPS zero time, TOW (seconds)."
+      }
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "GPS",
+      "timeFormat": "WEEK_TOW",
+      "times": [
+        "1,1d"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeSystem": "GPS",
+      "outputTimeFormat": "SECONDS_PAST_GPS0"
+    },
+    "created": {
+      "status": "ERROR",
+      "message": "The request has failed.",
+      "calculationId": "07a8980f-6b80-442c-8737-1f91d8b63d2e",
+      "error": {
+        "shortDescription": "Invalid format for Week past GPS zero time, TOW (seconds)."
+      }
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "GPS",
+      "timeFormat": "WEEK_TOW",
+      "times": [
+        "1,Infinity"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeSystem": "GPS",
+      "outputTimeFormat": "SECONDS_PAST_GPS0"
+    },
+    "created": {
+      "status": "ERROR",
+      "message": "The request has failed.",
+      "calculationId": "23351c6f-e9dd-4800-9960-18f18c88febf",
+      "error": {
+        "shortDescription": "Invalid format for Week past GPS zero time, TOW (seconds)."
+      }
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "GPS",
+      "timeFormat": "WEEK_TOW",
+      "times": [
+        "1,-Infinity"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeSystem": "GPS",
+      "outputTimeFormat": "SECONDS_PAST_GPS0"
+    },
+    "created": {
+      "status": "ERROR",
+      "message": "The request has failed.",
+      "calculationId": "ea2bb54d-f54b-4440-b9e0-8366e0ad1348",
+      "error": {
+        "shortDescription": "Invalid format for Week past GPS zero time, TOW (seconds)."
+      }
+    }
+  },
+  {
+    "request": {
+      "calculationType": "TIME_CONVERSION",
+      "kernels": [
+        {
+          "type": "KERNEL_SET",
+          "id": 2
+        }
+      ],
+      "timeSystem": "GPS",
+      "timeFormat": "WEEK_TOW",
+      "times": [
+        "1,nan"
+      ],
+      "timeStep": 1,
+      "timeStepUnits": "SECONDS",
+      "outputTimeSystem": "GPS",
+      "outputTimeFormat": "SECONDS_PAST_GPS0"
+    },
+    "created": {
+      "status": "ERROR",
+      "message": "The request has failed.",
+      "calculationId": "4cd8bf30-10d8-47c1-9555-c424b21cf0db",
+      "error": {
+        "shortDescription": "Invalid format for Week past GPS zero time, TOW (seconds)."
+      }
+    }
+  }
+]

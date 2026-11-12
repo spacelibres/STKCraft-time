@@ -14,7 +14,7 @@ type: software
 license: MIT
 repository-code: "https://github.com/spacelibres/STKCraft-time"
 url: "https://www.stkcraft.com"
-version: "0.1.34"
+version: "0.2.0"
 date-released: "2026-11-12"
 keywords:
   - rust

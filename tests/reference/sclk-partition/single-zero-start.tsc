@@ -1,0 +1,14 @@
+KPL/SCLK
+
+\begindata
+SCLK_KERNEL_ID              = ( @2000-JAN-1/12:00:00 )
+SCLK_DATA_TYPE_999          = ( 1 )
+SCLK01_TIME_SYSTEM_999      = ( 1 )
+SCLK01_N_FIELDS_999         = ( 3 )
+SCLK01_MODULI_999           = ( 1000 60 100 )
+SCLK01_OFFSETS_999          = ( 0 0 1 )
+SCLK01_OUTPUT_DELIM_999     = ( 2 )
+SCLK_PARTITION_START_999    = ( 0 )
+SCLK_PARTITION_END_999      = ( 12000 )
+SCLK01_COEFFICIENTS_999     = ( 0 0 1 )
+\begintext

@@ -1424,196 +1424,224 @@
     "core": "sclk::SclkStringError::spice_short",
     "python": "SclkStringError.spice_short",
     "status": "wrapped",
-    "source": "src/sclk.rs:80",
+    "source": "src/sclk.rs:81",
     "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
   },
   {
     "core": "sclk::SclkStringContext",
     "python": "SclkStringContext",
     "status": "wrapped",
-    "source": "src/sclk.rs:100",
+    "source": "src/sclk.rs:101",
     "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
   },
   {
     "core": "sclk::SclkKernel",
     "python": "SclkKernel",
     "status": "wrapped",
-    "source": "src/sclk.rs:106",
+    "source": "src/sclk.rs:107",
     "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
   },
   {
     "core": "sclk::SclkKernel::decode_native_sclk",
     "python": "SclkKernel.decode_native_sclk",
     "status": "wrapped",
-    "source": "src/sclk.rs:123",
+    "source": "src/sclk.rs:124",
     "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
   },
   {
     "core": "sclk::SclkKernel::encode_native_sclk",
     "python": "SclkKernel.encode_native_sclk",
     "status": "wrapped",
-    "source": "src/sclk.rs:201",
+    "source": "src/sclk.rs:202",
     "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
   },
   {
     "core": "sclk::SclkKernel::encode_native_sclk_with_context",
     "python": "SclkKernel.encode_native_sclk_with_context",
     "status": "wrapped",
-    "source": "src/sclk.rs:206",
+    "source": "src/sclk.rs:207",
     "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
   },
   {
     "core": "sclk::SclkKernel::parse",
     "python": "SclkKernel.parse",
     "status": "wrapped",
-    "source": "src/sclk.rs:336",
+    "source": "src/sclk.rs:364",
     "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
   },
   {
     "core": "sclk::SclkKernel::spacecraft_id",
     "python": "SclkKernel.spacecraft_id",
     "status": "wrapped",
-    "source": "src/sclk.rs:469",
+    "source": "src/sclk.rs:497",
     "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
   },
   {
     "core": "sclk::SclkKernel::data_type",
     "python": "SclkKernel.data_type",
     "status": "wrapped",
-    "source": "src/sclk.rs:474",
+    "source": "src/sclk.rs:502",
     "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
   },
   {
     "core": "sclk::SclkKernel::time_system",
     "python": "SclkKernel.time_system",
     "status": "wrapped",
-    "source": "src/sclk.rs:479",
+    "source": "src/sclk.rs:507",
     "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
   },
   {
     "core": "sclk::SclkKernel::n_fields",
     "python": "SclkKernel.n_fields",
     "status": "wrapped",
-    "source": "src/sclk.rs:484",
+    "source": "src/sclk.rs:512",
     "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
   },
   {
     "core": "sclk::SclkKernel::moduli",
     "python": "SclkKernel.moduli",
     "status": "wrapped",
-    "source": "src/sclk.rs:489",
+    "source": "src/sclk.rs:517",
     "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
   },
   {
     "core": "sclk::SclkKernel::offsets",
     "python": "SclkKernel.offsets",
     "status": "wrapped",
-    "source": "src/sclk.rs:494",
+    "source": "src/sclk.rs:522",
     "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
   },
   {
     "core": "sclk::SclkKernel::coefficients",
     "python": "SclkKernel.coefficients",
     "status": "wrapped",
-    "source": "src/sclk.rs:499",
+    "source": "src/sclk.rs:527",
     "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
   },
   {
     "core": "sclk::SclkKernel::partitions",
     "python": "SclkKernel.partitions",
     "status": "wrapped",
-    "source": "src/sclk.rs:504",
+    "source": "src/sclk.rs:532",
     "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
   },
   {
     "core": "sclk::SclkKernel::ticks_per_msb",
     "python": "SclkKernel.ticks_per_msb",
     "status": "wrapped",
-    "source": "src/sclk.rs:509",
+    "source": "src/sclk.rs:537",
     "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
   },
   {
     "core": "sclk::SclkKernel::ticks_from_fields",
     "python": "SclkKernel.ticks_from_fields",
     "status": "wrapped",
-    "source": "src/sclk.rs:518",
+    "source": "src/sclk.rs:546",
     "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
   },
   {
     "core": "sclk::SclkKernel::fields_from_ticks",
     "python": "SclkKernel.fields_from_ticks",
     "status": "wrapped",
-    "source": "src/sclk.rs:549",
+    "source": "src/sclk.rs:577",
     "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
   },
   {
     "core": "sclk::SclkKernel::parallel_seconds",
     "python": "SclkKernel.parallel_seconds",
     "status": "wrapped",
-    "source": "src/sclk.rs:577",
+    "source": "src/sclk.rs:605",
     "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
   },
   {
     "core": "sclk::SclkKernel::ticks_from_parallel",
     "python": "SclkKernel.ticks_from_parallel",
     "status": "wrapped",
-    "source": "src/sclk.rs:587",
+    "source": "src/sclk.rs:615",
     "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
   },
   {
     "core": "sclk::SclkKernel::ticks_to_et",
     "python": "SclkKernel.ticks_to_et",
     "status": "wrapped",
-    "source": "src/sclk.rs:602",
+    "source": "src/sclk.rs:630",
     "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
   },
   {
     "core": "sclk::SclkKernel::et_to_ticks",
     "python": "SclkKernel.et_to_ticks",
     "status": "wrapped",
-    "source": "src/sclk.rs:611",
+    "source": "src/sclk.rs:659",
     "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
   },
   {
     "core": "sclk::SclkKernel::ticks_to_tai",
     "python": "SclkKernel.ticks_to_tai",
     "status": "wrapped",
-    "source": "src/sclk.rs:619",
+    "source": "src/sclk.rs:670",
     "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
   },
   {
     "core": "sclk::SclkKernel::tai_to_ticks",
     "python": "SclkKernel.tai_to_ticks",
     "status": "wrapped",
-    "source": "src/sclk.rs:653",
+    "source": "src/sclk.rs:709",
     "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
   },
   {
     "core": "sclk::SclkKernel::parse_string",
     "python": "SclkKernel.parse_string",
     "status": "wrapped",
-    "source": "src/sclk.rs:662",
+    "source": "src/sclk.rs:718",
     "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
   },
   {
     "core": "sclk::SclkKernel::format_string",
     "python": "SclkKernel.format_string",
     "status": "wrapped",
-    "source": "src/sclk.rs:679",
+    "source": "src/sclk.rs:735",
     "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
   },
   {
     "core": "sclk::SclkClock",
     "python": "SclkClock",
     "status": "wrapped",
-    "source": "src/sclk.rs:916",
+    "source": "src/sclk.rs:972",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "sclk::NativeSclkError",
+    "python": "TimeError",
+    "status": "wrapped",
+    "source": "src/sclk.rs:985",
+    "reason": "Native string and verified range symbols use SclkStringError; other time errors use TimeError."
+  },
+  {
+    "core": "sclk::SclkClock::native_sclk_to_et",
+    "python": "SclkClock.native_sclk_to_et",
+    "status": "wrapped",
+    "source": "src/sclk.rs:1011",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "sclk::SclkClock::native_sclk_to_et_with_context",
+    "python": "SclkClock.native_sclk_to_et_with_context",
+    "status": "wrapped",
+    "source": "src/sclk.rs:1019",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "sclk::SclkClock::native_et_to_sclk",
+    "python": "SclkClock.native_et_to_sclk",
+    "status": "wrapped",
+    "source": "src/sclk.rs:1037",
     "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
   },
   {
     "core": "sclk::SclkMap",
     "python": "SclkClock",
     "status": "protocol",
-    "source": "src/sclk.rs:955",
+    "source": "src/sclk.rs:1121",
     "reason": "Owned SclkClock represents SclkMap; Python structural methods replace Rust trait/lifetimes."
   },
   {
@@ -1673,10 +1701,66 @@
     "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
   },
   {
+    "core": "wgc_gps::WgcCalendarSystem",
+    "python": "WgcCalendarSystem",
+    "status": "wrapped",
+    "source": "src/wgc_gps.rs:33",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "wgc_gps::parse_week_tow",
+    "python": "parse_wgc_week_tow",
+    "status": "wrapped",
+    "source": "src/wgc_gps.rs:53",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "wgc_gps::gps_seconds_to_et",
+    "python": "wgc_gps_seconds_to_et",
+    "status": "wrapped",
+    "source": "src/wgc_gps.rs:114",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "wgc_gps::week_tow_to_et",
+    "python": "wgc_week_tow_to_et",
+    "status": "wrapped",
+    "source": "src/wgc_gps.rs:129",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "wgc_gps::et_to_gps_display_seconds",
+    "python": "et_to_wgc_gps_display_seconds",
+    "status": "wrapped",
+    "source": "src/wgc_gps.rs:141",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "wgc_gps::et_to_utc_calendar_doy",
+    "python": "et_to_wgc_calendar_doy",
+    "status": "wrapped",
+    "source": "src/wgc_gps.rs:188",
+    "reason": "Select UTC explicitly in the shared Python day-of-year formatter."
+  },
+  {
+    "core": "wgc_gps::et_to_calendar_doy",
+    "python": "et_to_wgc_calendar_doy",
+    "status": "wrapped",
+    "source": "src/wgc_gps.rs:237",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "wgc_gps::et_to_calendar_ymd",
+    "python": "et_to_wgc_calendar_ymd",
+    "status": "wrapped",
+    "source": "src/wgc_gps.rs:250",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
     "core": "wgc_gps::gps_seconds_to_week_tow",
     "python": "gps_seconds_to_week_tow",
     "status": "wrapped",
-    "source": "src/wgc_gps.rs:42",
+    "source": "src/wgc_gps.rs:510",
     "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
   }
 ]

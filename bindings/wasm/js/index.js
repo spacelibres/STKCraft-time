@@ -65,6 +65,13 @@ export class TimeContext extends Owned {
  toEt(epoch){return new NaifEt(h(this).to_number(h(instance(epoch,Epoch)),'ET'));}
  toEpoch(et){return wrap(Epoch,h(this).from_number(instance(et,NaifEt).seconds,'ET'));}
  etToSpiceJulianUtc(et){return new NaifJulianUtc(h(this).julian_utc(instance(et,NaifEt).seconds),token);}
+ parseWgcWeekTow(text){if(typeof text!=='string')fail('Type','Expected string');return h(this).wgc_parse_week_tow(text);}
+ wgcWeekTowToEt(text){if(typeof text!=='string')fail('Type','Expected string');return new NaifEt(h(this).wgc_week_tow_to_et(text));}
+ wgcGpsSecondsToEt(seconds){if(typeof seconds!=='number')fail('Type','Expected number');return new NaifEt(h(this).wgc_gps_seconds_to_et(seconds));}
+ gpsSecondsToWeekTow(seconds){if(typeof seconds!=='number')fail('Type','Expected number');return h(this).wgc_gps_seconds_to_week_tow(seconds);}
+ etToWgcGpsDisplaySeconds(et){return h(this).wgc_et_to_gps_display_seconds(instance(et,NaifEt).seconds);}
+ etToWgcCalendarDoy(et,system){return h(this).wgc_calendar_doy(instance(et,NaifEt).seconds,system);}
+ etToWgcCalendarYmd(et,system){return h(this).wgc_calendar_ymd(instance(et,NaifEt).seconds,system);}
  toScale(epoch,scale){return h(this).to_number(h(instance(epoch,Epoch)),scale);}
  fromScale(seconds,scale){return wrap(Epoch,h(this).from_number(finite(seconds),scale));}
  format(utc,{calendar='Gregorian',style='iso8601',precision=3,pattern=''}={}){return h(this).format(instance(utc,UtcDateTime)._array(),calendar,style,integer(precision,0,9),pattern);}
@@ -78,9 +85,18 @@ export class ScientificContext {
  toTdbAtObserver(epoch,{ut1Fraction,longitude,uKm,vKm}){return new IauTdb(h(this.context).observer(h(instance(epoch,Epoch)),[ut1Fraction,longitude,uKm,vKm].map(finite)),'ObserverFairheadBretagnon',token);}
  free(){this.context.free();}
 }
+export class SclkStringContext extends Owned {
+ constructor(){super();ready();handles.set(this,new raw.RawSclkStringContext());Object.freeze(this);}
+}
 export class SclkKernel extends Owned {
  constructor(text,spacecraftId){super();ready();if(text instanceof Uint8Array)text=new TextDecoder('utf-8',{fatal:true}).decode(text);handles.set(this,new raw.RawSclk(text,integer(spacecraftId,-2147483648,2147483647)));Object.freeze(this);}
  get metadata(){const m=JSON.parse(h(this).metadata());m.moduli=m.moduli.map(BigInt);m.offsets=m.offsets.map(BigInt);return m;}
+ encodeNativeSclk(text){if(typeof text!=='string')fail('Type','Expected string');return h(this).encode_native(text);}
+ encodeNativeSclkWithContext(text,state){if(typeof text!=='string')fail('Type','Expected string');return h(this).encode_native_with_context(text,h(instance(state,SclkStringContext)));}
+ decodeNativeSclk(ticks){return h(this).decode_native(finite(ticks));}
+ nativeSclkToEt(text,context){if(typeof text!=='string')fail('Type','Expected string');return new NaifEt(h(this).native_to_et(text,h(instance(context,TimeContext))));}
+ nativeSclkToEtWithContext(text,context,state){if(typeof text!=='string')fail('Type','Expected string');return new NaifEt(h(this).native_to_et_with_context(text,h(instance(context,TimeContext)),h(instance(state,SclkStringContext))));}
+ nativeEtToSclk(et,context){return h(this).native_from_et(instance(et,NaifEt).seconds,h(instance(context,TimeContext)));}
  ticksToEt(ticks,context){return new NaifEt(h(this).convert(h(instance(context,TimeContext)),finite(ticks),false));}
  etToTicks(et,context){return h(this).convert(h(instance(context,TimeContext)),instance(et,NaifEt).seconds,true);}
  ticksToEpoch(ticks,context){return wrap(Epoch,h(this).to_epoch(h(instance(context,TimeContext)),finite(ticks)));}

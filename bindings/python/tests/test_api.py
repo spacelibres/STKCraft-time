@@ -1,4 +1,4 @@
-import csv, math, struct
+import csv, json, math, struct
 from pathlib import Path
 import pytest
 import stkcraft_time as t
@@ -395,3 +395,175 @@ def test_wgc_gps_python_rejects_silent_integer_rounding():
         t.gps_seconds_to_week_tow(2**53+1,lsk)
     with pytest.raises(TypeError):
         t.gps_seconds_to_week_tow(True,lsk)
+
+def test_wgc_week_tow_input_matches_nasa():
+    lsk=t.LeapSecondTable.builtin()
+    with (ROOT/'tests'/'reference'/'wgc-gps-input'/'seeded-week-tow.tsv').open(encoding='utf-8',newline='') as f:
+        rows=list(csv.DictReader(f,delimiter='\t'))
+    assert len(rows)==200
+    for row in rows:
+        seconds=t.parse_wgc_week_tow(row['input'])
+        assert t.gps_seconds_to_week_tow(seconds,lsk)==row['week_tow']
+    assert t.parse_wgc_week_tow('1, 0x1.0p2')==604804.0
+    with pytest.raises(t.WgcGpsError): t.parse_wgc_week_tow('1,2')
+
+def test_wgc_week_unicode_digits_match_nasa():
+    path=ROOT/'tests'/'reference'/'wgc-gps-input'/'grammar-unicode.tsv'
+    with path.open(encoding='ascii',newline='') as f: rows=list(csv.DictReader(f,delimiter='\t'))
+    assert len(rows)==413
+    for row in rows:
+        text=bytes.fromhex(row['input_utf8_hex']).decode('utf8')
+        if row['accepted']=='1':
+            assert struct.pack('>d',t.parse_wgc_week_tow(text)).hex()==row['output_bits']
+        else:
+            with pytest.raises(t.WgcGpsError):t.parse_wgc_week_tow(text)
+
+def test_native_sclk_clock_preserves_spice_errors_and_et_corpus():
+    kernel=t.SclkKernel.from_file(ROOT/'tests'/'kernels'/'MRO_SCLKSCET.00120.tsc',-74)
+    clock=t.SclkClock(kernel,t.LeapSecondTable.builtin())
+    with (ROOT/'tests'/'reference'/'sclk-partition'/'et.tsv').open(encoding='utf-8',newline='') as f:
+        rows=list(csv.DictReader(f,delimiter='\t'))
+    assert len(rows)==94
+    for row in rows:
+        expected=struct.unpack('>d',bytes.fromhex(row['et_or_error']))[0]
+        assert struct.pack('>d',clock.native_sclk_to_et(row['input']).seconds)==struct.pack('>d',expected)
+        assert clock.native_et_to_sclk(t.NaifEt(expected))==row['decoded']
+    with pytest.raises(t.SclkStringError) as error: clock.native_sclk_to_et('PI/0')
+    assert error.value.spice_short()=='SPICE(NOTINPART)'
+    reset=t.SclkKernel.from_file(ROOT/'tests'/'kernels'/'synthetic_partition_reset.tsc',-999)
+    reset_clock=t.SclkClock(reset,t.LeapSecondTable.builtin())
+    below=struct.unpack('>d',bytes.fromhex('bf1a36e2eb1c432d'))[0]
+    with pytest.raises(t.SclkStringError) as error: reset_clock.native_et_to_sclk(t.NaifEt(below))
+    assert error.value.spice_short()=='SPICE(VALUEOUTOFRANGE)'
+
+def test_native_sclk_clock_cspice_et_error_grid():
+    lsk=t.LeapSecondTable.builtin()
+    kernels={
+        'mro':t.SclkKernel.from_file(ROOT/'tests'/'kernels'/'MRO_SCLKSCET.00120.tsc',-74),
+        'reset':t.SclkKernel.from_file(ROOT/'tests'/'kernels'/'synthetic_partition_reset.tsc',-999),
+        'coeff':t.SclkKernel.from_file(ROOT/'tests'/'reference'/'sclk-partition'/'coefficient-range.tsc',-999),
+    }
+    path=ROOT/'tests'/'reference'/'sclk-partition'/'et-error-grid.tsv'
+    with path.open(encoding='utf-8',newline='') as f: rows=list(csv.DictReader(f,delimiter='\t'))
+    assert len(rows)==660
+    for row in rows:
+        et=struct.unpack('>d',bytes.fromhex(row['et_bits']))[0]
+        clock=t.SclkClock(kernels[row['kernel']],lsk)
+        if row['result'].startswith('E:'):
+            with pytest.raises(t.SclkStringError) as error: clock.native_et_to_sclk(t.NaifEt(et))
+            assert error.value.spice_short()==row['result'][2:]
+        else:
+            assert 'S:'+clock.native_et_to_sclk(t.NaifEt(et))==row['result']
+    offset=t.SclkKernel.from_file(ROOT/'tests'/'reference'/'sclk-partition'/'coefficient-range.tsc',-999)
+    with pytest.raises(t.SclkStringError) as error: t.SclkClock(offset,t.LeapSecondTable.builtin()).native_sclk_to_et('1/001:00:001')
+    assert error.value.spice_short()=='SPICE(VALUEOUTOFRANGE)'
+    tiny=t.SclkKernel.from_file(ROOT/'tests'/'reference'/'sclk-partition'/'tiny-rate.tsc',-999)
+    for et in (-1.0,1.0):
+        with pytest.raises(t.SclkStringError) as error:t.SclkClock(tiny,lsk).native_et_to_sclk(t.NaifEt(et))
+        assert error.value.spice_short()=='SPICE(VALUEOUTOFRANGE)'
+
+def test_native_sclk_finite_et_nan_intermediate_two_native_builds():
+    base=ROOT/'tests'/'reference'/'sclk-partition'/'nan-finite-et'
+    record=json.loads((base/'capture.json').read_text(encoding='utf8'))
+    assert len(record['rows'])==12
+    lsk=t.LeapSecondTable.builtin()
+    for row in record['rows']:
+        clock=t.SclkClock(t.SclkKernel.from_file(base/(row['name']+'.tsc'),-777),lsk)
+        if row['outcome']=='ERROR':
+            with pytest.raises(t.SclkStringError) as error:clock.native_et_to_sclk(t.NaifEt(0.0))
+            assert error.value.spice_short()==row['windows_result']
+        else:assert clock.native_et_to_sclk(t.NaifEt(0.0))==row['windows_result']
+
+def test_native_sclk_nonfinite_output_is_rejected_by_checked_wrapper():
+    path=ROOT/'tests'/'reference'/'sclk-partition'/'overflow-rate.tsc'
+    clock=t.SclkClock(t.SclkKernel.from_file(path,-777),t.LeapSecondTable.builtin())
+    assert struct.pack('>d',clock.native_sclk_to_et('1/001').seconds).hex()=='7fe1ccf385ebc89f'
+    with pytest.raises(t.TimeError) as error:
+        clock.native_sclk_to_et('1/002')
+    assert error.value.code=='NonFinite'
+
+def test_wgc_calendar_doy_all_systems_against_nasa():
+    lsk=t.LeapSecondTable.builtin()
+    for system in ('UTC','TDB','TT','GPS'):
+        for suffix in ('seeded','epochs','leaps'):
+            path=ROOT/'tests'/'reference'/'wgc-gps-input'/f'{system.lower()}-doy-{suffix}.tsv'
+            with path.open(encoding='utf-8',newline='') as f: rows=list(csv.DictReader(f,delimiter='\t'))
+            assert len(rows) in (240,261,336)
+            for row in rows:
+                expected=row.get('output',row.get('utc_doy'))
+                assert t.et_to_wgc_calendar_doy(t.NaifEt(float(row['et'])),system,lsk)==expected
+
+def test_wgc_calendar_doy_matches_cspice_binary64():
+    lsk=t.LeapSecondTable.builtin()
+    path=ROOT/'tests'/'reference'/'wgc-gps-input'/'cspice-doy-seeded.tsv'
+    with path.open(encoding='utf-8',newline='') as f: rows=list(csv.DictReader(f,delimiter='\t'))
+    assert len(rows)==12000
+    for row in rows:
+        et=struct.unpack('>d',bytes.fromhex(row['et_bits']))[0]
+        assert t.et_to_wgc_calendar_doy(t.NaifEt(et),row['system'],lsk)==row['output']
+
+def test_wgc_calendar_formats_match_cspice_altered_lsk():
+    base=ROOT/'tests'/'reference'/'wgc-gps-input'
+    lsk=t.LeapSecondTable.from_file(base/'altered-lsk.tls')
+    with (base/'altered-lsk-doy-ymd.tsv').open(encoding='utf-8',newline='') as f: rows=list(csv.DictReader(f,delimiter='\t'))
+    assert len(rows)==3200
+    for row in rows:
+        et=t.NaifEt(struct.unpack('>d',bytes.fromhex(row['et_bits']))[0])
+        render=t.et_to_wgc_calendar_doy if row['style']=='DOY' else t.et_to_wgc_calendar_ymd
+        assert render(et,row['system'],lsk)==row['output']
+
+def test_wgc_calendar_wide_epochs_match_native_components_and_year():
+    lsk=t.LeapSecondTable.builtin()
+    path=ROOT/'tests'/'reference'/'wgc-gps-input'/'review-wide.tsv'
+    with path.open(encoding='utf8',newline='') as f:rows=list(csv.DictReader(f,delimiter='\t'))
+    assert len(rows)==20490
+    for row in rows:
+        et=t.NaifEt(struct.unpack('>d',bytes.fromhex(row['et_bits']))[0])
+        render=t.et_to_wgc_calendar_doy if row['style']=='DOY' else t.et_to_wgc_calendar_ymd
+        year,suffix=render(et,row['system'],lsk).split('-',1)
+        actual=1-int(year[:-3]) if year.endswith(' BC') else int(year.removesuffix(' AD'))
+        assert actual==int(row['year'])
+        assert suffix==row['native_suffix']
+
+def test_wgc_calendar_with_altered_leap_tables_matches_native():
+    base=(ROOT/'src'/'naif0012.tls').read_text(encoding='utf8')
+    offsets=[35,36,38,40,0,-100]
+    lsks={n:t.LeapSecondTable.from_lsk(base.replace('37,   @2017-JAN-1',f'{n}, @2017-JAN-1')) for n in offsets}
+    path=ROOT/'tests'/'reference'/'wgc-gps-input'/'review-altered-leaps.tsv'
+    with path.open(encoding='utf8',newline='') as f:rows=list(csv.DictReader(f,delimiter='\t'))
+    assert len(rows)==49248
+    for row in rows:
+        et=t.NaifEt(struct.unpack('>d',bytes.fromhex(row['et_bits']))[0])
+        render=t.et_to_wgc_calendar_doy if row['style']=='DOY' else t.et_to_wgc_calendar_ymd
+        assert render(et,'UTC',lsks[int(row['offset'])])==row['output']
+
+def test_wgc_week_to_et_and_numeric_gps_seconds():
+    lsk=t.LeapSecondTable.builtin()
+    path=ROOT/'tests'/'reference'/'wgc-gps-input'/'week-seconds-seeded.tsv'
+    with path.open(encoding='utf-8',newline='') as f: rows=list(csv.DictReader(f,delimiter='\t'))
+    assert len(rows)==200
+    for row in rows:
+        et=t.wgc_week_tow_to_et(row['input'],lsk)
+        assert struct.pack('>d',t.et_to_wgc_gps_display_seconds(et,lsk)).hex()==row['output_bits']
+    with pytest.raises(t.WgcGpsError): t.wgc_week_tow_to_et('0, NaN',lsk)
+
+def test_wgc_calendar_ymd_matches_nasa():
+    lsk=t.LeapSecondTable.builtin()
+    for system in ('UTC','TDB','TT','GPS'):
+        path=ROOT/'tests'/'reference'/'wgc-gps-input'/f'{system.lower()}-ymd-epochs.tsv'
+        with path.open(encoding='utf-8',newline='') as f: rows=list(csv.DictReader(f,delimiter='\t'))
+        assert len(rows)==261
+        for row in rows:
+            assert t.et_to_wgc_calendar_ymd(t.NaifEt(float(row['et'])),system,lsk)==row['output']
+
+def test_wgc_gps_seconds_input_matches_nasa_numeric_display():
+    lsk=t.LeapSecondTable.builtin()
+    for name,count in [('gps-seconds-numeric.tsv',330),('gps-numeric-rounding-grid.tsv',1200),('gps-signed-zero.tsv',10)]:
+        path=ROOT/'tests'/'reference'/'wgc-gps-input'/name
+        with path.open(encoding='utf-8',newline='') as f: rows=list(csv.DictReader(f,delimiter='\t'))
+        assert len(rows)==count
+        for row in rows:
+            et=t.wgc_gps_seconds_to_et(float(row['input']),lsk)
+            assert struct.pack('>d',t.et_to_wgc_gps_display_seconds(et,lsk)).hex()==row['output_bits']
+    with pytest.raises(t.WgcGpsError): t.wgc_gps_seconds_to_et(float('inf'),lsk)
+    with pytest.raises(TypeError): t.wgc_gps_seconds_to_et(True,lsk)

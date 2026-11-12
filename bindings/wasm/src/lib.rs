@@ -18,6 +18,31 @@ fn err(e: impl std::fmt::Debug) -> JsValue {
     let code = s.split([' ', '(', ')', '{']).next().unwrap_or("TimeError");
     error(code, &s)
 }
+fn native_sclk_error(e: core::sclk::NativeSclkError) -> JsValue {
+    match e {
+        core::sclk::NativeSclkError::String(e) | core::sclk::NativeSclkError::Native(e) => {
+            error(e.spice_short(), e.spice_short())
+        }
+        core::sclk::NativeSclkError::Time(e) => err(e),
+    }
+}
+fn native_sclk_string_error(e: core::sclk::SclkStringError) -> JsValue {
+    error(e.spice_short(), e.spice_short())
+}
+fn wgc_calendar_system(system: &str) -> Result<core::wgc_gps::WgcCalendarSystem, JsValue> {
+    use core::wgc_gps::WgcCalendarSystem;
+    match system {
+        "UTC" => Ok(WgcCalendarSystem::Utc),
+        "TDB" => Ok(WgcCalendarSystem::Tdb),
+        "TT" => Ok(WgcCalendarSystem::Tt),
+        "TDT" => Ok(WgcCalendarSystem::Tdt),
+        "GPS" => Ok(WgcCalendarSystem::Gps),
+        _ => Err(error(
+            "InvalidTimeSystem",
+            "Unknown WGC calendar time system",
+        )),
+    }
+}
 fn num(v: &JsValue) -> Result<f64, JsValue> {
     v.as_f64()
         .filter(|x| x.is_finite())
@@ -340,6 +365,39 @@ impl RawContext {
             .map_err(err)?,
         })
     }
+    pub fn wgc_parse_week_tow(&self, text: &str) -> Result<f64, JsValue> {
+        core::wgc_gps::parse_week_tow(text).map_err(err)
+    }
+    pub fn wgc_week_tow_to_et(&self, text: &str) -> Result<f64, JsValue> {
+        core::wgc_gps::week_tow_to_et(text, &self.lsk)
+            .map(|et| et.seconds())
+            .map_err(err)
+    }
+    pub fn wgc_gps_seconds_to_et(&self, value: f64) -> Result<f64, JsValue> {
+        core::wgc_gps::gps_seconds_to_et(value, &self.lsk)
+            .map(|et| et.seconds())
+            .map_err(err)
+    }
+    pub fn wgc_gps_seconds_to_week_tow(&self, value: JsValue) -> Result<String, JsValue> {
+        let value = value
+            .as_f64()
+            .ok_or_else(|| error("Type", "Expected number"))?;
+        core::wgc_gps::gps_seconds_to_week_tow(value, &self.lsk).map_err(err)
+    }
+    pub fn wgc_et_to_gps_display_seconds(&self, et: f64) -> Result<f64, JsValue> {
+        let et = core::contract::NaifEt::from_seconds(et).map_err(err)?;
+        core::wgc_gps::et_to_gps_display_seconds(et, &self.lsk).map_err(err)
+    }
+    pub fn wgc_calendar_doy(&self, et: f64, system: &str) -> Result<String, JsValue> {
+        let system = wgc_calendar_system(system)?;
+        let et = core::contract::NaifEt::from_seconds(et).map_err(err)?;
+        core::wgc_gps::et_to_calendar_doy(et, system, &self.lsk).map_err(err)
+    }
+    pub fn wgc_calendar_ymd(&self, et: f64, system: &str) -> Result<String, JsValue> {
+        let system = wgc_calendar_system(system)?;
+        let et = core::contract::NaifEt::from_seconds(et).map_err(err)?;
+        core::wgc_gps::et_to_calendar_ymd(et, system, &self.lsk).map_err(err)
+    }
     pub fn select(&self, source: &str, freeze: JsValue) -> Result<RawContext, JsValue> {
         let source = match source {
             "IersOnly" => LeapSecondSource::IersOnly,
@@ -545,6 +603,24 @@ pub struct RawSclk {
     inner: SclkKernel,
 }
 #[wasm_bindgen]
+pub struct RawSclkStringContext {
+    inner: core::sclk::SclkStringContext,
+}
+#[wasm_bindgen]
+impl RawSclkStringContext {
+    #[wasm_bindgen(constructor)]
+    pub fn new() -> Self {
+        Self {
+            inner: core::sclk::SclkStringContext::default(),
+        }
+    }
+}
+impl Default for RawSclkStringContext {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+#[wasm_bindgen]
 impl RawSclk {
     #[wasm_bindgen(constructor)]
     pub fn new(text: &str, id: JsValue) -> Result<RawSclk, JsValue> {
@@ -556,6 +632,54 @@ impl RawSclk {
                 k
             },
         })
+    }
+    pub fn encode_native(&self, text: &str) -> Result<f64, JsValue> {
+        self.inner
+            .encode_native_sclk(text)
+            .map_err(native_sclk_string_error)
+    }
+    pub fn encode_native_with_context(
+        &self,
+        text: &str,
+        context: &mut RawSclkStringContext,
+    ) -> Result<f64, JsValue> {
+        self.inner
+            .encode_native_sclk_with_context(text, &mut context.inner)
+            .map_err(native_sclk_string_error)
+    }
+    pub fn decode_native(&self, ticks: f64) -> Result<String, JsValue> {
+        self.inner
+            .decode_native_sclk(ticks)
+            .map_err(native_sclk_string_error)
+    }
+    pub fn native_to_et(&self, text: &str, context: &RawContext) -> Result<f64, JsValue> {
+        core::sclk::SclkClock {
+            kernel: &self.inner,
+            lsk: &context.lsk,
+        }
+        .native_sclk_to_et(text)
+        .map_err(native_sclk_error)
+    }
+    pub fn native_to_et_with_context(
+        &self,
+        text: &str,
+        context: &RawContext,
+        state: &mut RawSclkStringContext,
+    ) -> Result<f64, JsValue> {
+        core::sclk::SclkClock {
+            kernel: &self.inner,
+            lsk: &context.lsk,
+        }
+        .native_sclk_to_et_with_context(text, &mut state.inner)
+        .map_err(native_sclk_error)
+    }
+    pub fn native_from_et(&self, et: f64, context: &RawContext) -> Result<String, JsValue> {
+        core::sclk::SclkClock {
+            kernel: &self.inner,
+            lsk: &context.lsk,
+        }
+        .native_et_to_sclk(et)
+        .map_err(native_sclk_error)
     }
     pub fn convert(&self, ctx: &RawContext, v: JsValue, inverse: bool) -> Result<f64, JsValue> {
         finite_result(

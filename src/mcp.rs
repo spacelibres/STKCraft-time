@@ -22,7 +22,7 @@ use crate::eop::{EopSeries, EopTable};
 use crate::epoch::{Epoch, UtcDateTime};
 use crate::format::{self, FormatOptions};
 use crate::leap::LeapSecondTable;
-use crate::sclk::{SclkKernel, SclkStringContext};
+use crate::sclk::{SclkClock, SclkKernel, SclkStringContext};
 
 const MCP_PROTOCOL_VERSION: &str = "2024-11-05";
 const MAX_MESSAGE_BYTES: usize = 1_048_576;
@@ -278,6 +278,37 @@ fn tool_definitions() -> Value {
                 },
                 "required": ["gps_seconds"]
             }
+        },
+        {
+            "name": "wgc_week_tow_to_et",
+            "description": "Convert an observed WGC GPS week/TOW input string to checked NAIF ET.",
+            "inputSchema": {"type":"object","properties":{
+                "week_tow":{"type":"string"},"lsk_path":{"type":"string"}},"required":["week_tow"]}
+        },
+        {
+            "name": "wgc_gps_seconds_to_et",
+            "description": "Convert finite GPS seconds past GPS zero through the WGC-compatible native path to ET.",
+            "inputSchema": {"type":"object","properties":{
+                "gps_seconds":{"type":"number"},"lsk_path":{"type":"string"}},"required":["gps_seconds"]}
+        },
+        {
+            "name": "wgc_et_to_gps_seconds",
+            "description": "Format ET as WGC's six-decimal numeric GPS seconds display cell.",
+            "inputSchema": et_schema()
+        },
+        {
+            "name": "wgc_gps_seconds_to_week_tow",
+            "description": "Format GPS seconds in the observed WGC week/TOW display convention.",
+            "inputSchema": {"type":"object","properties":{
+                "gps_seconds":{"type":"number"},"lsk_path":{"type":"string"}},"required":["gps_seconds"]}
+        },
+        {
+            "name": "wgc_et_to_calendar",
+            "description": "Format ET as six-decimal WGC YMD or day-of-year calendar output.",
+            "inputSchema": {"type":"object","properties":{
+                "et":{"type":"number"},"system":{"type":"string","enum":["UTC","TDB","TT","TDT","GPS"]},
+                "format":{"type":"string","enum":["ymd","doy"]},"lsk_path":{"type":"string"}},
+                "required":["et","system","format"]}
         },
         {
             "name": "utc_to_ut1",
@@ -565,6 +596,53 @@ fn call_tool(
                 "tai": epoch_json(tai)
             }))
         }
+        "wgc_week_tow_to_et" => {
+            let lsk = load_lsk(args)?;
+            let et = crate::wgc_gps::week_tow_to_et(as_str(args, "week_tow")?, &lsk)
+                .map_err(|e| e.to_string())?;
+            Ok(json!({"et":et.seconds()}))
+        }
+        "wgc_gps_seconds_to_et" => {
+            let lsk = load_lsk(args)?;
+            let et = crate::wgc_gps::gps_seconds_to_et(as_f64(args, "gps_seconds")?, &lsk)
+                .map_err(|e| e.to_string())?;
+            Ok(json!({"et":et.seconds()}))
+        }
+        "wgc_et_to_gps_seconds" => {
+            let lsk = load_lsk(args)?;
+            let et = crate::contract::NaifEt::from_seconds(as_f64(args, "et")?)
+                .map_err(|e| e.to_string())?;
+            let gps =
+                crate::wgc_gps::et_to_gps_display_seconds(et, &lsk).map_err(|e| e.to_string())?;
+            Ok(json!({"gps_seconds":gps}))
+        }
+        "wgc_gps_seconds_to_week_tow" => {
+            let lsk = load_lsk(args)?;
+            let text = crate::wgc_gps::gps_seconds_to_week_tow(as_f64(args, "gps_seconds")?, &lsk)
+                .map_err(|e| e.to_string())?;
+            Ok(json!({"week_tow":text}))
+        }
+        "wgc_et_to_calendar" => {
+            use crate::wgc_gps::WgcCalendarSystem;
+            let lsk = load_lsk(args)?;
+            let et = crate::contract::NaifEt::from_seconds(as_f64(args, "et")?)
+                .map_err(|e| e.to_string())?;
+            let system = match as_str(args, "system")? {
+                "UTC" => WgcCalendarSystem::Utc,
+                "TDB" => WgcCalendarSystem::Tdb,
+                "TT" => WgcCalendarSystem::Tt,
+                "TDT" => WgcCalendarSystem::Tdt,
+                "GPS" => WgcCalendarSystem::Gps,
+                _ => return Err("invalid WGC calendar system".into()),
+            };
+            let result = match as_str(args, "format")? {
+                "doy" => crate::wgc_gps::et_to_calendar_doy(et, system, &lsk),
+                "ymd" => crate::wgc_gps::et_to_calendar_ymd(et, system, &lsk),
+                _ => return Err("invalid WGC calendar format".into()),
+            }
+            .map_err(|e| e.to_string())?;
+            Ok(json!({"calendar":result}))
+        }
         "utc_to_ut1" => {
             let lsk = load_lsk(args)?;
             let eop = load_eop(args)?;
@@ -591,9 +669,16 @@ fn call_tool(
             let lsk = load_lsk(args)?;
             let sclk = load_sclk(args)?;
             let ticks = sclk_ticks(args, &sclk, sclk_context)?;
-            let et = sclk
-                .ticks_to_et(ticks, &lsk)
-                .map_err(|error| error.to_string())?;
+            let et = sclk.ticks_to_et(ticks, &lsk).map_err(|error| {
+                if args.get("ticks").and_then(Value::as_f64).is_none()
+                    && opt_str(args, "clock_string").is_some()
+                    && !sclk.partitions().0.is_empty()
+                {
+                    sclk.classify_native_ticks_error(ticks, error).to_string()
+                } else {
+                    error.to_string()
+                }
+            })?;
             let tai = sclk
                 .ticks_to_tai(ticks, &lsk)
                 .map_err(|error| error.to_string())?;
@@ -610,24 +695,28 @@ fn call_tool(
             let sclk = load_sclk(args)?;
             let et = as_f64(args, "et")?;
             let starts = sclk.partitions().0;
-            let partitioned = starts.len() > 1 || starts.first().is_some_and(|&v| v != 0.0);
+            let partitioned = !starts.is_empty();
             let continuous = sclk.et_to_ticks(et, &lsk);
-            let discrete = if partitioned {
+            let clock_string = if partitioned {
                 Some(
-                    sclk.et_to_discrete_ticks(et, &lsk)
-                        .map_err(|error| error.to_string())?,
+                    SclkClock {
+                        kernel: &sclk,
+                        lsk: &lsk,
+                    }
+                    .native_et_to_sclk(et)
+                    .map_err(|error| error.to_string())?,
                 )
             } else {
                 None
             };
             let ticks = match continuous {
                 Ok(value) => Some(value),
-                Err(_) if discrete.is_some() => None,
+                Err(_) if clock_string.is_some() => None,
                 Err(error) => return Err(error.to_string()),
             };
             let fields = ticks.and_then(|value| fields_if_integral(&sclk, value));
-            let clock_string = if let Some(discrete) = discrete {
-                sclk.decode_native_sclk(discrete).ok()
+            let clock_string = if clock_string.is_some() {
+                clock_string
             } else {
                 match &fields {
                     Some(fields) => sclk.format_string(fields).ok(),
