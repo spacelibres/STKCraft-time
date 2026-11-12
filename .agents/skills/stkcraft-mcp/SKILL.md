@@ -70,7 +70,11 @@ the bundled `naif0012.tls`. GPS tools and `etcal` take no leap-second
 kernel. EOP tools also accept `eop_series` (`a`, `b`, `final`) and
 `observed_only`. `precision` is limited to `0..=9`. TAI tools accept
 `tai_seconds`, or exact `sec` + `nanos`. SCLK tools accept continuous
-ticks; `fields` and `clock_string` are `null` for non-integral ticks.
+ticks. `fields` is null when unavailable. For multiple partitions or a
+nonzero start, `et_to_sclk` attempts discrete native clock-string decoding
+even when continuous ticks are non-integral; `clock_string` is null if
+decoding fails. At a boundary accepted only by discrete conversion, `ticks`
+and `fields` are null.
 
 ## Example call
 
@@ -113,10 +117,12 @@ cargo clippy --all-targets --features mcp -- -D warnings
 ## Security and limits
 
 - Reads only caller-supplied local paths; no network I/O.
-- Only type-1 SCLK kernels are supported. Encoded ticks are bounded by
-  the cumulative partition duration and the first coefficient; ticks
-  outside that domain are rejected. Partition-aware string conversion is
-  not implemented (`SclkPartitionsUnsupported`).
+- Only type-1 SCLK kernels are supported. Encoded tick/time conversion is
+  bounded by the rounded cumulative raw partition durations and first
+  coefficient. Partition-aware clock strings use native-style encoding and
+  decoding; stdio retains the component-parser context across calls. Legacy
+  field-vector methods still reject multiple partitions or a nonzero start.
+  Captured MRO and synthetic cases do not prove exhaustive parity.
 - `23:59:60.x` without a positive leap second and `23:59:59.x` on a
   shortened day are rejected.
 - Non-finite EOP samples are rejected with `EopParse`.

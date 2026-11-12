@@ -190,12 +190,12 @@ block):
 - Non-finite EOP samples are rejected with `EopParse`.
 - UT1 requires bracketing EOP samples around the UTC day; the last
   sample day is not usable as an epoch boundary.
-- SCLK support is limited to type-1 clocks. Partition durations bound the
-  accepted encoded ticks: a value before the first coefficient or beyond
-  the cumulative partition duration is rejected. Partitions are parsed but
-  not applied to strings; field/string conversion returns
-  `SclkPartitionsUnsupported` for partitioned clocks, while encoded
-  ticks↔ET/TAI remain available inside that domain.
+- SCLK support is limited to type-1 clocks. Partitioned clock strings use
+  the native string path and a parser context retained per stdio session.
+  The `et_to_sclk` response reports continuous `ticks` when available. At
+  a boundary accepted only by the discrete string conversion, `ticks` and
+  `fields` are null. `clock_string` is null if discrete decoding fails.
+  Field-vector operations retain their documented partition limits.
 - Tool arguments are JSON numbers/strings. To pass a leap-second label,
   use `"second": 60.5`; do not pass a formatted string as a number.
 

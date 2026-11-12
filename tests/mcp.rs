@@ -297,6 +297,66 @@ fn continuous_sclk_ticks_are_accepted() {
 }
 
 #[test]
+fn mro_partitioned_sclk_strings_match_native_et() {
+    let path = concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/tests/kernels/MRO_SCLKSCET.00120.tsc"
+    );
+    let et = f64::from_bits(0xc1c2cfa30668755d);
+    let response = request(json!({
+        "jsonrpc": "2.0", "id": 41, "method": "tools/call",
+        "params": { "name": "sclk_to_et", "arguments": {
+            "sclk_path": path, "spacecraft_id": -74, "clock_string": "1/0000000000.000"
+        }}
+    }));
+    assert!(response["result"]["isError"].is_null(), "{response}");
+    let value: Value =
+        serde_json::from_str(response["result"]["content"][0]["text"].as_str().unwrap()).unwrap();
+    assert_eq!(value["et"].as_f64().unwrap().to_bits(), et.to_bits());
+    let response = request(json!({
+        "jsonrpc": "2.0", "id": 42, "method": "tools/call",
+        "params": { "name": "et_to_sclk", "arguments": {
+            "sclk_path": path, "spacecraft_id": -74, "et": et
+        }}
+    }));
+    assert!(response["result"]["isError"].is_null(), "{response}");
+    let value: Value =
+        serde_json::from_str(response["result"]["content"][0]["text"].as_str().unwrap()).unwrap();
+    assert_eq!(value["clock_string"], "1/0000000000.000");
+}
+
+#[test]
+fn mcp_session_preserves_native_sclk_component_history() {
+    use stkcraft_time::sclk::SclkStringContext;
+    let path = concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/tests/kernels/MRO_SCLKSCET.00120.tsc"
+    );
+    let mut context = SclkStringContext::default();
+    for (clock_string, error_expected) in [
+        ("1/0.0", false),
+        ("1/.1", false),
+        ("1/UNKNOWN", true),
+        ("1/.1", true),
+        ("1/0.0", false),
+        ("1/.1", false),
+    ] {
+        let call = json!({"jsonrpc":"2.0", "id":1, "method":"tools/call", "params":{
+            "name":"sclk_to_et", "arguments":{"sclk_path":path,"spacecraft_id":-74,"clock_string":clock_string}
+        }});
+        let response =
+            stkcraft_time::mcp::handle_message_with_sclk_context(&call.to_string(), &mut context)
+                .unwrap();
+        let response: Value = serde_json::from_str(&response).unwrap();
+        assert_eq!(
+            response["result"]["isError"].as_bool().unwrap_or(false),
+            error_expected,
+            "{clock_string}: {response}"
+        );
+    }
+}
+
+#[test]
 fn unknown_methods_return_json_rpc_errors() {
     let response = request(json!({
         "jsonrpc": "2.0",
@@ -330,4 +390,22 @@ fn incomplete_lsk_is_a_tool_error() {
         .as_str()
         .unwrap()
         .contains("DELTET/K"));
+}
+
+#[test]
+fn partitioned_clock_mcp_preserves_discrete_boundary() {
+    let path = concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/tests/kernels/synthetic_partition_reset.tsc"
+    );
+    let response = request(
+        json!({"jsonrpc":"2.0", "id": 43, "method":"tools/call", "params":{
+            "name":"et_to_sclk", "arguments":{"sclk_path":path,"spacecraft_id":-999,"et":-0.00008}
+        }}),
+    );
+    assert!(response["result"]["isError"].is_null(), "{response}");
+    let value: Value =
+        serde_json::from_str(response["result"]["content"][0]["text"].as_str().unwrap()).unwrap();
+    assert_eq!(value["clock_string"], "1/001:00:001");
+    assert!(value["ticks"].is_null());
 }

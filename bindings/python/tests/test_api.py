@@ -310,3 +310,66 @@ def test_active_integer_kernel_jump_overflow_guards():
     assert error.value.code=='InvalidNaifLeapSeconds'
     with pytest.raises(t.ContractError) as error:ctx.et_to_spice_julian_utc(t.NaifEt(0))
     assert error.value.code=='InvalidNaifLeapSeconds'
+
+def test_partitioned_sclk_clock_uses_native_discrete_boundary():
+    kernel=t.SclkKernel.from_file(ROOT/'tests'/'kernels'/'synthetic_partition_reset.tsc',-999)
+    clock=t.SclkClock(kernel,t.LeapSecondTable.builtin())
+    assert clock.et_to_sclk(t.NaifEt(-0.00008)) == '1/001:00:001'
+    assert clock.et_to_sclk(t.NaifEt(3.0000816666666665)) == '3/002:00:001'
+    assert clock.sclk_to_et('1/001:00:001').seconds == 0.0
+
+def test_partitioned_sclk_native_parser_context():
+    kernel=t.SclkKernel.from_file(ROOT/'tests'/'kernels'/'MRO_SCLKSCET.00120.tsc',-74)
+    context=t.SclkStringContext()
+    assert kernel.decode_native_sclk(0.0) == '1/0000000000.000'
+    assert kernel.encode_native_sclk_with_context('1/0.0',context) == 0.0
+    with pytest.raises(t.SclkStringError) as bad:
+        kernel.encode_native_sclk_with_context('1/UNKNOWN',context)
+    assert bad.value.spice_short() == 'SPICE(INVALIDSCLKSTRING)'
+    with pytest.raises(t.SclkStringError):
+        kernel.encode_native_sclk_with_context('1/.1',context)
+    assert kernel.encode_native_sclk_with_context('1/0.0',context) == 0.0
+    assert kernel.encode_native_sclk_with_context('1/.1',context) == 1.0
+
+def test_partitioned_sclk_python_matches_native_large_fields():
+    path=ROOT/'tests'/'reference'/'sclk-partition'
+    kernel=t.SclkKernel.from_file(path/'large-field.tsc',-902)
+    with (path/'large-field.tsv').open(encoding='utf-8',newline='') as f:
+        rows=list(csv.DictReader(f,delimiter='\t'))
+    assert len(rows)==6008
+    for row in rows:
+        ticks=struct.unpack('>d',bytes.fromhex(row['ticks_bits']))[0]
+        assert 'S:'+kernel.decode_native_sclk(ticks)==row['result']
+
+def test_partitioned_sclk_python_matches_native_extreme_buffer():
+    path=ROOT/'tests'/'reference'/'sclk-partition'
+    kernel=t.SclkKernel.from_file(path/'extreme-field.tsc',-902)
+    with (path/'extreme-field.tsv').open(encoding='utf-8',newline='') as f:
+        rows=list(csv.DictReader(f,delimiter='\t'))
+    assert len(rows)==16
+    for row in rows:
+        ticks=struct.unpack('>d',bytes.fromhex(row['ticks_bits']))[0]
+        assert 'S:'+kernel.decode_native_sclk(ticks)==row['result']
+
+def test_partitioned_sclk_python_native_metadata_errors():
+    path=ROOT/'tests'/'reference'/'sclk-partition'
+    kernel=t.SclkKernel.from_file(path/'eleven-fields.tsc',-902)
+    for convert in (lambda:kernel.decode_native_sclk(0.0),lambda:kernel.encode_native_sclk('1/0')):
+        with pytest.raises(t.SclkStringError) as error:
+            convert()
+        assert error.value.spice_short()=='SPICE(VALUEOUTOFRANGE)'
+    text=(path/'large-field.tsc').read_text(encoding='utf-8').replace('SCLK01_OUTPUT_DELIM_902=(1)','')
+    missing=t.SclkKernel(text,-902)
+    with pytest.raises(t.SclkStringError) as error:
+        missing.decode_native_sclk(0.0)
+    assert error.value.spice_short()=='SPICE(KERNELVARNOTFOUND)'
+
+def test_partitioned_sclk_python_native_width_boundaries():
+    path=ROOT/'tests'/'reference'/'sclk-partition'
+    source=(path/'large-field.tsc').read_text(encoding='utf-8')
+    with (path/'width-boundaries.tsv').open(encoding='utf-8',newline='') as f:
+        rows=list(csv.DictReader(f,delimiter='\t'))
+    assert len(rows)==80
+    for row in rows:
+        text=source.replace('SCLK01_MODULI_902=(10000000000000000)',f"SCLK01_MODULI_902=({row['modulus']})")
+        assert 'S:'+t.SclkKernel(text,-902).decode_native_sclk(0.0)==row['result']

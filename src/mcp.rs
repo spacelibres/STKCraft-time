@@ -22,7 +22,7 @@ use crate::eop::{EopSeries, EopTable};
 use crate::epoch::{Epoch, UtcDateTime};
 use crate::format::{self, FormatOptions};
 use crate::leap::LeapSecondTable;
-use crate::sclk::SclkKernel;
+use crate::sclk::{SclkKernel, SclkStringContext};
 
 const MCP_PROTOCOL_VERSION: &str = "2024-11-05";
 const MAX_MESSAGE_BYTES: usize = 1_048_576;
@@ -33,6 +33,7 @@ pub fn run_stdio() -> io::Result<()> {
     let stdin = io::stdin();
     let stdout = io::stdout();
     let mut out = stdout.lock();
+    let mut sclk_context = SclkStringContext::default();
 
     for line in stdin.lock().lines() {
         let line = line?;
@@ -41,7 +42,7 @@ pub fn run_stdio() -> io::Result<()> {
             continue;
         }
 
-        if let Some(response) = handle_message(line) {
+        if let Some(response) = handle_message_with_sclk_context(line, &mut sclk_context) {
             writeln!(out, "{response}")?;
             out.flush()?;
         }
@@ -52,6 +53,14 @@ pub fn run_stdio() -> io::Result<()> {
 
 /// Handles one JSON-RPC message. Returns `None` for notifications.
 pub fn handle_message(message: &str) -> Option<String> {
+    handle_message_with_sclk_context(message, &mut SclkStringContext::default())
+}
+
+/// Handle one JSON-RPC message with a persistent NAIF SCLK parser history.
+pub fn handle_message_with_sclk_context(
+    message: &str,
+    sclk_context: &mut SclkStringContext,
+) -> Option<String> {
     if message.len() > MAX_MESSAGE_BYTES {
         return Some(error_response(Value::Null, -32600, "message too large").to_string());
     }
@@ -139,7 +148,7 @@ pub fn handle_message(message: &str) -> Option<String> {
                 .cloned()
                 .unwrap_or_else(|| json!({}));
 
-            let outcome = catch_unwind(AssertUnwindSafe(|| call_tool(name, &arguments)));
+            let outcome = catch_unwind(AssertUnwindSafe(|| call_tool(name, &arguments, sclk_context)));
             let result = match outcome {
                 Ok(Ok(value)) => {
                     let text = match serde_json::to_string_pretty(&value) {
@@ -458,7 +467,11 @@ fn et_schema() -> Value {
     })
 }
 
-fn call_tool(name: &str, args: &Value) -> Result<Value, String> {
+fn call_tool(
+    name: &str,
+    args: &Value,
+    sclk_context: &mut SclkStringContext,
+) -> Result<Value, String> {
     match name {
         "lsk_info" => {
             let lsk = load_lsk(args)?;
@@ -577,7 +590,7 @@ fn call_tool(name: &str, args: &Value) -> Result<Value, String> {
         "sclk_to_et" => {
             let lsk = load_lsk(args)?;
             let sclk = load_sclk(args)?;
-            let ticks = sclk_ticks(args, &sclk)?;
+            let ticks = sclk_ticks(args, &sclk, sclk_context)?;
             let et = sclk
                 .ticks_to_et(ticks, &lsk)
                 .map_err(|error| error.to_string())?;
@@ -596,13 +609,30 @@ fn call_tool(name: &str, args: &Value) -> Result<Value, String> {
             let lsk = load_lsk(args)?;
             let sclk = load_sclk(args)?;
             let et = as_f64(args, "et")?;
-            let ticks = sclk
-                .et_to_ticks(et, &lsk)
-                .map_err(|error| error.to_string())?;
-            let fields = fields_if_integral(&sclk, ticks);
-            let clock_string = match &fields {
-                Some(fields) => sclk.format_string(fields).ok(),
-                None => None,
+            let starts = sclk.partitions().0;
+            let partitioned = starts.len() > 1 || starts.first().is_some_and(|&v| v != 0.0);
+            let continuous = sclk.et_to_ticks(et, &lsk);
+            let discrete = if partitioned {
+                Some(
+                    sclk.et_to_discrete_ticks(et, &lsk)
+                        .map_err(|error| error.to_string())?,
+                )
+            } else {
+                None
+            };
+            let ticks = match continuous {
+                Ok(value) => Some(value),
+                Err(_) if discrete.is_some() => None,
+                Err(error) => return Err(error.to_string()),
+            };
+            let fields = ticks.and_then(|value| fields_if_integral(&sclk, value));
+            let clock_string = if let Some(discrete) = discrete {
+                sclk.decode_native_sclk(discrete).ok()
+            } else {
+                match &fields {
+                    Some(fields) => sclk.format_string(fields).ok(),
+                    None => None,
+                }
             };
             Ok(json!({
                 "et": et,
@@ -858,12 +888,22 @@ fn load_sclk(args: &Value) -> Result<SclkKernel, String> {
         .map_err(|error| format!("cannot parse SCLK `{path}`: {error}"))
 }
 
-fn sclk_ticks(args: &Value, sclk: &SclkKernel) -> Result<f64, String> {
+fn sclk_ticks(
+    args: &Value,
+    sclk: &SclkKernel,
+    context: &mut SclkStringContext,
+) -> Result<f64, String> {
     if let Some(ticks) = args.get("ticks").and_then(Value::as_f64) {
         return Ok(ticks);
     }
 
     if let Some(text) = opt_str(args, "clock_string") {
+        let starts = sclk.partitions().0;
+        if !starts.is_empty() {
+            return sclk
+                .encode_native_sclk_with_context(text, context)
+                .map_err(|error| error.to_string());
+        }
         let fields = sclk.parse_string(text).map_err(|error| error.to_string())?;
         return sclk
             .ticks_from_fields(&fields)

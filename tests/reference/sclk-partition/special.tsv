@@ -1,0 +1,6 @@
+case	result
+negative-offset	S:1/001:01:001
+nul:1/1\0garbage	T:0000000000000000
+nul:\0ignored	E:SPICE(EMPTYSTRING)
+many:decode	E:SPICE(TOOMANYPARTITIONS)
+many:encode	E:SPICE(TOOMANYPARTITIONS)

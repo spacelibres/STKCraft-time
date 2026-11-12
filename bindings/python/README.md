@@ -43,7 +43,7 @@ absolute days <=700,000,000,000; `etcal` supports absolute ET <=1e16 seconds.
 Precision is accepted through 18 and follows the core's nine-digit clamp.
 Legacy inverse adapters preflight the actual inverse Epoch-constructor input;
 values that would panic, overflow, wrap years, or produce NaN are errors.
-This validation mirrors the exact operation order of the pinned 0.1.32 core
+This validation mirrors the exact operation order of the pinned 0.1.33 core
 convert/tdb/dtdb/coord implementations (including std sine and fixed-point
 iteration). Its result is discarded; the original core converter supplies
 every accepted return value. Review these guards whenever the core pin changes.
@@ -52,6 +52,15 @@ calling the original decoder, preserving valid field values without wrapping.
 EOP sample MJDs must fit the same day guard; UT1 inverse correction candidates
 must fit Epoch. These boundary guards do not change accepted ordinary mission
 data or any golden-reference calculation.
+
+Partitioned type-1 clock strings use `SclkKernel.encode_native_sclk` and
+`decode_native_sclk`. To retain NAIF component-parser history across calls,
+create `SclkStringContext` and pass it to `encode_native_sclk_with_context`.
+`SclkStringError.spice_short()` exposes the native short error symbol.
+`SclkClock` delegates string conversion to the Rust core, including discrete
+ET boundary handling for multiple partitions or a nonzero first start. The
+reference corpus covers
+selected MRO and synthetic inputs; it is not exhaustive.
 
 UTC/ET, SCLK and UT1 batch methods cross the native boundary once, reuse
 parsed data, abort on an error and include its index. Batch exceptions retain

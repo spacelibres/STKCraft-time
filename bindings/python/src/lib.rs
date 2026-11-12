@@ -445,6 +445,16 @@ impl NativeEop {
             .map_err(err)
     }
 }
+#[pyclass]
+#[derive(Default)]
+struct NativeSclkStringContext(c::sclk::SclkStringContext);
+#[pymethods]
+impl NativeSclkStringContext {
+    #[new]
+    fn new() -> Self {
+        Self::default()
+    }
+}
 #[pyclass(frozen, from_py_object)]
 #[derive(Clone)]
 struct NativeSclk(SclkKernel);
@@ -513,6 +523,46 @@ impl NativeSclk {
     }
     fn format_string(&self, f: Vec<i64>) -> PyResult<String> {
         self.0.format_string(&f).map_err(err)
+    }
+    fn decode_native_sclk(&self, ticks: f64) -> PyResult<String> {
+        finite(ticks)?;
+        self.0
+            .decode_native_sclk(ticks)
+            .map_err(|e| PyValueError::new_err(e.spice_short()))
+    }
+    fn encode_native_sclk(&self, clock: &str) -> PyResult<f64> {
+        self.0
+            .encode_native_sclk(clock)
+            .map_err(|e| PyValueError::new_err(e.spice_short()))
+    }
+    fn encode_native_sclk_with_context(
+        &self,
+        clock: &str,
+        context: &mut NativeSclkStringContext,
+    ) -> PyResult<f64> {
+        self.0
+            .encode_native_sclk_with_context(clock, &mut context.0)
+            .map_err(|e| PyValueError::new_err(e.spice_short()))
+    }
+    fn clock_to_et(&self, clock: &str, lsk: &NativeLsk) -> PyResult<f64> {
+        use c::sclk::SclkMap;
+        c::sclk::SclkClock {
+            kernel: &self.0,
+            lsk: &lsk.0,
+        }
+        .sclk_to_et(clock)
+        .map_err(err)
+        .and_then(finite)
+    }
+    fn clock_from_et(&self, et: f64, lsk: &NativeLsk) -> PyResult<String> {
+        use c::sclk::SclkMap;
+        finite(et)?;
+        c::sclk::SclkClock {
+            kernel: &self.0,
+            lsk: &lsk.0,
+        }
+        .et_to_sclk(et)
+        .map_err(err)
     }
     fn parallel(&self, x: f64, inverse: bool) -> PyResult<f64> {
         finite(x)?;
@@ -647,7 +697,7 @@ fn legacy_to(e: &NativeEpoch, l: &NativeLsk, scale: &str) -> PyResult<f64> {
         _ => return Err(err("InvalidScale")),
     })
 }
-// VALIDATION ONLY, tied to the exact =0.1.32 std core dependency. These
+// VALIDATION ONLY, tied to the exact =0.1.33 std core dependency. These
 // discarded f64 intermediates mirror convert/tdb/dtdb/coord inverse order to
 // check the argument before their infallible Epoch constructor. Every returned
 // scientific result still comes from the original public core function below.
@@ -834,6 +884,7 @@ fn _native(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<NativeLsk>()?;
     m.add_class::<NativeEop>()?;
     m.add_class::<NativeSclk>()?;
+    m.add_class::<NativeSclkStringContext>()?;
     m.add_class::<NativeSeries>()?;
     m.add_class::<NativeBdt>()?;
     macro_rules! f {($($n:ident),*)=>{$(m.add_function(wrap_pyfunction!($n,m)?)?;)*}}

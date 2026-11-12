@@ -113,13 +113,18 @@ cargo build --locked --no-default-features --target thumbv7em-none-eabi
   those f64 paths through integer TAI. Preserve native reciprocal-rate
   evaluation and reverse modulus accumulation for bit-exact CK boundaries.
   `tools/validate_sclk.py` defaults to exact comparisons in both directions.
-- SCLK support is type 1 only. Partition durations bound encoded ticks;
-  field/string conversion returns `SclkPartitionsUnsupported` for
-  partitioned clocks, while encoded ticks↔ET/TAI remain available.
-  Partition readouts are rounded to integral ticks before accumulating
-  `end - start`; clock resets are allowed. Reject ticks before the first
-  coefficient or beyond that cumulative domain. A standalone map without
-  partition metadata has no declared upper bound.
+- SCLK support is type 1 only. Legacy field-vector and string helpers still
+  return `SclkPartitionsUnsupported` for multiple partitions or a nonzero
+  start. Use `encode_native_sclk` and `decode_native_sclk` for native-style
+  partitioned strings. Retain `SclkStringContext` and use
+  `encode_native_sclk_with_context` to preserve parser history across calls.
+  `SclkClock` uses discrete ET-to-string conversion for multiple partitions
+  or a nonzero first start; a single zero-start partition uses the legacy path.
+- SCTE01/SCET01 bounds round each accumulated raw partition duration;
+  SCENCD rounds endpoints separately. Do not conflate these domains. Clock
+  resets are allowed. A map without partition metadata has no declared upper
+  bound. Consult the native fixture corpus for tested cases; it does not
+  establish exhaustive SCLK parity.
 - Formatting: `format::iso8601(&utc, precision)` assumes a
   86 400-second day. When a carry could reach a leap second or a calendar
   day boundary, use

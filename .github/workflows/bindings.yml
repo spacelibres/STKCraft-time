@@ -104,7 +104,7 @@ jobs:
           cp bindings/python/dist/*.tar.gz "$RUNNER_TEMP/source-consumer/"
           cd "$RUNNER_TEMP/source-consumer"
           python -m pip install ./*.tar.gz
-          python -c "import stkcraft_time; assert stkcraft_time.__version__ == '0.1.32'"
+          python -c "import stkcraft_time; assert stkcraft_time.__version__ == '0.1.33'"
       - run: python -m pytest -q bindings/python/tests
       - uses: actions/upload-artifact@v4
         with:

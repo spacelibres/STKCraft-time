@@ -1,6 +1,6 @@
 # JavaScript, TypeScript and WebAssembly
 
-Independent adapter crate and npm candidate `@stkcraft/time`, version 0.1.32.
+Independent adapter crate and npm candidate `@stkcraft/time`, version 0.1.33.
 The package name is a candidate until registry ownership is confirmed.
 Rust build floor: 1.88; tested Node 24, Chrome, and module Workers. Core
 retains its independent Rust 1.75 contract. Adapter uses the core's `std`

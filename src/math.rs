@@ -39,6 +39,15 @@ pub(crate) fn round(x: f64) -> f64 {
     libm::round(x)
 }
 
+#[cfg(feature = "std")]
+pub(crate) fn ln(x: f64) -> f64 {
+    x.ln()
+}
+#[cfg(not(feature = "std"))]
+pub(crate) fn ln(x: f64) -> f64 {
+    libm::log(x)
+}
+
 pub(crate) fn abs(x: f64) -> f64 {
     if x < 0.0 {
         -x

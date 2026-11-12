@@ -1,0 +1,8 @@
+{
+  "toolkit": "CSPICE_N0067",
+  "spiceypy": "8.3.0",
+  "library_sha256": "7fd2dcc58d73ed5293847e67109897caba34240b8f9c38ad739c0b2ec6ce7715",
+  "kernel_sha256": "6761919748abcd1d897b78733c347f9e2bd26c73bbda0d494454c13480e3ec82",
+  "cases": 16,
+  "tsv_sha256": "45dbbbd3c3c4d2e203553d3961d3e1a74313c1e4081d8cf4c314a9972eae4e6e"
+}

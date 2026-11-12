@@ -16,6 +16,8 @@ class TimeError(ValueError):
         super().__init__(message)
         self.index = index
         self.code = code or message.split('(')[0].split(' {')[0].strip('"')
+class SclkStringError(TimeError):
+    def spice_short(self): return str(self)
 class ContractError(TimeError): pass
 class DtdbError(TimeError): pass
 
@@ -23,7 +25,7 @@ def _call(fn, *args):
     try: return fn(*args)
     except ValueError as e:
         message = str(e)
-        cls = ContractError if message.startswith(('Time(', 'Scientific(', 'NonFinite', 'EpochOutOfRange', 'HistoricalUtc', 'NaifKernel', 'InvalidNaif')) else TimeError
+        cls = SclkStringError if message.startswith('SPICE(') else ContractError if message.startswith(('Time(', 'Scientific(', 'NonFinite', 'EpochOutOfRange', 'HistoricalUtc', 'NaifKernel', 'InvalidNaif')) else TimeError
         code = message.split('(')[0].split(' {')[0].strip('"')
         if code in ('Time', 'Scientific'):
             code = message.split('(', 1)[1].split('(')[0].split(' {')[0].rstrip(')')
@@ -339,6 +341,9 @@ class SclkCoefficient:
     ticks:float
     seconds:float
     rate:float
+class SclkStringContext:
+    __slots__=('_n',)
+    def __init__(self): self._n=_n.NativeSclkStringContext()
 class SclkKernel(_Immutable):
     __slots__=()
     def __init__(self,text,spacecraft_id): self._n=_call(_n.NativeSclk,_text(text),_int(spacecraft_id,32))
@@ -366,6 +371,9 @@ class SclkKernel(_Immutable):
     def partitions(self): return tuple(tuple(v) for v in self._n.partitions())
     def ticks_from_fields(self,fields): return _call(self._n.ticks_from_fields,[_int(v) for v in fields])
     def fields_from_ticks(self,ticks): return tuple(_call(self._n.fields_from_ticks,_float(ticks)))
+    def decode_native_sclk(self,ticks): return _call(self._n.decode_native_sclk,_float(ticks))
+    def encode_native_sclk(self,sclk): return _call(self._n.encode_native_sclk,sclk)
+    def encode_native_sclk_with_context(self,sclk,context): return _call(self._n.encode_native_sclk_with_context,sclk,context._n)
     def parse_string(self,sclk): return tuple(_call(self._n.parse_string,sclk))
     def format_string(self,fields): return _call(self._n.format_string,[_int(v) for v in fields])
     def parallel_seconds(self,ticks): return _call(self._n.parallel,_float(ticks),False)
@@ -380,8 +388,8 @@ class SclkKernel(_Immutable):
 class SclkClock:
     kernel:SclkKernel
     lsk:LeapSecondTable
-    def sclk_to_et(self,sclk): return self.kernel.ticks_to_et(self.kernel.ticks_from_fields(self.kernel.parse_string(sclk)),self.lsk)
-    def et_to_sclk(self,et): return self.kernel.format_string(self.kernel.fields_from_ticks(self.kernel.et_to_ticks(et,self.lsk)))
+    def sclk_to_et(self,sclk): return NaifEt(_call(self.kernel._n.clock_to_et,sclk,self.lsk._n))
+    def et_to_sclk(self,et): return _call(self.kernel._n.clock_from_et,_et(et),self.lsk._n)
 class TimeSeries:
     __slots__=('_n',)
     def __init__(self,start,end,step,inclusive=True):

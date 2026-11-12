@@ -45,6 +45,8 @@ def declaration(n,owner=None):
    if owner=='EopTable' and n.name=='samples':result='tuple[EopSample, ...]'
    if owner=='TimeContext' and n.name=='utc_to_et_batch':result='list[NaifEt]'
    if owner=='TimeContext' and n.name=='et_to_utc_batch':result='list[UtcDateTime]'
+   if n.name in ('decode_native_sclk','spice_short'):result='str'
+   if n.name in ('encode_native_sclk','encode_native_sclk_with_context'):result='float'
    if owner=='SclkKernel' and n.name=='ticks_to_et_batch':result='list[NaifEt]'
    if owner=='SclkKernel' and n.name=='et_to_ticks_batch':result='list[float]'
    if owner=='EopTable' and n.name=='tai_to_ut1_batch':result='list[float]'
@@ -52,6 +54,9 @@ def declaration(n,owner=None):
    if n.name=='sclk_to_et':result='NaifEt'
    if n.name=='et_to_sclk':result='str'
    n.returns=ast.parse(result,mode='eval').body
+  if owner=='SclkKernel' and n.name=='encode_native_sclk_with_context':
+   for arg in n.args.args:
+    if arg.arg=='context':arg.annotation=ast.Name(id='SclkStringContext',ctx=ast.Load())
   n.body=[ast.Expr(value=ast.Constant(value=Ellipsis))];return n
  if isinstance(n,ast.ClassDef):
   if n.name.startswith('_'):return None

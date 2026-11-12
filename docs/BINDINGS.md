@@ -7,7 +7,7 @@ from the root package/dependency graph. The core remains Rust 1.75 and
 no_std + alloc. Language adapters do not change the existing TimeScale enum
 or the NAIF/LSK/SCLK arithmetic used by Geocalc.
 
-## Language packages and complete coverage
+## Language packages and coverage
 
 | Consumer | Package / entry | Implementation and inventory |
 | --- | --- | --- |
@@ -15,6 +15,9 @@ or the NAIF/LSK/SCLK arithmetic used by Geocalc.
 | Browser / bundler | @stkcraft/time | [WASM guide](../bindings/wasm/README.md), [inventory](../bindings/wasm/API_INVENTORY.md) |
 | Node >=24 | @stkcraft/time/node | The same WASM module, not an independent JS time engine |
 | Embedded Rust | default-features=false | [Cortex-M example](../examples/cortex-m-utc-et/README.md) |
+
+The JavaScript binding does not yet expose native partition-aware SCLK string
+conversion. Python exposes the corresponding Rust paths.
 
 Inventories classify public capabilities and document language protocols in
 place of Rust borrowing and traits. MCP transport internals are outside the

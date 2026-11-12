@@ -12,7 +12,7 @@
 
 # `stkcraft-time` API guide
 
-This guide shows how to call the public API of `stkcraft-time` 0.1.32. It
+This guide shows how to call the public API of `stkcraft-time` 0.1.33. It
 is task-oriented: each section answers "which function do I call, and what
 data do I need to load first?" For item-level reference documentation,
 run:
@@ -59,13 +59,13 @@ replaces it.
 
 ```toml
 [dependencies]
-stkcraft-time = "0.1.32"
+stkcraft-time = "0.1.33"
 
 # no_std + alloc:
-# stkcraft-time = { version = "0.1.32", default-features = false }
+# stkcraft-time = { version = "0.1.33", default-features = false }
 
 # or pin the repository:
-# stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.32" }
+# stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.33" }
 ```
 
 The internal epoch representation is integer seconds plus nanoseconds;
@@ -552,24 +552,21 @@ let ticks_from_tai = sclk.tai_to_ticks(tai, &lsk)?;
   ticks. `fields_from_ticks` rejects a value more than 1e-6 from an
   integer; callers that only need ET/TAI should use the tick conversion
   functions directly.
-- Partition boundaries are exposed through `partitions()` and their
-  cumulative duration bounds encoded tick/time conversion. When the kernel
-  has more than one partition or a nonzero partition start, field and
-  string conversion returns
-  `TimeError::SclkPartitionsUnsupported`; encoded ticks↔ET/TAI remain
-  available within the encoded domain. Each partition endpoint is rounded
-  to integral ticks before its duration is accumulated. Inputs before the
-  first coefficient or beyond the domain are rejected. A standalone map
-  with no partition metadata has no declared upper bound.
-- Only the bounds inside a partition are validated (`start <= end`, both
-  finite); the cumulative duration must also be finite. Cross-partition
-  ordering is not required: NAIF lets a clock jump ahead or regress,
-  which is exactly why a new partition starts.
-- [`SclkClock`] binds a parsed kernel to a leap-second table and
-  implements the [`SclkMap`] trait (`sclk_to_et`, `et_to_sclk`). It is a
-  convenience wrapper over the same calls; it does not add partition
-  support, so a partitioned clock still returns
-  `SclkPartitionsUnsupported` for string conversion.
+- Partition boundaries are exposed through `partitions()`. The legacy
+  `parse_string`, `format_string` and field-vector methods still reject
+  multiple partitions or a nonzero start. Use `encode_native_sclk` and
+  `decode_native_sclk` for partition-aware strings. To reproduce native
+  parser history across calls, retain an explicit `SclkStringContext` and
+  call `encode_native_sclk_with_context`; a fresh context resets that history.
+- Tick/time conversions bound encoded ticks by the rounded accumulated raw
+  partition durations. String encoding follows SCENCD endpoint rounding,
+  which can differ for fractional endpoints. Clock resets are permitted.
+  A map without partition metadata has no declared upper bound.
+- `SclkClock` uses the native string path for multiple partitions or a
+  nonzero partition start. Its ET-to-string path rounds discrete ticks before
+  range checks; continuous `et_to_ticks` retains its separate domain.
+  The native reference corpus covers specific MRO and synthetic cases; it
+  is not evidence of exhaustive clock/kernel parity.
 
 `DELTET/DELTA_AT` follows NAIF assignment rules: `=` replaces the
 accumulated table and `+=` extends it, so a kernel that restates the
@@ -992,10 +989,20 @@ pub struct SclkCoefficient {
     pub rate: f64,
 }
 
+pub struct SclkStringError(/* private */);
+impl SclkStringError {
+    pub fn spice_short(self) -> &'static str;
+}
+pub struct SclkStringContext { /* private fields */ }
+
 pub struct SclkKernel { /* private fields */ }
 
 impl SclkKernel {
     pub fn parse(text: &str, spacecraft_id: i32) -> Result<Self, TimeError>;
+    pub fn decode_native_sclk(&self, ticks: f64) -> Result<String, SclkStringError>;
+    pub fn encode_native_sclk(&self, text: &str) -> Result<f64, SclkStringError>;
+    pub fn encode_native_sclk_with_context(&self, text: &str, context: &mut SclkStringContext)
+        -> Result<f64, SclkStringError>;
     pub fn spacecraft_id(&self) -> i32;
     pub fn data_type(&self) -> i32;
     pub fn time_system(&self) -> SclkTimeSystem;
@@ -1262,6 +1269,8 @@ pub enum TimeError {
 ```rust
 pub fn run_stdio() -> std::io::Result<()>;
 pub fn handle_message(line: &str) -> Option<String>;
+pub fn handle_message_with_sclk_context(line: &str, context: &mut SclkStringContext)
+    -> Option<String>;
 ```
 
 `handle_message` is the transport-independent entry point used by the

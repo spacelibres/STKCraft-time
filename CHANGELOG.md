@@ -4,6 +4,31 @@ All notable changes to `stkcraft-time` are documented here.
 
 The format follows Keep a Changelog. This crate uses semantic versioning.
 
+## [0.1.33] - 2026-11-12
+
+### Added
+
+- Add native-style type-1 partitioned SCLK string encoding and decoding,
+  including an explicit parser-history context and Python bindings. Callers
+  can convert tested multi-partition mission clock strings without treating
+  their readouts as a single uninterrupted counter.
+
+### Fixed
+
+- Match the captured N0067 discrete ET-to-clock boundary and cumulative raw
+  partition-duration rounding, including fractional partition endpoints.
+  Preserve the separate continuous tick domain and legacy field helpers.
+- Match the exercised native parser, metadata-error, field-width and
+  large-number formatting cases, including fixed-buffer behavior. MCP keeps
+  string-parser history per stdio session; Python `SclkClock` delegates to
+  the Rust clock path. JavaScript partition-aware string bindings remain open.
+
+### Security
+
+- Update the WASM adapter's esbuild development dependency to 0.28.2,
+  addressing GHSA-g7r4-m6w7-qqqr in its Windows development server. The
+  adapter's browser test uses the bundler, not that server.
+
 ## [0.1.32] - 2026-11-12
 
 ### Added

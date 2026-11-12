@@ -30,10 +30,11 @@
 //! # Scope
 //!
 //! Encoded-tick/time conversions enforce the cumulative duration of the
-//! declared partitions, with each readout rounded to integral ticks as in
-//! NAIF. Partition-aware field/string conversion is not implemented.
-//! A standalone map without partition metadata has no declared upper
-//! bound. Inputs before the first coefficient are always rejected.
+//! declared partitions, rounding the accumulated raw durations as SCTE01.
+//! Native-style encoded string conversion is available separately from the
+//! legacy field API. Partitioned SclkClock strings use discrete SCET01 ticks;
+//! continuous tick conversion rejects values outside its own domain. A map
+//! without partition metadata has no declared upper bound.
 //!
 //! Only clock type 1 is supported. No SCLK kernel is embedded at runtime; load the
 //! mission kernel you need at deployment time.
@@ -70,6 +71,36 @@ pub struct SclkCoefficient {
     pub rate: f64,
 }
 
+/// Native short error for partition-aware SCLK string conversion.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct SclkStringError(&'static str);
+
+impl SclkStringError {
+    /// Return the corresponding CSPICE short error symbol.
+    pub fn spice_short(self) -> &'static str {
+        self.0
+    }
+}
+
+impl core::fmt::Display for SclkStringError {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        f.write_str(self.0)
+    }
+}
+
+#[cfg(feature = "std")]
+impl std::error::Error for SclkStringError {}
+
+/// State of NAIF's type-1 SCLK component parser across calls.
+///
+/// Keep one context for each independent native-style kernel-pool history.
+/// A failed numeric component can affect a later blank component until a
+/// numeric component is successfully parsed.
+#[derive(Clone, Debug, Default)]
+pub struct SclkStringContext {
+    component_error: bool,
+}
+
 /// A parsed type-1 SCLK kernel for one spacecraft clock.
 #[derive(Clone, Debug)]
 pub struct SclkKernel {
@@ -81,12 +112,222 @@ pub struct SclkKernel {
     offsets: Vec<i64>,
     coefficients: Vec<SclkCoefficient>,
     delimiter: char,
+    native_delimiter_code: Option<i64>,
     partition_start: Vec<f64>,
     partition_end: Vec<f64>,
     max_encoded_ticks: Option<f64>,
 }
 
 impl SclkKernel {
+    /// Decode continuous encoded ticks to a partition-prefixed NAIF clock string.
+    pub fn decode_native_sclk(&self, ticks: f64) -> Result<String, SclkStringError> {
+        self.validate_native_string_metadata()?;
+        let totals = self.partition_totals(false)?;
+        if !ticks.is_finite() {
+            return Err(SclkStringError("SPICE(VALUEOUTOFRANGE)"));
+        }
+        let ticks = native_nint(ticks);
+        let last = *totals
+            .last()
+            .ok_or(SclkStringError("SPICE(KERNELVARNOTFOUND)"))?;
+        let part = if ticks == last {
+            totals.len() - 1
+        } else {
+            totals
+                .iter()
+                .position(|&end| ticks < end)
+                .ok_or(SclkStringError("SPICE(VALUEOUTOFRANGE)"))?
+        };
+        if ticks < 0.0 {
+            return Err(SclkStringError("SPICE(VALUEOUTOFRANGE)"));
+        }
+        let readout = if part == 0 {
+            ticks + self.partition_start[part]
+        } else {
+            ticks + self.partition_start[part] - totals[part - 1]
+        };
+        let mut factors = alloc::vec![1.0; self.n_fields];
+        for index in (0..self.n_fields - 1).rev() {
+            factors[index] = factors[index + 1] * self.moduli[index + 1] as f64;
+        }
+        let mut remaining = native_nint(readout);
+        if remaining < 0.0 || !remaining.is_finite() {
+            return Err(SclkStringError("SPICE(VALUEOUTOFRANGE)"));
+        }
+        let mut parts = Vec::with_capacity(self.n_fields);
+        for (index, &factor) in factors.iter().enumerate() {
+            let component = if index + 1 == self.n_fields {
+                remaining + self.offsets[index] as f64
+            } else {
+                let value = math::floor(remaining / factor) + self.offsets[index] as f64;
+                remaining %= factor;
+                value
+            };
+            let max_width = self.moduli[index] as f64 + self.offsets[index] as f64 - 1.0;
+            if max_width + 0.5 <= 0.0 || !component.is_finite() {
+                return Err(SclkStringError("SPICE(INVALIDSCLKSTRING)"));
+            }
+            let width = (native_log10(max_width + 0.5) as i32 + 1).max(0) as usize;
+            // SCFM01 removes DPSTRF's leading sign character, including
+            // for negative field values induced by a negative offset.
+            let component = native_clock_component(component);
+            let mut padded = String::new();
+            if component.len() > 28 {
+                // The 30-byte DPSTRF buffer cannot contain a sign, this
+                // integer, and a decimal point. SCFM01 then observes a
+                // missing decimal and pads the field width plus two zeros.
+                for _ in 0..width + 2 {
+                    padded.push('0');
+                }
+            } else {
+                for _ in component.len()..width {
+                    padded.push('0');
+                }
+                padded.push_str(&component);
+            }
+            parts.push(padded);
+        }
+        Ok(format!(
+            "{}/{}",
+            part + 1,
+            parts.join(&self.delimiter.to_string())
+        ))
+    }
+
+    /// Encode a clock string using a fresh NAIF component-parser context.
+    ///
+    /// Use [`Self::encode_native_sclk_with_context`] to reproduce the native
+    /// parser's state across successive calls.
+    pub fn encode_native_sclk(&self, text: &str) -> Result<f64, SclkStringError> {
+        self.encode_native_sclk_with_context(text, &mut SclkStringContext::default())
+    }
+
+    /// Encode a clock string while preserving native parser state across calls.
+    pub fn encode_native_sclk_with_context(
+        &self,
+        text: &str,
+        context: &mut SclkStringContext,
+    ) -> Result<f64, SclkStringError> {
+        let text = text.split('\0').next().unwrap_or("");
+        if text.is_empty() {
+            return Err(SclkStringError("SPICE(EMPTYSTRING)"));
+        }
+        let invalid = SclkStringError("SPICE(INVALIDSCLKSTRING)");
+        let bad_partition = SclkStringError("SPICE(BADPARTNUMBER)");
+        self.validate_native_string_metadata()?;
+        let totals = self.partition_totals(true)?;
+        let (partition, clock) = match text.find('/') {
+            Some(0) => return Err(bad_partition),
+            Some(index) if index + 1 == text.len() => return Err(invalid),
+            Some(index) => (Some(&text[..index]), &text[index + 1..]),
+            None => (None, text),
+        };
+        if clock.trim_matches(' ').is_empty() {
+            return Err(invalid);
+        }
+        let fields = native_clock_fields(clock);
+        if fields.len() > self.n_fields {
+            return Err(invalid);
+        }
+        let mut factors = alloc::vec![1.0; self.n_fields];
+        for index in (0..self.n_fields - 1).rev() {
+            factors[index] = factors[index + 1] * self.moduli[index + 1] as f64;
+        }
+        let mut ticks = 0.0;
+        for (index, field) in fields.iter().enumerate() {
+            let value = if field.is_empty() {
+                if context.component_error {
+                    return Err(invalid);
+                }
+                self.offsets[index] as f64
+            } else {
+                match core::str::from_utf8(field)
+                    .ok()
+                    .and_then(parse_native_clock_number)
+                {
+                    Some(value) => {
+                        context.component_error = false;
+                        value
+                    }
+                    None => {
+                        context.component_error = true;
+                        return Err(invalid);
+                    }
+                }
+            } - self.offsets[index] as f64;
+            if native_nint(value) < 0.0 {
+                return Err(invalid);
+            }
+            ticks += value * factors[index];
+        }
+        ticks = native_nint(ticks);
+        let starts: Vec<f64> = self
+            .partition_start
+            .iter()
+            .copied()
+            .map(native_nint)
+            .collect();
+        let ends: Vec<f64> = self
+            .partition_end
+            .iter()
+            .copied()
+            .map(native_nint)
+            .collect();
+        let part = if let Some(number) = partition {
+            let value = parse_native_clock_number(number).ok_or(bad_partition)?;
+            if value < 1.0 || value >= (starts.len() + 1) as f64 {
+                return Err(bad_partition);
+            }
+            let index = value as usize - 1;
+            if ticks < starts[index] || ticks > ends[index] {
+                return Err(SclkStringError("SPICE(NOTINPART)"));
+            }
+            index
+        } else {
+            starts
+                .iter()
+                .zip(&ends)
+                .position(|(&start, &end)| ticks >= start && ticks <= end)
+                .ok_or(SclkStringError("SPICE(NOPARTITION)"))?
+        };
+        Ok(if part == 0 {
+            ticks - starts[part]
+        } else {
+            ticks - starts[part] + totals[part - 1]
+        })
+    }
+
+    fn validate_native_string_metadata(&self) -> Result<(), SclkStringError> {
+        if self.n_fields > 10 {
+            return Err(SclkStringError("SPICE(VALUEOUTOFRANGE)"));
+        }
+        match self.native_delimiter_code {
+            None => Err(SclkStringError("SPICE(KERNELVARNOTFOUND)")),
+            Some(1..=5) => Ok(()),
+            Some(_) => Err(SclkStringError("SPICE(VALUEOUTOFRANGE)")),
+        }
+    }
+
+    fn partition_totals(&self, round_endpoints: bool) -> Result<Vec<f64>, SclkStringError> {
+        if self.partition_start.is_empty() {
+            return Err(SclkStringError("SPICE(KERNELVARNOTFOUND)"));
+        }
+        if self.partition_start.len() > 9999 {
+            return Err(SclkStringError("SPICE(TOOMANYPARTITIONS)"));
+        }
+        let mut totals = Vec::with_capacity(self.partition_start.len());
+        let mut total = 0.0;
+        for (&start, &end) in self.partition_start.iter().zip(&self.partition_end) {
+            let (start, end) = if round_endpoints {
+                (native_nint(start), native_nint(end))
+            } else {
+                (start, end)
+            };
+            total = native_nint(total + end - start);
+            totals.push(total);
+        }
+        Ok(totals)
+    }
     /// Parses a `KPL/SCLK` text kernel for the given clock.
     ///
     /// `spacecraft_id` may be given with either sign; kernel variables are
@@ -162,10 +403,13 @@ impl SclkKernel {
             });
         }
 
-        let delimiter = match find_var(&tokens, "SCLK01_OUTPUT_DELIM", spacecraft_id) {
-            Some(index) => delimiter_from_code(parse_i64(first(parse_list(&tokens, index)?)?)?),
-            None => '.',
+        let native_delimiter_code = match find_var(&tokens, "SCLK01_OUTPUT_DELIM", spacecraft_id) {
+            Some(index) => Some(parse_i64(first(parse_list(&tokens, index)?)?)?),
+            None => None,
         };
+        let delimiter = native_delimiter_code
+            .map(delimiter_from_code)
+            .unwrap_or('.');
 
         let partition_start = match find_var(&tokens, "SCLK_PARTITION_START", spacecraft_id) {
             Some(index) => parse_f64_list(&tokens, index)?,
@@ -188,16 +432,17 @@ impl SclkKernel {
                 return Err(TimeError::SclkParse);
             }
         }
-        // NAIF rounds partition readouts to integral ticks before summing
-        // their durations. Resets do not change the encoded origin (zero).
+        // SCTE01 and SCET01 round each accumulated raw partition duration.
+        // This differs from SCENCD, which rounds each endpoint separately.
         let max_encoded_ticks = if partition_start.is_empty() {
             None
         } else {
-            let total: f64 = partition_start
+            let total = partition_start
                 .iter()
                 .zip(&partition_end)
-                .map(|(&start, &end)| math::round(end) - math::round(start))
-                .sum();
+                .fold(0.0, |total, (&start, &end)| {
+                    native_nint((end - start) + total)
+                });
             if !total.is_finite() || total < 0.0 {
                 return Err(TimeError::SclkParse);
             }
@@ -213,6 +458,7 @@ impl SclkKernel {
             offsets,
             coefficients,
             delimiter,
+            native_delimiter_code,
             partition_start,
             partition_end,
             max_encoded_ticks,
@@ -378,6 +624,31 @@ impl SclkKernel {
         })
     }
 
+    // SCET01 rounds the interpolated ticks before checking the clock range.
+    pub(crate) fn et_to_discrete_ticks(
+        &self,
+        et: f64,
+        lsk: &LeapSecondTable,
+    ) -> Result<f64, TimeError> {
+        let parallel = match self.time_system {
+            SclkTimeSystem::Tdb => et,
+            SclkTimeSystem::Tdt => crate::naif::et_to_tt(et, lsk),
+        };
+        let segment = self.segment_for_seconds(parallel)?;
+        if segment.rate <= 0.0 {
+            return Err(TimeError::SclkParse);
+        }
+        let rate = 1.0 / (segment.rate / self.ticks_per_msb());
+        let ticks = native_nint(segment.ticks + rate * (parallel - segment.seconds));
+        if !ticks.is_finite()
+            || ticks < native_nint(self.coefficients[0].ticks)
+            || self.max_encoded_ticks.is_some_and(|max| ticks > max)
+        {
+            return Err(TimeError::SclkParse);
+        }
+        Ok(ticks)
+    }
+
     /// Converts a TAI epoch to encoded ticks.
     pub fn tai_to_ticks(&self, epoch: Epoch, lsk: &LeapSecondTable) -> Result<f64, TimeError> {
         let parallel = match self.time_system {
@@ -469,6 +740,175 @@ impl SclkKernel {
     }
 }
 
+// f2c's d_lg10 uses this operation order instead of the platform log10.
+fn native_log10(value: f64) -> f64 {
+    core::f64::consts::LOG10_E * math::ln(value)
+}
+
+// CSPICE's f2c implementation evaluates the addition before floor.
+fn native_nint(value: f64) -> f64 {
+    if value >= 0.0 {
+        math::floor(value + 0.5)
+    } else {
+        -math::floor(0.5 - value)
+    }
+}
+
+// SCFM01 uses DPSTRF, whose DPSTR decimal conversion preserves at most
+// fourteen significant digits. Integer components below 10^14 are exact.
+fn native_clock_component(value: f64) -> String {
+    let value = math::abs(value);
+    if value < 1.0e14 {
+        return format!("{value:.0}");
+    }
+    const INVERSE_POWERS: [f64; 17] = [
+        1.0, 0.1, 0.01, 0.001, 1e-4, 1e-5, 1e-6, 1e-7, 1e-8, 1e-9, 1e-10, 1e-11, 1e-12, 1e-13,
+        1e-14, 1e-15, 1e-16,
+    ];
+    let mut exponent = native_log10(value) as usize;
+    let mut scaled = value;
+    let mut remaining = exponent;
+    while remaining > 16 {
+        scaled *= 1e-16;
+        remaining -= 16;
+    }
+    scaled *= INVERSE_POWERS[remaining];
+    scaled = (native_nint(scaled * 1e13) + 0.125) * 1e-13;
+    if scaled >= 10.0 {
+        scaled *= 0.1;
+        exponent += 1;
+    }
+    let mut output = String::new();
+    for _ in 0..14 {
+        let digit = scaled as u8;
+        output.push(char::from(b'0' + digit));
+        scaled = (scaled - f64::from(digit)) * 10.0;
+    }
+    for _ in 14..=exponent {
+        output.push('0');
+    }
+    output
+}
+
+// LPARSM treats repeated non-space delimiters as blank components, while
+// whitespace adjacent to another delimiter does not add a component.
+fn native_clock_fields(clock: &str) -> Vec<&[u8]> {
+    let bytes = clock.as_bytes();
+    let mut end = bytes.len();
+    while end > 0 && bytes[end - 1] == b' ' {
+        end -= 1;
+    }
+    let mut begin = 0;
+    let mut fields = Vec::new();
+    while begin < end && fields.len() < 10 {
+        while begin < end && bytes[begin] == b' ' {
+            begin += 1;
+        }
+        let mut next = begin;
+        while next < end && !b".:-, ".contains(&bytes[next]) {
+            next += 1;
+        }
+        if next < end && bytes[next] == b' ' {
+            while next < end && bytes[next] == b' ' {
+                next += 1;
+            }
+            if next < end && !b".:-, ".contains(&bytes[next]) {
+                next -= 1;
+            }
+        }
+        let stop = next.min(begin.saturating_add(30));
+        let mut field = &bytes[begin..stop];
+        while field.first() == Some(&b' ') {
+            field = &field[1..];
+        }
+        while field.last() == Some(&b' ') {
+            field = &field[..field.len() - 1];
+        }
+        fields.push(field);
+        begin = next + 1;
+    }
+    if end > 0 && b".:-,".contains(&bytes[end - 1]) && fields.len() < 10 {
+        fields.push(&[]);
+    }
+    fields
+}
+
+// NPARSD accepts PI, an implicit exponent mantissa, and exponent strings
+// whose digit accumulation stops on underflow. Preserve its operation order
+// through the existing NAIF numeric arithmetic after lexical normalization.
+fn parse_native_clock_number(token: &str) -> Option<f64> {
+    let text: String = token
+        .chars()
+        .filter(|c| *c != ' ' && *c != ',')
+        .map(|c| c.to_ascii_uppercase())
+        .collect();
+    let (sign, unsigned) = match text.as_bytes().first() {
+        Some(b'-') => ("-", &text[1..]),
+        Some(b'+') => ("+", &text[1..]),
+        _ => ("", text.as_str()),
+    };
+    if unsigned == "PI" {
+        return Some(if sign == "-" {
+            -core::f64::consts::PI
+        } else {
+            core::f64::consts::PI
+        });
+    }
+    let position = unsigned.find(['E', 'D']);
+    let Some(position) = position else {
+        return crate::naif::parse_f64(&text);
+    };
+    let mantissa = &unsigned[..position];
+    let mut integer = 0.0;
+    let mut fraction = 0.0;
+    let mut decimal = false;
+    let mut zero_integer = true;
+    let mut shift = 0_i64;
+    let mut digits_found = false;
+    for byte in mantissa.bytes() {
+        if byte == b'.' && !decimal {
+            decimal = true;
+            zero_integer = integer == 0.0;
+            continue;
+        }
+        if !byte.is_ascii_digit() {
+            return None;
+        }
+        digits_found = true;
+        let digit = f64::from(byte - b'0');
+        if !decimal {
+            if integer < 1e15 {
+                integer = integer * 10.0 + digit;
+            } else {
+                shift += 1;
+            }
+        } else if zero_integer && fraction < 1e15 {
+            fraction = fraction * 10.0 + digit;
+            shift -= 1;
+        }
+    }
+    let raw_exponent = &unsigned[position + 1..];
+    let (exp_sign, exponent) = if let Some(value) = raw_exponent.strip_prefix('-') {
+        (-1_i64, value)
+    } else {
+        (
+            1_i64,
+            raw_exponent.strip_prefix('+').unwrap_or(raw_exponent),
+        )
+    };
+    let mut power = 0_i64;
+    for digit in exponent.bytes() {
+        if !digit.is_ascii_digit() || power + shift > 308 {
+            return None;
+        }
+        if power + shift >= -309 {
+            power = power * 10 + exp_sign * i64::from(digit - b'0');
+        }
+    }
+    let mantissa = if digits_found { mantissa } else { "1" };
+    crate::naif::parse_f64(&format!("{sign}{mantissa}E{power}"))
+}
+
 /// A spacecraft clock bound to a leap-second kernel.
 ///
 /// The [`SclkMap`] trait needs the LSK for the `TT -> ET` step of clocks
@@ -482,12 +922,28 @@ pub struct SclkClock<'a> {
 
 impl SclkMap for SclkClock<'_> {
     fn sclk_to_et(&self, sclk: &str) -> Result<f64, TimeError> {
+        if !self.kernel.partition_start.is_empty()
+            && (sclk.contains('/') || self.kernel.ensure_partitionless().is_err())
+        {
+            let ticks = self
+                .kernel
+                .encode_native_sclk(sclk)
+                .map_err(|_| TimeError::SclkParse)?;
+            return self.kernel.ticks_to_et(ticks, self.lsk);
+        }
         let fields = self.kernel.parse_string(sclk)?;
         let ticks = self.kernel.ticks_from_fields(&fields)?;
         self.kernel.ticks_to_et(ticks, self.lsk)
     }
 
     fn et_to_sclk(&self, et: f64) -> Result<String, TimeError> {
+        if self.kernel.ensure_partitionless().is_err() {
+            let ticks = self.kernel.et_to_discrete_ticks(et, self.lsk)?;
+            return self
+                .kernel
+                .decode_native_sclk(ticks)
+                .map_err(|_| TimeError::SclkParse);
+        }
         let ticks = self.kernel.et_to_ticks(et, self.lsk)?;
         let fields = self.kernel.fields_from_ticks(ticks)?;
         self.kernel.format_string(&fields)

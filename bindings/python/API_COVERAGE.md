@@ -220,9 +220,16 @@ SCLK/LSK/kernel-date parsers and are not exported as a second scientific API.
 | `lsk::builtin` | `LeapSecondTable.builtin` | wrapped | Direct core delegation; integer narrowing and finite checks occur at the boundary. |
 | `mcp::run_stdio` | `- ` | unavailable | MCP is an optional stdio transport, not a scientific binding capability. |
 | `mcp::handle_message` | `- ` | unavailable | MCP is an optional stdio transport, not a scientific binding capability. |
+| `mcp::handle_message_with_sclk_context` | `- ` | unavailable | MCP is an optional stdio transport, not a scientific binding capability. |
 | `sclk::SclkTimeSystem` | `SclkTimeSystem` | wrapped | Direct core delegation; integer narrowing and finite checks occur at the boundary. |
 | `sclk::SclkCoefficient` | `SclkCoefficient` | wrapped | Direct core delegation; integer narrowing and finite checks occur at the boundary. |
+| `sclk::SclkStringError` | `SclkStringError` | wrapped | Direct core delegation; integer narrowing and finite checks occur at the boundary. |
+| `sclk::SclkStringError::spice_short` | `SclkStringError.spice_short` | wrapped | Direct core delegation; integer narrowing and finite checks occur at the boundary. |
+| `sclk::SclkStringContext` | `SclkStringContext` | wrapped | Direct core delegation; integer narrowing and finite checks occur at the boundary. |
 | `sclk::SclkKernel` | `SclkKernel` | wrapped | Direct core delegation; integer narrowing and finite checks occur at the boundary. |
+| `sclk::SclkKernel::decode_native_sclk` | `SclkKernel.decode_native_sclk` | wrapped | Direct core delegation; integer narrowing and finite checks occur at the boundary. |
+| `sclk::SclkKernel::encode_native_sclk` | `SclkKernel.encode_native_sclk` | wrapped | Direct core delegation; integer narrowing and finite checks occur at the boundary. |
+| `sclk::SclkKernel::encode_native_sclk_with_context` | `SclkKernel.encode_native_sclk_with_context` | wrapped | Direct core delegation; integer narrowing and finite checks occur at the boundary. |
 | `sclk::SclkKernel::parse` | `SclkKernel.parse` | wrapped | Direct core delegation; integer narrowing and finite checks occur at the boundary. |
 | `sclk::SclkKernel::spacecraft_id` | `SclkKernel.spacecraft_id` | wrapped | Direct core delegation; integer narrowing and finite checks occur at the boundary. |
 | `sclk::SclkKernel::data_type` | `SclkKernel.data_type` | wrapped | Direct core delegation; integer narrowing and finite checks occur at the boundary. |

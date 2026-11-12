@@ -225,9 +225,16 @@ ScientificContext enforces its model interval.
 | lsk.builtin | fn | TimeContext constructor | TimeContext constructor (builtin or LSK text/bytes) |
 | mcp.run_stdio | fn | Unavailable: Rust/server MCP transport; not a scientific binding API | Unavailable: Rust/server MCP transport; not a scientific binding API |
 | mcp.handle_message | fn | Unavailable: Rust/server MCP transport; not a scientific binding API | Unavailable: Rust/server MCP transport; not a scientific binding API |
+| mcp.handle_message_with_sclk_context | fn | Unavailable: Rust/server MCP transport; not a scientific binding API | Unavailable: Rust/server MCP transport; not a scientific binding API |
 | sclk.SclkTimeSystem | enum | SclkKernel methods/metadata plus explicit TimeContext | SclkKernel methods/metadata plus explicit TimeContext |
 | sclk.SclkCoefficient | struct | SclkKernel methods/metadata plus explicit TimeContext | SclkKernel methods/metadata plus explicit TimeContext |
+| sclk.SclkStringError | struct | Unavailable: native partition-aware string API not yet exposed in JavaScript | SclkKernel methods/metadata plus explicit TimeContext |
+| sclk.SclkStringError.spice_short | fn | Unavailable: native partition-aware string API not yet exposed in JavaScript | SclkKernel methods/metadata plus explicit TimeContext |
+| sclk.SclkStringContext | struct | Unavailable: native partition-aware string API not yet exposed in JavaScript | SclkKernel methods/metadata plus explicit TimeContext |
 | sclk.SclkKernel | struct | SclkKernel methods/metadata plus explicit TimeContext | SclkKernel methods/metadata plus explicit TimeContext |
+| sclk.SclkKernel.decode_native_sclk | fn | Unavailable: native partition-aware string API not yet exposed in JavaScript | SclkKernel methods/metadata plus explicit TimeContext |
+| sclk.SclkKernel.encode_native_sclk | fn | Unavailable: native partition-aware string API not yet exposed in JavaScript | SclkKernel methods/metadata plus explicit TimeContext |
+| sclk.SclkKernel.encode_native_sclk_with_context | fn | Unavailable: native partition-aware string API not yet exposed in JavaScript | SclkKernel methods/metadata plus explicit TimeContext |
 | sclk.SclkKernel.parse | fn | SclkKernel constructor / parseString; formatting pattern option | SclkKernel methods/metadata plus explicit TimeContext |
 | sclk.SclkKernel.spacecraft_id | fn | metadata.spacecraftId | SclkKernel methods/metadata plus explicit TimeContext |
 | sclk.SclkKernel.data_type | fn | metadata.dataType | SclkKernel methods/metadata plus explicit TimeContext |
@@ -248,8 +255,8 @@ ScientificContext enforces its model interval.
 | sclk.SclkKernel.tai_to_ticks | fn | epochToTicks | SclkKernel methods/metadata plus explicit TimeContext |
 | sclk.SclkKernel.parse_string | fn | parseString | SclkKernel methods/metadata plus explicit TimeContext |
 | sclk.SclkKernel.format_string | fn | formatString | SclkKernel methods/metadata plus explicit TimeContext |
-| sclk.SclkClock | struct | SclkKernel methods/metadata plus explicit TimeContext | SclkKernel methods/metadata plus explicit TimeContext |
-| sclk.SclkMap | trait | SclkKernel methods/metadata plus explicit TimeContext | SclkKernel methods/metadata plus explicit TimeContext |
+| sclk.SclkClock | struct | Legacy field composition only; native partition-aware strings unavailable | SclkKernel methods/metadata plus explicit TimeContext |
+| sclk.SclkMap | trait | Legacy field composition only; native partition-aware strings unavailable | SclkKernel methods/metadata plus explicit TimeContext |
 | series.TimeSeries | struct | TimeSeries lazy iterable; inclusive option | TimeSeries lazy iterable; inclusive option |
 | series.TimeSeries.inclusive | fn | TimeSeries inclusive:true | TimeSeries lazy iterable; inclusive option |
 | series.TimeSeries.exclusive | fn | TimeSeries inclusive:false | TimeSeries lazy iterable; inclusive option |
@@ -261,20 +268,3 @@ ScientificContext enforces its model interval.
 | contract.naif_utc.NaifUtcContext | struct | NaifUtcContext class | Explicit raw native JDUTC context |
 | contract.naif_utc.from_raw_parts | fn | NaifUtcContext constructor | Explicit raw native JDUTC context |
 | contract.naif_utc.et_to_spice_julian_utc | fn | NaifUtcContext.etToSpiceJulianUtc | Explicit raw native JDUTC context |
-
-Additional boundary preconditions: inverse magnitudes/DELTET anomaly products
-are bounded before infallible core calls; numeric results must be finite.
-EOP samples require |MJD| <= 7e11, and structured
-leap JDNs require |JDN| <= 7e11. Scientific TDB/TCB inverses enforce their
-model interval. Final-minute formatting at i32::MAX year rejects possible
-year carry.
-
-Finite EOP offsets are accepted without a physical amplitude clamp. Raw
-interpolation and UT1 forward results reject overflow as NonFinite. Inverse
-UT1 preflights the sum of input/offset magnitudes against core Epoch
-representability before iteration. Batch failures retain scalar codes and
-TimeError classification and add index.
-
-Civil inverse routes preflight active adjacent LSK offset subtraction and
-return Overflow when the difference cannot fit i32. Frozen inactive entries,
-the separate SOFA historical path and raw native JDUTC contracts are preserved.

@@ -36,13 +36,13 @@ NPARSD operation order; see [ATTRIBUTION.md](ATTRIBUTION.md) for provenance.
 - **Reference:** `cargo doc --open`
 
 **Install:** `cargo add stkcraft-time`, or add
-`stkcraft-time = "0.1.32"` to `[dependencies]`. With `no_std`, use `default-features = false`.
+`stkcraft-time = "0.1.33"` to `[dependencies]`. With `no_std`, use `default-features = false`.
 
 ## Project status
 
-- Latest release: **v0.1.32** on GitHub Releases, including release-mode
+- Latest release: **v0.1.33** on GitHub Releases, including release-mode
   binaries for Linux, macOS (x86_64 and arm64) and Windows.
-- Published on crates.io as **`stkcraft-time` 0.1.32**, with API docs on
+- Published on crates.io as **`stkcraft-time` 0.1.33**, with API docs on
   [docs.rs](https://docs.rs/stkcraft-time).
 - Minimum supported Rust version: **1.75**.
 - The library is `no_std` compatible with `alloc`; the optional MCP server
@@ -56,13 +56,13 @@ cargo add stkcraft-time
 
 ```toml
 [dependencies]
-stkcraft-time = "0.1.32"
+stkcraft-time = "0.1.33"
 ```
 
 `no_std` plus `alloc`:
 
 ```toml
-stkcraft-time = { version = "0.1.32", default-features = false }
+stkcraft-time = { version = "0.1.33", default-features = false }
 ```
 
 The MCP server and the validation binaries are optional:
@@ -74,7 +74,7 @@ cargo install stkcraft-time --features mcp --bin stkcraft-mcp
 To track the repository instead of a crates.io release, pin a tag:
 
 ```toml
-stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.32" }
+stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.33" }
 ```
 
 ## Releases
@@ -400,8 +400,8 @@ Not implemented in this version:
 - Full SPICE `str2et` token grammar for arbitrary civil text. The
   `kernel_date` module resolves the exercised kernel `@date` literals;
   civil UTC still uses typed constructors.
-- SCLK partition-aware field/string conversion and clock types other
-  than type 1
+- SCLK clock types other than type 1 and partition-aware legacy field-vector
+  helpers; use the native string methods for partitioned clock strings
 - Automatic policy selection without an explicit date (the caller
   supplies `LeapSecondPolicy`)
 
@@ -427,14 +427,14 @@ not a physical clock-calibration accuracy guarantee.
 python tools/validate_sclk.py --sclk target/mro_sclk.tsc --id -74
 ```
 
-Scope: encoded-tick conversions and field/string encoding are exact
-within a partition starting at zero. Partition-aware field/string
-conversion is not implemented. Encoded tick/time conversions enforce
-the cumulative partition duration, rounding each readout to integral
-ticks as NAIF does; resets may start below the previous partition end.
-Ticks before the first coefficient or beyond the declared domain are
-rejected. A standalone map without partition metadata has no declared
-upper bound. Only clock type 1 is supported.
+Scope: legacy field-vector and string helpers support no partition metadata
+or one zero-start partition. Native-style string methods support partitioned
+clocks, with an explicit parser context for native call history. Encoded
+tick/time conversion bounds use rounded accumulated raw partition durations;
+SCENCD string encoding rounds endpoints separately. Clock resets are allowed.
+A standalone map without partition metadata has no declared upper bound.
+Only clock type 1 is supported. Captured MRO and synthetic reference cases
+do not establish exhaustive SCLK parity.
 
 ## Formatting
 
@@ -742,7 +742,7 @@ python tools/wgc2_compare.py        # live WGC2 (CSPICE front-end) check
 The library is `no_std` compatible with `alloc`:
 
 ```toml
-stkcraft-time = { version = "0.1.32", default-features = false }
+stkcraft-time = { version = "0.1.33", default-features = false }
 ```
 
 In `no_std` builds, `libm` supplies `sin`, `cos`, `floor` and `round`;

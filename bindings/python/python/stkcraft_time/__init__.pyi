@@ -16,6 +16,11 @@ class TimeError(ValueError):
     code: str
     index: int | None
 
+class SclkStringError(TimeError):
+
+    def spice_short(self) -> str:
+        ...
+
 class ContractError(TimeError):
     ...
 
@@ -505,6 +510,11 @@ class SclkCoefficient:
     seconds: float
     rate: float
 
+class SclkStringContext:
+
+    def __init__(self) -> None:
+        ...
+
 class SclkKernel(object):
 
     def __init__(self, text: str | bytes, spacecraft_id: int) -> None:
@@ -558,6 +568,15 @@ class SclkKernel(object):
         ...
 
     def fields_from_ticks(self, ticks: float) -> tuple[int, ...]:
+        ...
+
+    def decode_native_sclk(self, ticks: float) -> str:
+        ...
+
+    def encode_native_sclk(self, sclk: str) -> float:
+        ...
+
+    def encode_native_sclk_with_context(self, sclk: str, context: SclkStringContext) -> float:
         ...
 
     def parse_string(self, sclk: str) -> tuple[int, ...]:
