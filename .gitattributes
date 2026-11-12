@@ -7,3 +7,4 @@
 *.tls text eol=lf
 *.yml text eol=lf
 tests/kernels/*.tsc -text -whitespace
+docs/reference/kernel-date-native/** -text -whitespace

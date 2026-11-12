@@ -108,8 +108,12 @@ pub fn parse_kernel_date(text: &str) -> Result<KernelDate, TimeError> {
     let jdn = calendar::gregorian_to_jdn(year, month as u8, day as u8);
     let (normalized_year, normalized_month, normalized_day) = calendar::jdn_to_gregorian(jdn);
 
-    let day_seconds = hour as f64 * 3_600.0 + minute as f64 * 60.0 + second;
-    let seconds_past_j2000 = (jdn - J2000_JDN) as f64 * 86_400.0 - 43_200.0 + day_seconds;
+    // N0067 TPARSE adds the hour, minute and second separately to the
+    // noon-relative day offset. Grouping time of day first changes bits.
+    let seconds_past_j2000 = ((jdn - J2000_JDN) as f64 - 0.5) * 86_400.0
+        + hour as f64 * 3_600.0
+        + minute as f64 * 60.0
+        + second;
 
     if !seconds_past_j2000.is_finite() {
         return Err(TimeError::KernelDateUnsupported);

@@ -4,6 +4,17 @@ All notable changes to `stkcraft-time` are documented here.
 
 The format follows Keep a Changelog. This crate uses semantic versioning.
 
+## [0.1.27] - 2026-11-12
+
+### Fixed
+
+- Kernel-date fractional seconds now preserve N0067 TPARSE's day/hour/minute/second addition order. Seven supported literals previously differed by one binary64 ULP; their original native expectations now match exactly.
+
+### Added
+
+- An independent native regression observed failing for all seven counterexamples before the repair, with original C captures and source/toolchain provenance.
+- Explicit scope records distinguishing corrected arithmetic from the 99 native-valid unsupported literals still tracked in issue #2. Complete TPARSE conformance is not claimed.
+
 ## [0.1.26] - 2026-11-12
 
 ### Fixed

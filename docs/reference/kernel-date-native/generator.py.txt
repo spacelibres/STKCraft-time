@@ -1,0 +1,42 @@
+"""Broaden kernel-date inputs independently before accepting Time 0.1.25."""
+from pathlib import Path
+import json,hashlib,subprocess
+from datetime import datetime,timezone
+root=Path(__file__).resolve().parents[1];dest=root/'target/kernel-dates-expanded-native-0.1.25';dest.mkdir(exist_ok=False)
+oracle=root/'target/frame-kernel-errors-native-0.1.9-extended/kernel-pool-oracle.exe'
+original=json.loads((root/'target/frame-kernel-errors-native-0.1.9-extended/capture.json').read_text())
+digest=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+assert digest(oracle)==original['executable_sha256']
+literals=['@2000-JAN-01-12:00:00','@2001-FEB-29','@2001-FEB-30','@2001-APR-31',
+ '@2000-JAN-00','@2000-JAN-32','@2000-13-01','@1-JAN-2000','@JAN-1-2000',
+ '@2000-JAN-1-0:0','@2000-JAN-1-00:00:00.1','@2000-JAN-1-23:59:59.999999999',
+ '@2000-JAN-1-24:00:00','@2000-JAN-1-23:60:00','@2000-JAN-1-23:59:60',
+ '@2000-JAN-1-12:00:1D-3','@2000-JAN-1-12:00:1E-3',
+ '@2000/JAN/1-12:00:00','@2000-JAN/1','@2000/01-01','@2000-Jan-01T12:00:00',
+ '@2000-001','@2000-001T12:00:00','@JD2451545','@2451545JD','@2000-JAN-1T12:00',
+ '@999-JAN-1','@0001-JAN-1','@0999-JAN-1','@1000-JAN-1','@9999-DEC-31',
+ '@0000-JAN-1','@10000-JAN-1','@1965-JUL-1','@2000-SEPT-1','@2000-SEPTEMBER-1',
+ '@2000-FEBRUAR-1','@2000-FEBR-1','@2000-JANU-1','@2000-JANUAR-1']
+for year in ['00','01','49','50','68','69','99','100','999','1000','1582','1900','2000','2100']:
+ for date in [year+'-JAN-01','01-JAN-'+year,'JAN-01-'+year]:
+  for time in ['','-3:10:39.221','-23:59:59.999999']:
+   literals.append('@'+date+time)
+literals=list(dict.fromkeys(literals));commands=[]
+for index,literal in enumerate(literals):
+ path=dest/f'date-{index:03}.tf';path.write_bytes(('KPL/FK\n\\begindata\nEPOCH='+literal+'\n\\begintext\n').encode('ascii'))
+ commands.extend(['C','L|'+str(path),'D|EPOCH'])
+data=('\n'.join(commands)+'\n').encode('ascii')
+run=subprocess.run([str(oracle)],input=data,capture_output=True)
+for name,raw in [('stdin',data),('stdout',run.stdout),('stderr',run.stderr)]: (dest/('native-'+name+'.bin')).write_bytes(raw)
+assert run.returncode==0 and run.stderr.startswith(b'CRT_FMA:1\r\n')
+replies=run.stdout.decode('ascii').splitlines();assert len(replies)==len(commands)
+records=[]
+for index,literal in enumerate(literals):
+ assert replies[3*index]=='OK'
+ records.append(dict(literal=literal,load=replies[3*index+1],value=replies[3*index+2]))
+(dest/'dates.json').write_text(json.dumps(records,indent=2)+'\n',encoding='ascii')
+(dest/'capture.json').write_text(json.dumps(dict(captured_utc=datetime.now(timezone.utc).isoformat(),
+ oracle_sha256=digest(oracle),static_reference_provenance=original,generator_sha256=digest(Path(__file__)),
+ cases=len(records),stdout_sha256=digest(dest/'native-stdout.bin'),stderr_sha256=digest(dest/'native-stderr.bin'),
+ fixture_sha256=digest(dest/'dates.json')),indent=2)+'\n',encoding='ascii')
+print(json.dumps(dict(cases=len(records),native_accepted=sum(record['load']=='OK' for record in records))))

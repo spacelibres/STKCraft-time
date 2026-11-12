@@ -1,0 +1,22 @@
+   Compiling stkcraft-time v0.1.26 (C:\Users\stone\Documents\STKCraft-time)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.14s
+     Running tests\kernel_date_fractional_exact.rs (target\debug\deps\kernel_date_fractional_exact-89698c4249ce596d.exe)
+
+running 1 test
+test native_fractional_kernel_dates_preserve_arithmetic_order ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\kernel_dates.rs (target\debug\deps\kernel_dates-223678c58b3687b7.exe)
+
+running 7 tests
+test day_past_the_end_of_the_month_rolls_forward ... ok
+test native_kernel_date_bits_match_exactly ... ok
+test leap_day_and_midnight_normalize_to_calendar_fields ... ok
+test malformed_literals_are_rejected_not_approximated ... ok
+test historical_literal_needs_no_leap_second_kernel ... ok
+test native_rejections_are_explicit_and_never_missing_constants ... ok
+test numeric_month_order_matches_native_convention ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

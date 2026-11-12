@@ -1,0 +1,817 @@
+[
+  {
+    "literal": "@2000-JAN-01-12:00:00",
+    "load": "OK",
+    "value": "N|1|0000000000000000"
+  },
+  {
+    "literal": "@2001-FEB-29",
+    "load": "OK",
+    "value": "N|1|41817d2600000000"
+  },
+  {
+    "literal": "@2001-FEB-30",
+    "load": "OK",
+    "value": "N|1|418187b200000000"
+  },
+  {
+    "literal": "@2001-APR-31",
+    "load": "OK",
+    "value": "N|1|4184008200000000"
+  },
+  {
+    "literal": "@2000-JAN-00",
+    "load": "OK",
+    "value": "N|1|c0ffa40000000000"
+  },
+  {
+    "literal": "@2000-JAN-32",
+    "load": "OK",
+    "value": "N|1|41441ae000000000"
+  },
+  {
+    "literal": "@2000-13-01",
+    "load": "OK",
+    "value": "N|1|417e1dc400000000"
+  },
+  {
+    "literal": "@1-JAN-2000",
+    "load": "OK",
+    "value": "N|1|c0e5180000000000"
+  },
+  {
+    "literal": "@JAN-1-2000",
+    "load": "OK",
+    "value": "N|1|c0e5180000000000"
+  },
+  {
+    "literal": "@2000-JAN-1-0:0",
+    "load": "OK",
+    "value": "N|1|c0e5180000000000"
+  },
+  {
+    "literal": "@2000-JAN-1-00:00:00.1",
+    "load": "OK",
+    "value": "N|1|c0e517fccccccccd"
+  },
+  {
+    "literal": "@2000-JAN-1-23:59:59.999999999",
+    "load": "OK",
+    "value": "N|1|40e517ffffffff77"
+  },
+  {
+    "literal": "@2000-JAN-1-24:00:00",
+    "load": "OK",
+    "value": "N|1|40e5180000000000"
+  },
+  {
+    "literal": "@2000-JAN-1-23:60:00",
+    "load": "OK",
+    "value": "N|1|40e5180000000000"
+  },
+  {
+    "literal": "@2000-JAN-1-23:59:60",
+    "load": "OK",
+    "value": "N|1|40e5180000000000"
+  },
+  {
+    "literal": "@2000-JAN-1-12:00:1D-3",
+    "load": "E|SPICE(BADTIMESPEC)",
+    "value": "MISSING"
+  },
+  {
+    "literal": "@2000-JAN-1-12:00:1E-3",
+    "load": "E|SPICE(BADTIMESPEC)",
+    "value": "MISSING"
+  },
+  {
+    "literal": "@2000/JAN/1-12:00:00",
+    "load": "OK",
+    "value": "N|1|0000000000000000"
+  },
+  {
+    "literal": "@2000-JAN/1",
+    "load": "OK",
+    "value": "N|1|c0e5180000000000"
+  },
+  {
+    "literal": "@2000/01-01",
+    "load": "OK",
+    "value": "N|1|c0e5180000000000"
+  },
+  {
+    "literal": "@2000-Jan-01T12:00:00",
+    "load": "E|SPICE(BADTIMESPEC)",
+    "value": "MISSING"
+  },
+  {
+    "literal": "@2000-001",
+    "load": "E|SPICE(BADTIMESPEC)",
+    "value": "MISSING"
+  },
+  {
+    "literal": "@2000-001T12:00:00",
+    "load": "OK",
+    "value": "N|1|0000000000000000"
+  },
+  {
+    "literal": "@JD2451545",
+    "load": "OK",
+    "value": "N|1|0000000000000000"
+  },
+  {
+    "literal": "@2451545JD",
+    "load": "OK",
+    "value": "N|1|0000000000000000"
+  },
+  {
+    "literal": "@2000-JAN-1T12:00",
+    "load": "E|SPICE(BADTIMESPEC)",
+    "value": "MISSING"
+  },
+  {
+    "literal": "@999-JAN-1",
+    "load": "OK",
+    "value": "N|1|c21d6b484d000000"
+  },
+  {
+    "literal": "@0001-JAN-1",
+    "load": "OK",
+    "value": "N|1|417e1dc400000000"
+  },
+  {
+    "literal": "@0999-JAN-1",
+    "load": "OK",
+    "value": "N|1|c21d6b484d000000"
+  },
+  {
+    "literal": "@1000-JAN-1",
+    "load": "OK",
+    "value": "N|1|c21d63c37f000000"
+  },
+  {
+    "literal": "@9999-DEC-31",
+    "load": "OK",
+    "value": "N|1|424d63c281e00000"
+  },
+  {
+    "literal": "@0000-JAN-1",
+    "load": "OK",
+    "value": "N|1|c0e5180000000000"
+  },
+  {
+    "literal": "@10000-JAN-1",
+    "load": "OK",
+    "value": "N|1|424d63c32aa00000"
+  },
+  {
+    "literal": "@1965-JUL-1",
+    "load": "OK",
+    "value": "N|1|c1d039a7f0000000"
+  },
+  {
+    "literal": "@2000-SEPT-1",
+    "load": "OK",
+    "value": "N|1|4174105400000000"
+  },
+  {
+    "literal": "@2000-SEPTEMBER-1",
+    "load": "OK",
+    "value": "N|1|4174105400000000"
+  },
+  {
+    "literal": "@2000-FEBRUAR-1",
+    "load": "OK",
+    "value": "N|1|41441ae000000000"
+  },
+  {
+    "literal": "@2000-FEBR-1",
+    "load": "OK",
+    "value": "N|1|41441ae000000000"
+  },
+  {
+    "literal": "@2000-JANU-1",
+    "load": "OK",
+    "value": "N|1|c0e5180000000000"
+  },
+  {
+    "literal": "@2000-JANUAR-1",
+    "load": "OK",
+    "value": "N|1|c0e5180000000000"
+  },
+  {
+    "literal": "@00-JAN-01",
+    "load": "OK",
+    "value": "N|1|c0e5180000000000"
+  },
+  {
+    "literal": "@00-JAN-01-3:10:39.221",
+    "load": "OK",
+    "value": "N|1|c0df0431db22d0e5"
+  },
+  {
+    "literal": "@00-JAN-01-23:59:59.999999",
+    "load": "OK",
+    "value": "N|1|40e517fffffde721"
+  },
+  {
+    "literal": "@01-JAN-00",
+    "load": "OK",
+    "value": "N|1|417e08ac00000000"
+  },
+  {
+    "literal": "@01-JAN-00-3:10:39.221",
+    "load": "OK",
+    "value": "N|1|417e0b76f389374c"
+  },
+  {
+    "literal": "@01-JAN-00-23:59:59.999999",
+    "load": "OK",
+    "value": "N|1|417e1dc3fffffef4"
+  },
+  {
+    "literal": "@JAN-01-00",
+    "load": "OK",
+    "value": "N|1|c0e5180000000000"
+  },
+  {
+    "literal": "@JAN-01-00-3:10:39.221",
+    "load": "OK",
+    "value": "N|1|c0df0431db22d0e5"
+  },
+  {
+    "literal": "@JAN-01-00-23:59:59.999999",
+    "load": "OK",
+    "value": "N|1|40e517fffffde721"
+  },
+  {
+    "literal": "@01-JAN-01",
+    "load": "OK",
+    "value": "N|1|417e1dc400000000"
+  },
+  {
+    "literal": "@01-JAN-01-3:10:39.221",
+    "load": "OK",
+    "value": "N|1|417e208ef389374c"
+  },
+  {
+    "literal": "@01-JAN-01-23:59:59.999999",
+    "load": "OK",
+    "value": "N|1|417e32dbfffffef4"
+  },
+  {
+    "literal": "@JAN-01-01",
+    "load": "OK",
+    "value": "N|1|417e1dc400000000"
+  },
+  {
+    "literal": "@JAN-01-01-3:10:39.221",
+    "load": "OK",
+    "value": "N|1|417e208ef389374c"
+  },
+  {
+    "literal": "@JAN-01-01-23:59:59.999999",
+    "load": "OK",
+    "value": "N|1|417e32dbfffffef4"
+  },
+  {
+    "literal": "@49-JAN-01",
+    "load": "OK",
+    "value": "N|1|41d70ad590000000"
+  },
+  {
+    "literal": "@49-JAN-01-3:10:39.221",
+    "load": "OK",
+    "value": "N|1|41d70ae0bbce24dd"
+  },
+  {
+    "literal": "@49-JAN-01-23:59:59.999999",
+    "load": "OK",
+    "value": "N|1|41d70b29effffffc"
+  },
+  {
+    "literal": "@01-JAN-49",
+    "load": "OK",
+    "value": "N|1|4181092200000000"
+  },
+  {
+    "literal": "@01-JAN-49-3:10:39.221",
+    "load": "OK",
+    "value": "N|1|41810a8779c49ba6"
+  },
+  {
+    "literal": "@01-JAN-49-23:59:59.999999",
+    "load": "OK",
+    "value": "N|1|418113adffffff7a"
+  },
+  {
+    "literal": "@JAN-01-49",
+    "load": "OK",
+    "value": "N|1|41d70ad590000000"
+  },
+  {
+    "literal": "@JAN-01-49-3:10:39.221",
+    "load": "OK",
+    "value": "N|1|41d70ae0bbce24dd"
+  },
+  {
+    "literal": "@JAN-01-49-23:59:59.999999",
+    "load": "OK",
+    "value": "N|1|41d70b29effffffc"
+  },
+  {
+    "literal": "@50-JAN-01",
+    "load": "OK",
+    "value": "N|1|41d7832270000000"
+  },
+  {
+    "literal": "@50-JAN-01-3:10:39.221",
+    "load": "OK",
+    "value": "N|1|41d7832d9bce24dd"
+  },
+  {
+    "literal": "@50-JAN-01-23:59:59.999999",
+    "load": "OK",
+    "value": "N|1|41d78376cffffffc"
+  },
+  {
+    "literal": "@01-JAN-50",
+    "load": "OK",
+    "value": "N|1|418113ae00000000"
+  },
+  {
+    "literal": "@01-JAN-50-3:10:39.221",
+    "load": "OK",
+    "value": "N|1|4181151379c49ba6"
+  },
+  {
+    "literal": "@01-JAN-50-23:59:59.999999",
+    "load": "OK",
+    "value": "N|1|41811e39ffffff7a"
+  },
+  {
+    "literal": "@JAN-01-50",
+    "load": "OK",
+    "value": "N|1|41d7832270000000"
+  },
+  {
+    "literal": "@JAN-01-50-3:10:39.221",
+    "load": "OK",
+    "value": "N|1|41d7832d9bce24dd"
+  },
+  {
+    "literal": "@JAN-01-50-23:59:59.999999",
+    "load": "OK",
+    "value": "N|1|41d78376cffffffc"
+  },
+  {
+    "literal": "@68-JAN-01",
+    "load": "OK",
+    "value": "N|1|41dff9dbb0000000"
+  },
+  {
+    "literal": "@68-JAN-01-3:10:39.221",
+    "load": "OK",
+    "value": "N|1|41dff9e6dbce24dd"
+  },
+  {
+    "literal": "@68-JAN-01-23:59:59.999999",
+    "load": "OK",
+    "value": "N|1|41dffa300ffffffc"
+  },
+  {
+    "literal": "@01-JAN-68",
+    "load": "OK",
+    "value": "N|1|4181d18600000000"
+  },
+  {
+    "literal": "@01-JAN-68-3:10:39.221",
+    "load": "OK",
+    "value": "N|1|4181d2eb79c49ba6"
+  },
+  {
+    "literal": "@01-JAN-68-23:59:59.999999",
+    "load": "OK",
+    "value": "N|1|4181dc11ffffff7a"
+  },
+  {
+    "literal": "@JAN-01-68",
+    "load": "OK",
+    "value": "N|1|41dff9dbb0000000"
+  },
+  {
+    "literal": "@JAN-01-68-3:10:39.221",
+    "load": "OK",
+    "value": "N|1|41dff9e6dbce24dd"
+  },
+  {
+    "literal": "@JAN-01-68-23:59:59.999999",
+    "load": "OK",
+    "value": "N|1|41dffa300ffffffc"
+  },
+  {
+    "literal": "@69-JAN-01",
+    "load": "OK",
+    "value": "N|1|c1cd278fe0000000"
+  },
+  {
+    "literal": "@69-JAN-01-3:10:39.221",
+    "load": "OK",
+    "value": "N|1|c1cd27798863b646"
+  },
+  {
+    "literal": "@69-JAN-01-23:59:59.999999",
+    "load": "OK",
+    "value": "N|1|c1cd26e720000008"
+  },
+  {
+    "literal": "@01-JAN-69",
+    "load": "OK",
+    "value": "N|1|4181dc1200000000"
+  },
+  {
+    "literal": "@01-JAN-69-3:10:39.221",
+    "load": "OK",
+    "value": "N|1|4181dd7779c49ba6"
+  },
+  {
+    "literal": "@01-JAN-69-23:59:59.999999",
+    "load": "OK",
+    "value": "N|1|4181e69dffffff7a"
+  },
+  {
+    "literal": "@JAN-01-69",
+    "load": "OK",
+    "value": "N|1|c1cd278fe0000000"
+  },
+  {
+    "literal": "@JAN-01-69-3:10:39.221",
+    "load": "OK",
+    "value": "N|1|c1cd27798863b646"
+  },
+  {
+    "literal": "@JAN-01-69-23:59:59.999999",
+    "load": "OK",
+    "value": "N|1|c1cd26e720000008"
+  },
+  {
+    "literal": "@99-JAN-01",
+    "load": "OK",
+    "value": "N|1|c17e1dc400000000"
+  },
+  {
+    "literal": "@99-JAN-01-3:10:39.221",
+    "load": "OK",
+    "value": "N|1|c17e1af90c76c8b4"
+  },
+  {
+    "literal": "@99-JAN-01-23:59:59.999999",
+    "load": "OK",
+    "value": "N|1|c17e08ac0000010c"
+  },
+  {
+    "literal": "@01-JAN-99",
+    "load": "OK",
+    "value": "N|1|4183187a00000000"
+  },
+  {
+    "literal": "@01-JAN-99-3:10:39.221",
+    "load": "OK",
+    "value": "N|1|418319df79c49ba6"
+  },
+  {
+    "literal": "@01-JAN-99-23:59:59.999999",
+    "load": "OK",
+    "value": "N|1|41832305ffffff7a"
+  },
+  {
+    "literal": "@JAN-01-99",
+    "load": "OK",
+    "value": "N|1|c17e1dc400000000"
+  },
+  {
+    "literal": "@JAN-01-99-3:10:39.221",
+    "load": "OK",
+    "value": "N|1|c17e1af90c76c8b4"
+  },
+  {
+    "literal": "@JAN-01-99-23:59:59.999999",
+    "load": "OK",
+    "value": "N|1|c17e08ac0000010c"
+  },
+  {
+    "literal": "@100-JAN-01",
+    "load": "OK",
+    "value": "N|1|c22beb92a9800000"
+  },
+  {
+    "literal": "@100-JAN-01-3:10:39.221",
+    "load": "OK",
+    "value": "N|1|c22beb9250218ed9"
+  },
+  {
+    "literal": "@100-JAN-01-23:59:59.999999",
+    "load": "OK",
+    "value": "N|1|c22beb9006800000"
+  },
+  {
+    "literal": "@01-JAN-100",
+    "load": "OK",
+    "value": "N|1|4183230600000000"
+  },
+  {
+    "literal": "@01-JAN-100-3:10:39.221",
+    "load": "OK",
+    "value": "N|1|4183246b79c49ba6"
+  },
+  {
+    "literal": "@01-JAN-100-23:59:59.999999",
+    "load": "OK",
+    "value": "N|1|41832d91ffffff7a"
+  },
+  {
+    "literal": "@JAN-01-100",
+    "load": "OK",
+    "value": "N|1|c22beb92a9800000"
+  },
+  {
+    "literal": "@JAN-01-100-3:10:39.221",
+    "load": "OK",
+    "value": "N|1|c22beb9250218ed9"
+  },
+  {
+    "literal": "@JAN-01-100-23:59:59.999999",
+    "load": "OK",
+    "value": "N|1|c22beb9006800000"
+  },
+  {
+    "literal": "@999-JAN-01",
+    "load": "OK",
+    "value": "N|1|c21d6b484d000000"
+  },
+  {
+    "literal": "@999-JAN-01-3:10:39.221",
+    "load": "OK",
+    "value": "N|1|c21d6b479a431db2"
+  },
+  {
+    "literal": "@999-JAN-01-23:59:59.999999",
+    "load": "OK",
+    "value": "N|1|c21d6b4307000000"
+  },
+  {
+    "literal": "@01-JAN-999",
+    "load": "OK",
+    "value": "N|1|419c165500000000"
+  },
+  {
+    "literal": "@01-JAN-999-3:10:39.221",
+    "load": "OK",
+    "value": "N|1|419c1707bce24dd3"
+  },
+  {
+    "literal": "@01-JAN-999-23:59:59.999999",
+    "load": "OK",
+    "value": "N|1|419c1b9affffffbd"
+  },
+  {
+    "literal": "@JAN-01-999",
+    "load": "OK",
+    "value": "N|1|c21d6b484d000000"
+  },
+  {
+    "literal": "@JAN-01-999-3:10:39.221",
+    "load": "OK",
+    "value": "N|1|c21d6b479a431db2"
+  },
+  {
+    "literal": "@JAN-01-999-23:59:59.999999",
+    "load": "OK",
+    "value": "N|1|c21d6b4307000000"
+  },
+  {
+    "literal": "@1000-JAN-01",
+    "load": "OK",
+    "value": "N|1|c21d63c37f000000"
+  },
+  {
+    "literal": "@1000-JAN-01-3:10:39.221",
+    "load": "OK",
+    "value": "N|1|c21d63c2cc431db2"
+  },
+  {
+    "literal": "@1000-JAN-01-23:59:59.999999",
+    "load": "OK",
+    "value": "N|1|c21d63be39000000"
+  },
+  {
+    "literal": "@01-JAN-1000",
+    "load": "OK",
+    "value": "N|1|c21d63c37f000000"
+  },
+  {
+    "literal": "@01-JAN-1000-3:10:39.221",
+    "load": "OK",
+    "value": "N|1|c21d63c2cc431db2"
+  },
+  {
+    "literal": "@01-JAN-1000-23:59:59.999999",
+    "load": "OK",
+    "value": "N|1|c21d63be39000000"
+  },
+  {
+    "literal": "@JAN-01-1000",
+    "load": "OK",
+    "value": "N|1|c21d63c37f000000"
+  },
+  {
+    "literal": "@JAN-01-1000-3:10:39.221",
+    "load": "OK",
+    "value": "N|1|c21d63c2cc431db2"
+  },
+  {
+    "literal": "@JAN-01-1000-23:59:59.999999",
+    "load": "OK",
+    "value": "N|1|c21d63be39000000"
+  },
+  {
+    "literal": "@1582-JAN-01",
+    "load": "OK",
+    "value": "N|1|c20891df3a000000"
+  },
+  {
+    "literal": "@1582-JAN-01-3:10:39.221",
+    "load": "OK",
+    "value": "N|1|c20891ddd4863b64"
+  },
+  {
+    "literal": "@1582-JAN-01-23:59:59.999999",
+    "load": "OK",
+    "value": "N|1|c20891d4ae000001"
+  },
+  {
+    "literal": "@01-JAN-1582",
+    "load": "OK",
+    "value": "N|1|c20891df3a000000"
+  },
+  {
+    "literal": "@01-JAN-1582-3:10:39.221",
+    "load": "OK",
+    "value": "N|1|c20891ddd4863b64"
+  },
+  {
+    "literal": "@01-JAN-1582-23:59:59.999999",
+    "load": "OK",
+    "value": "N|1|c20891d4ae000001"
+  },
+  {
+    "literal": "@JAN-01-1582",
+    "load": "OK",
+    "value": "N|1|c20891df3a000000"
+  },
+  {
+    "literal": "@JAN-01-1582-3:10:39.221",
+    "load": "OK",
+    "value": "N|1|c20891ddd4863b64"
+  },
+  {
+    "literal": "@JAN-01-1582-23:59:59.999999",
+    "load": "OK",
+    "value": "N|1|c20891d4ae000001"
+  },
+  {
+    "literal": "@1900-JAN-01",
+    "load": "OK",
+    "value": "N|1|c1e7830d58000000"
+  },
+  {
+    "literal": "@1900-JAN-01-3:10:39.221",
+    "load": "OK",
+    "value": "N|1|c1e78307c218ed91"
+  },
+  {
+    "literal": "@1900-JAN-01-23:59:59.999999",
+    "load": "OK",
+    "value": "N|1|c1e782e328000002"
+  },
+  {
+    "literal": "@01-JAN-1900",
+    "load": "OK",
+    "value": "N|1|c1e7830d58000000"
+  },
+  {
+    "literal": "@01-JAN-1900-3:10:39.221",
+    "load": "OK",
+    "value": "N|1|c1e78307c218ed91"
+  },
+  {
+    "literal": "@01-JAN-1900-23:59:59.999999",
+    "load": "OK",
+    "value": "N|1|c1e782e328000002"
+  },
+  {
+    "literal": "@JAN-01-1900",
+    "load": "OK",
+    "value": "N|1|c1e7830d58000000"
+  },
+  {
+    "literal": "@JAN-01-1900-3:10:39.221",
+    "load": "OK",
+    "value": "N|1|c1e78307c218ed91"
+  },
+  {
+    "literal": "@JAN-01-1900-23:59:59.999999",
+    "load": "OK",
+    "value": "N|1|c1e782e328000002"
+  },
+  {
+    "literal": "@2000-JAN-01",
+    "load": "OK",
+    "value": "N|1|c0e5180000000000"
+  },
+  {
+    "literal": "@2000-JAN-01-3:10:39.221",
+    "load": "OK",
+    "value": "N|1|c0df0431db22d0e5"
+  },
+  {
+    "literal": "@2000-JAN-01-23:59:59.999999",
+    "load": "OK",
+    "value": "N|1|40e517fffffde721"
+  },
+  {
+    "literal": "@01-JAN-2000",
+    "load": "OK",
+    "value": "N|1|c0e5180000000000"
+  },
+  {
+    "literal": "@01-JAN-2000-3:10:39.221",
+    "load": "OK",
+    "value": "N|1|c0df0431db22d0e5"
+  },
+  {
+    "literal": "@01-JAN-2000-23:59:59.999999",
+    "load": "OK",
+    "value": "N|1|40e517fffffde721"
+  },
+  {
+    "literal": "@JAN-01-2000",
+    "load": "OK",
+    "value": "N|1|c0e5180000000000"
+  },
+  {
+    "literal": "@JAN-01-2000-3:10:39.221",
+    "load": "OK",
+    "value": "N|1|c0df0431db22d0e5"
+  },
+  {
+    "literal": "@JAN-01-2000-23:59:59.999999",
+    "load": "OK",
+    "value": "N|1|40e517fffffde721"
+  },
+  {
+    "literal": "@2100-JAN-01",
+    "load": "OK",
+    "value": "N|1|41e7830d58000000"
+  },
+  {
+    "literal": "@2100-JAN-01-3:10:39.221",
+    "load": "OK",
+    "value": "N|1|41e78312ede7126f"
+  },
+  {
+    "literal": "@2100-JAN-01-23:59:59.999999",
+    "load": "OK",
+    "value": "N|1|41e7833787fffffe"
+  },
+  {
+    "literal": "@01-JAN-2100",
+    "load": "OK",
+    "value": "N|1|41e7830d58000000"
+  },
+  {
+    "literal": "@01-JAN-2100-3:10:39.221",
+    "load": "OK",
+    "value": "N|1|41e78312ede7126f"
+  },
+  {
+    "literal": "@01-JAN-2100-23:59:59.999999",
+    "load": "OK",
+    "value": "N|1|41e7833787fffffe"
+  },
+  {
+    "literal": "@JAN-01-2100",
+    "load": "OK",
+    "value": "N|1|41e7830d58000000"
+  },
+  {
+    "literal": "@JAN-01-2100-3:10:39.221",
+    "load": "OK",
+    "value": "N|1|41e78312ede7126f"
+  },
+  {
+    "literal": "@JAN-01-2100-23:59:59.999999",
+    "load": "OK",
+    "value": "N|1|41e7833787fffffe"
+  }
+]
