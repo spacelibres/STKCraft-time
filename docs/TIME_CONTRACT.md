@@ -66,6 +66,19 @@ coverage or infer a scientific historical model. See
 [the exact native scope](reference/NATIVE_JDUTC.md) before consuming formal
 Julian UTC at leap seconds or historical epochs.
 
+`NaifUtcContext::from_raw_parts` is a separate structured raw NAIF entry point.
+It borrows nonempty `LeapEntry` data without sorting and requires all five
+finite `NaifDeltet` constants explicitly. Calculation validates the first 140
+native paired-table entries and preserves `SPICE(BADLEAPSECONDS)` at that
+boundary. The scientific `LeapSecondTable` constructor keeps its earlier
+`LskParse` rejection. This resolves the captured constructor-blocked profile
+without mixing models or changing civil behavior. The combined 17-profile
+regression compares all 22,292 numeric values and 4,539 native error symbols.
+Its integral-date/whole-offset contract does not model arbitrary raw kernel
+variables, fractional entries or a new MCP input mode. Empty/nonfinite guards
+are explicit checked-input errors; out-of-domain raw dates are checked before
+integer arithmetic. See [the raw API example](API.md#raw-native-leap-table-errors).
+
 ## Scientific convention
 
 `ScientificContext` must be selected explicitly. It realizes TT through

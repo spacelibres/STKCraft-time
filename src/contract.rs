@@ -20,6 +20,9 @@ use crate::dtdb::{dtdb_minus_tt_at_observer, DtdbError};
 use crate::leap::{LeapSecondPolicy, LeapSecondSource, LeapSecondTable, JDN_1972};
 use crate::{naif, Epoch, TimeError, UtcDateTime};
 
+mod naif_utc;
+pub use naif_utc::{NaifDeltet, NaifUtcContext};
+
 /// Calculation convention. Science is never selected by the default context.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum CalculationProfile {
@@ -202,7 +205,17 @@ impl<'a> TimeContext<'a> {
         {
             return Err(ContractError::NaifKernelModelRequired);
         }
-        naif::utc::julian_utc(et.seconds(), self.lsk).map(NaifJulianUtc)
+        NaifUtcContext::from_raw_parts(
+            self.lsk.entries(),
+            NaifDeltet {
+                delta_t_a: self.lsk.delta_t_a,
+                k: self.lsk.k,
+                eb: self.lsk.eb,
+                m0: self.lsk.m0,
+                m1: self.lsk.m1,
+            },
+        )?
+        .et_to_spice_julian_utc(et)
     }
     /// The default calculation convention.
     pub fn profile(self) -> CalculationProfile {

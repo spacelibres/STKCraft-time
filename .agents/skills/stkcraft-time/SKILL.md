@@ -60,6 +60,17 @@ cargo build --locked --no-default-features --target thumbv7em-none-eabi
   leap-second behavior, and returns checked `NaifJulianUtc`. Do not detour
   through integer Epoch, civil-calendar fields or SOFA. Read
   `docs/reference/NATIVE_JDUTC.md` for the exact corpus and error boundaries.
+- For original-order structured native entries that the scientific constructor
+  rejects, select `contract::NaifUtcContext::from_raw_parts(&entries, deltet)?`.
+  Supply `contract::NaifDeltet { delta_t_a, k, eb, m0, m1 }` explicitly, then
+  call `context.et_to_spice_julian_utc(et)?.days()`. Entries must be nonempty
+  and constants finite. Do not sort, normalize or route through
+  `LeapSecondTable::new`: the raw context preserves order and returns native
+  `SPICE(BADLEAPSECONDS)` during calculation. It selects only the first 140
+  entries before paired-table validation. Scientific constructors still reject
+  malformed tables as `LskParse`; do not weaken them. This Rust API covers
+  integral Julian dates and whole offsets, not arbitrary raw pool variables
+  or a new MCP input mode. Preserve the distinct `NaifJulianUtc` result type.
 - The checked UTC path follows pinned TTRANS/UNITIM arithmetic. Validate it
   against STR2ET; validate supplied numeric TAI against UNITIM. Those inputs
   can quantize differently, so do not compare every representation against

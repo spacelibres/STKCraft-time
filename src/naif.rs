@@ -17,11 +17,16 @@ pub(crate) fn tt_to_et(tt: f64, lsk: &LeapSecondTable) -> f64 {
 
 /// N0067 UNITIM TDB to TDT, preserving its three inverse iterations.
 pub(crate) fn et_to_tt(et: f64, lsk: &LeapSecondTable) -> f64 {
+    et_to_tt_parts(et, [lsk.k, lsk.eb, lsk.m0, lsk.m1])
+}
+
+/// The same UNITIM inverse with explicitly supplied K, EB, M0 and M1.
+pub(crate) fn et_to_tt_parts(et: f64, [k, eb, m0, m1]: [f64; 4]) -> f64 {
     let mut tt = et;
     for _ in 0..3 {
-        let anomaly = lsk.m0 + lsk.m1 * tt;
-        let eccentric = anomaly + lsk.eb * math::sin(anomaly);
-        tt = et - lsk.k * math::sin(eccentric);
+        let anomaly = m0 + m1 * tt;
+        let eccentric = anomaly + eb * math::sin(anomaly);
+        tt = et - k * math::sin(eccentric);
     }
     tt
 }

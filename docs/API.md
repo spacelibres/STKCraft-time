@@ -12,7 +12,7 @@
 
 # `stkcraft-time` API guide
 
-This guide shows how to call the public API of `stkcraft-time` 0.1.30. It
+This guide shows how to call the public API of `stkcraft-time` 0.1.31. It
 is task-oriented: each section answers "which function do I call, and what
 data do I need to load first?" For item-level reference documentation,
 run:
@@ -59,13 +59,13 @@ replaces it.
 
 ```toml
 [dependencies]
-stkcraft-time = "0.1.30"
+stkcraft-time = "0.1.31"
 
 # no_std + alloc:
-# stkcraft-time = { version = "0.1.30", default-features = false }
+# stkcraft-time = { version = "0.1.31", default-features = false }
 
 # or pin the repository:
-# stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.30" }
+# stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.31" }
 ```
 
 The internal epoch representation is integer seconds plus nanoseconds;
@@ -358,6 +358,36 @@ by this method; `et_to_utc` keeps its existing civil coverage. It preserves
 native operation order and the first 140 leap entries without passing
 through integer Epoch or civil calendar fields. See
 [native JDUTC evidence and limits](reference/NATIVE_JDUTC.md).
+
+#### Raw native leap-table errors
+
+Use the separate `NaifUtcContext` when an original-order structured native
+table must reach calculation even though the scientific constructor rejects
+it. Supply every DELTET constant from the selected kernel. Inside a function
+returning `Result<_, stkcraft_time::contract::ContractError>`:
+
+```rust
+use stkcraft_time::{LeapEntry, contract::{NaifDeltet, NaifEt, NaifUtcContext}};
+let entries = [
+    LeapEntry { jdn: 2441318, delta_at: 100000 },
+    LeapEntry { jdn: 2441319, delta_at: 0 },
+];
+let deltet = NaifDeltet {
+    delta_t_a: 32.184, k: 0.001657, eb: 0.01671,
+    m0: 6.239996, m1: 1.99096871e-7,
+};
+let context = NaifUtcContext::from_raw_parts(&entries, deltet)?;
+let error = context.et_to_spice_julian_utc(NaifEt::from_seconds(0.)?).unwrap_err();
+assert_eq!(error.to_string(), "SPICE(BADLEAPSECONDS)");
+```
+
+Construction requires a nonempty slice and finite constants, preserves entry
+order, and defers native paired-TAI validation until conversion. Only the first
+140 entries participate, including validation. `LeapSecondTable::new` retains
+its sorting and `LskParse` contract; do not use it to normalize this raw input.
+This explicit Rust API covers integral Julian dates and whole-second offsets.
+It is not an arbitrary kernel-pool parser or a new MCP schema. Successful
+results remain checked `NaifJulianUtc` values rather than implicit ET/Epoch.
 
 | API | Model | Use when |
 |---|---|---|
@@ -1140,6 +1170,21 @@ pub struct NaifMetadata {
 pub struct NaifJulianUtc(/* private */);
 impl NaifJulianUtc {
     pub fn days(self) -> f64;
+}
+
+pub struct NaifDeltet {
+    pub delta_t_a: f64,
+    pub k: f64,
+    pub eb: f64,
+    pub m0: f64,
+    pub m1: f64,
+}
+pub struct NaifUtcContext<'a> { /* private fields */ }
+impl<'a> NaifUtcContext<'a> {
+    pub fn from_raw_parts(entries: &'a [LeapEntry], deltet: NaifDeltet)
+        -> Result<Self, ContractError>;
+    pub fn et_to_spice_julian_utc(self, et: NaifEt)
+        -> Result<NaifJulianUtc, ContractError>;
 }
 
 pub struct TimeContext<'a> { /* private fields */ }

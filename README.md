@@ -36,13 +36,13 @@ NPARSD operation order; see [ATTRIBUTION.md](ATTRIBUTION.md) for provenance.
 - **Reference:** `cargo doc --open`
 
 **Install:** `cargo add stkcraft-time`, or add
-`stkcraft-time = "0.1.30"` to `[dependencies]`. With `no_std`, use `default-features = false`.
+`stkcraft-time = "0.1.31"` to `[dependencies]`. With `no_std`, use `default-features = false`.
 
 ## Project status
 
-- Latest release: **v0.1.30** on GitHub Releases, including release-mode
+- Latest release: **v0.1.31** on GitHub Releases, including release-mode
   binaries for Linux, macOS (x86_64 and arm64) and Windows.
-- Published on crates.io as **`stkcraft-time` 0.1.30**, with API docs on
+- Published on crates.io as **`stkcraft-time` 0.1.31**, with API docs on
   [docs.rs](https://docs.rs/stkcraft-time).
 - Minimum supported Rust version: **1.75**.
 - The library is `no_std` compatible with `alloc`; the optional MCP server
@@ -56,13 +56,13 @@ cargo add stkcraft-time
 
 ```toml
 [dependencies]
-stkcraft-time = "0.1.30"
+stkcraft-time = "0.1.31"
 ```
 
 `no_std` plus `alloc`:
 
 ```toml
-stkcraft-time = { version = "0.1.30", default-features = false }
+stkcraft-time = { version = "0.1.31", default-features = false }
 ```
 
 The MCP server and the validation binaries are optional:
@@ -74,7 +74,7 @@ cargo install stkcraft-time --features mcp --bin stkcraft-mcp
 To track the repository instead of a crates.io release, pin a tag:
 
 ```toml
-stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.30" }
+stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.31" }
 ```
 
 ## Releases
@@ -365,6 +365,15 @@ leap-second behavior without an integer Epoch/civil-calendar round trip.
 It requires IERS-only/TableDriven LSK settings; see
 [the exact native scope](docs/reference/NATIVE_JDUTC.md). It is distinct
 from a physically realized historical UTC/SOFA model.
+
+Original-order structured native entries can instead use
+`contract::NaifUtcContext::from_raw_parts(&entries, deltet)?`, with all five
+`NaifDeltet` constants supplied explicitly. This separate Rust context preserves
+native calculation-stage `SPICE(BADLEAPSECONDS)` errors for malformed TAI
+tables. It does not sort entries or weaken the scientific constructor. The
+17-profile raw regression matches all 22,292 numeric values and 4,539 native
+errors. Arbitrary pool variables and a new MCP input mode are outside its scope;
+see [the API example](docs/API.md#raw-native-leap-table-errors).
 
 Implemented:
 
@@ -733,7 +742,7 @@ python tools/wgc2_compare.py        # live WGC2 (CSPICE front-end) check
 The library is `no_std` compatible with `alloc`:
 
 ```toml
-stkcraft-time = { version = "0.1.30", default-features = false }
+stkcraft-time = { version = "0.1.31", default-features = false }
 ```
 
 In `no_std` builds, `libm` supplies `sin`, `cos`, `floor` and `round`;

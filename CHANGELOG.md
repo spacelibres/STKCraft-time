@@ -4,6 +4,33 @@ All notable changes to `stkcraft-time` are documented here.
 
 The format follows Keep a Changelog. This crate uses semantic versioning.
 
+## [0.1.31] - 2026-11-12
+
+### Added
+
+- Add `contract::NaifDeltet` and `NaifUtcContext::from_raw_parts` for an
+  explicitly selected, original-order structured native leap table. All five
+  finite DELTET constants are supplied by the caller; no nominal defaults or
+  scientific historical policy are inferred.
+- Retain an independent four-profile, 7,968-query C capture covering unsorted
+  dates, duplicates and invalid entries inside/outside native's 140-entry limit.
+
+### Fixed
+
+- Resolve issue #4's native validation boundary: raw structured tables can now
+  reach ET-to-JDUTC and return `SPICE(BADLEAPSECONDS)` at calculation time.
+  The combined 26,831-query corpus matches all 22,292 unrounded numeric outputs
+  and 4,539 native error symbols, including the original 185 constructor-blocked
+  cases. The old typed adapter differed on 8,153 records before the repair.
+- Share the original UNITIM inverse/JDUTC arithmetic with the existing
+  `TimeContext` route. Scientific/civil constructors keep their validation and
+  public signatures; checked raw-date arithmetic prevents integer overflow.
+- Document exact API/model boundaries, native evidence and Agent Skill usage.
+  Arbitrary raw kernel variables and fractional dates/offsets remain outside
+  this structured-entry contract.
+- Check the API index recursively across library source groups so the new
+  re-exported contract types remain documented and verified.
+
 ## [0.1.30] - 2026-11-12
 
 ### Added

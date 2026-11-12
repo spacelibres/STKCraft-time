@@ -67,11 +67,44 @@ provisioned official archive/library. The helper is available at commit
 The three newly used native C sources are byte-checked against the
 official archive. Neither normal Rust builds nor tests require GeoCalc.
 
+## Structured raw tables and calculation-stage errors
+
+Version 0.1.31 adds `contract::NaifDeltet` and
+`NaifUtcContext::from_raw_parts(&entries, constants)?`. The constructor borrows
+the original structured `LeapEntry` slice, requires it to be nonempty, and
+requires all five DELTET constants to be finite. It does not sort or validate
+TAI order. `et_to_spice_julian_utc` performs native paired-table validation and
+returns `SPICE(BADLEAPSECONDS)` at calculation time. The existing scientific
+constructor remains strict; its distinct `LskParse` behavior above is retained.
+
+The raw route compares all original 18,863 records, including both sets of
+185 native errors, by exact bits or SHORT symbol. A separate unchanged C oracle
+captures four more profiles: unsorted dates, a duplicate date, an invalid 140th
+entry and an invalid 141st entry. The last is ignored by native's first-140
+selection; validating or sorting the complete raw slice would change results.
+Those 7,968 new records contain 3,799 numeric outputs and 4,169 errors.
+
+The combined raw regression covers 17 profiles and 26,831 records: 22,292
+numeric outputs and 4,539 errors, all exact. The original typed adapter differed
+on 8,153 records. Its failing regression and raw source are retained alongside
+the independent inputs, original stdout/stderr, compiler/linker records and
+source snapshots in `docs/reference/native-jdutc/raw-order/`. No old native
+capture, expectation or input was replaced. Existing validated `TimeContext`
+conversions retain their separate model guards and share the same arithmetic.
+
+The new public API lives in `src/contract/naif_utc.rs`; arithmetic remains in
+`src/naif/utc.rs`, with the shared UNITIM inverse in `src/naif.rs`. It returns
+the same checked `NaifJulianUtc`, with no implicit ET or integer Epoch route.
+
 ## Remaining acceptance
 
 This is the numeric TTRANS ET-to-JDUTC subset for structured date/whole-offset
 LSK entries. It does not implement all TTRANS representations, arbitrary
 malformed raw kernel-pool inputs, or historical civil text parsing. Native
-symbol equivalence for earlier LSK-constructor failures remains open.
+symbols for arbitrary malformed variables remain open. The structured native
+context resolves the previously constructor-blocked error profile without
+changing the scientific constructor. Its empty/nonfinite structural guards
+are checked-contract errors, not a raw pool assignment implementation. Current
+MCP tools retain their existing input schemas and scientific/civil contracts.
 GeoCalc historical SPK10 state integration requires its own independent
 end-to-end regression; passing this time-layer corpus does not claim it.

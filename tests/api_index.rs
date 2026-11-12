@@ -52,23 +52,31 @@ fn public_names(text: &str) -> BTreeSet<String> {
     names
 }
 
-/// Reads every `src/*.rs` file, ignoring test-only modules.
+/// Reads library Rust files recursively, excluding binaries and test modules.
 fn source_names() -> BTreeSet<String> {
     let dir = manifest_dir().join("src");
+    let binaries = dir.join("bin");
     let mut names = BTreeSet::new();
-
-    let entries = fs::read_dir(&dir).expect("src/ must be readable");
-    for entry in entries {
-        let path = entry.expect("src entry").path();
-        if path.extension().and_then(|ext| ext.to_str()) != Some("rs") {
-            continue;
+    let mut directories = vec![dir];
+    while let Some(directory) = directories.pop() {
+        for entry in fs::read_dir(directory).expect("library directory must be readable") {
+            let path = entry.expect("src entry").path();
+            if path.is_dir() {
+                if path != binaries {
+                    directories.push(path);
+                }
+                continue;
+            }
+            if path.extension().and_then(|ext| ext.to_str()) != Some("rs") {
+                continue;
+            }
+            let text = fs::read_to_string(&path).expect("source file must be readable");
+            let text = match text.find("#[cfg(test)]") {
+                Some(index) => &text[..index],
+                None => text.as_str(),
+            };
+            names.extend(public_names(text));
         }
-        let text = fs::read_to_string(&path).expect("source file must be readable");
-        let text = match text.find("#[cfg(test)]") {
-            Some(index) => &text[..index],
-            None => text.as_str(),
-        };
-        names.extend(public_names(text));
     }
 
     names

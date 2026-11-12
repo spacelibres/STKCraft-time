@@ -1,5 +1,5 @@
 //! N0067 TTRANS TDB-to-JDUTC arithmetic, without an integer Epoch detour.
-use crate::{contract::ContractError, math, LeapSecondTable};
+use crate::{contract::ContractError, math, LeapEntry};
 
 const SECONDS_PER_DAY: f64 = 86400.0;
 const HALF_DAY: f64 = 43200.0;
@@ -7,12 +7,16 @@ const DAY_NUMBER_2000: i32 = 730119;
 const JULIAN_DAY_1_AD: f64 = 1721425.5;
 const MAX_LEAP_ENTRIES: usize = 140;
 
-pub(crate) fn julian_utc(et: f64, lsk: &LeapSecondTable) -> Result<f64, ContractError> {
-    let count = lsk.entries().len().min(MAX_LEAP_ENTRIES);
+pub(crate) fn julian_utc(
+    et: f64,
+    entries: &[LeapEntry],
+    [delta_t_a, k, eb, m0, m1]: [f64; 5],
+) -> Result<f64, ContractError> {
+    let count = entries.len().min(MAX_LEAP_ENTRIES);
     if count == 0 {
         return Err(ContractError::InvalidNaifLeapSeconds);
     }
-    if [lsk.delta_t_a, lsk.k, lsk.eb, lsk.m0, lsk.m1]
+    if [delta_t_a, k, eb, m0, m1]
         .iter()
         .any(|value| !value.is_finite())
     {
@@ -22,9 +26,13 @@ pub(crate) fn julian_utc(et: f64, lsk: &LeapSecondTable) -> Result<f64, Contract
     // selection before validating its paired TAI/day tables.
     let mut times = [0.0; MAX_LEAP_ENTRIES * 2];
     let mut days = [0_i32; MAX_LEAP_ENTRIES * 2];
-    let mut previous_delta = lsk.entries()[0].delta_at as f64 - 1.0;
-    for (index, entry) in lsk.entries().iter().take(count).enumerate() {
-        let formal = (entry.jdn - crate::calendar::J2000_JDN) as f64 * SECONDS_PER_DAY - HALF_DAY;
+    let mut previous_delta = entries[0].delta_at as f64 - 1.0;
+    for (index, entry) in entries.iter().take(count).enumerate() {
+        let elapsed_days = entry
+            .jdn
+            .checked_sub(crate::calendar::J2000_JDN)
+            .ok_or(ContractError::EpochOutOfRange)?;
+        let formal = elapsed_days as f64 * SECONDS_PER_DAY - HALF_DAY;
         let delta = entry.delta_at as f64;
         times[2 * index] = formal - SECONDS_PER_DAY + previous_delta;
         times[2 * index + 1] = formal + delta;
@@ -40,7 +48,7 @@ pub(crate) fn julian_utc(et: f64, lsk: &LeapSecondTable) -> Result<f64, Contract
     if times.windows(2).any(|pair| pair[0] >= pair[1]) {
         return Err(ContractError::InvalidNaifLeapSeconds);
     }
-    let tai = super::et_to_tt(et, lsk) - lsk.delta_t_a;
+    let tai = super::et_to_tt_parts(et, [k, eb, m0, m1]) - delta_t_a;
     if !tai.is_finite() {
         return Err(ContractError::NonFinite);
     }
