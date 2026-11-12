@@ -109,7 +109,10 @@ cargo build --locked --no-default-features --target thumbv7em-none-eabi
 - Kernel `@date` literals: `kernel_date::parse_kernel_date(text)` returns
   seconds past J2000 with normalized calendar fields. It is N0067 TPARSE
   arithmetic only: no UTC/TT/TDB conversion, no LSK, pre-1972 dates are
-  valid constants, and a day past its month rolls forward. Unsupported
+  valid constants. Token precedence, mixed separators, the default 1969--2068
+  short-year window and native calendar/clock normalization are covered.
+  Consult docs/reference/KERNEL_DATE_GRAMMAR.md for exercised forms and
+  residual limits; do not infer exhaustive TPARSE support. Unsupported
   literals return `KernelDateUnsupported`; never report them as
   `LskMissing`/`SclkMissing` and never substitute an epoch. LSK
   `DELTET/DELTA_AT` dates stay strict: an impossible day is `LskParse`, not

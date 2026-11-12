@@ -157,3 +157,13 @@ The original ERFA notice is retained below and distributed with binaries.
 > ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 > POSSIBILITY OF SUCH DAMAGE.
 >
+
+## `src/kernel_date.rs`
+
+Kernel-literal token precedence, default year expansion, Muller-Wimberly
+integer arithmetic and floating-point accumulation order are adapted from
+N0067 TPARTV, TEXPYR and TPARSE. The original NAIF disclaimer reproduced
+above applies. Production does not link CSPICE. Selected sources were
+byte-checked against the same official archive identified above; hashes
+are in `docs/reference/kernel-date-grammar-native/source-provenance.json`.
+The captured C oracle and its toolchain profile are independent references.

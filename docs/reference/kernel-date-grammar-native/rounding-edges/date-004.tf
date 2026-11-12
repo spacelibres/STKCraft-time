@@ -1,0 +1,4 @@
+KPL/FK
+\begindata
+EPOCH=@2000-JAN-0.00000000000000001
+\begintext

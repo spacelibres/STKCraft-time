@@ -1,0 +1,29 @@
+"""Independent native inputs for actual RSSD FK dates and numeric forms."""
+from pathlib import Path
+import json,subprocess,hashlib
+root=Path(__file__).resolve().parents[1];dest=root/'target/kernel-date-component-grid-native';dest.mkdir(exist_ok=False)
+oracle=root/'target/frame-kernel-errors-native-0.1.9-extended/kernel-pool-oracle.exe'
+provenance=json.loads((root/'target/kernel-dates-expanded-native-0.1.25/capture.json').read_text());assert hashlib.sha256(oracle.read_bytes()).hexdigest()==provenance['oracle_sha256']
+literals=[]
+for value in ['0','1','12','24','31','32','59','60','69','99','100','365','366','999','1000','10000','1.0','1.5','1000.0','1000.']:
+    literals.extend([
+        '@2000-'+value+'-1', '@2000-JAN-'+value,
+        '@2000-JAN-1-'+value, '@2000-JAN-1-12:'+value,
+        '@2000-JAN-1-12:00:'+value,
+        '@00-001T'+value, '@00-'+value+'T12:00:00',
+    ])
+for date in ['2000-01-01','00-01-01','0001-01-01','01-02-1990','1990/01/02','3/4/5','99/1/2']:
+    for time in ['','-12','/12:00:00','T12:00:00']:
+        literals.append('@'+date+time)
+literals=list(dict.fromkeys(literals))
+commands=[]
+for index,literal in enumerate(literals):
+ path=dest/f'date-{index:03}.tf';path.write_bytes(('KPL/FK\n\\begindata\nEPOCH='+literal+'\n\\begintext\n').encode('ascii'))
+ commands.extend(['C','L|'+str(path),'D|EPOCH'])
+data=('\n'.join(commands)+'\n').encode('ascii');native=subprocess.run([str(oracle)],input=data,capture_output=True)
+assert native.returncode==0 and native.stderr.startswith(b'CRT_FMA:1\r\n')
+for name,raw in [('stdin',data),('stdout',native.stdout),('stderr',native.stderr)]: (dest/('native-'+name+'.bin')).write_bytes(raw)
+replies=native.stdout.decode('ascii').splitlines();assert len(replies)==len(commands)
+records=[dict(literal=literal,load=replies[3*i+1],value=replies[3*i+2]) for i,literal in enumerate(literals)]
+(dest/'dates.json').write_text(json.dumps(records,indent=2)+'\n',encoding='ascii')
+print(json.dumps(dict(cases=len(records),native_accepted=sum(r['load']=='OK' for r in records))))

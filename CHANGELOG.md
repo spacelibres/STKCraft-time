@@ -4,6 +4,20 @@ All notable changes to `stkcraft-time` are documented here.
 
 The format follows Keep a Changelog. This crate uses semantic versioning.
 
+## [0.1.28] - 2026-11-12
+
+### Fixed
+
+- Kernel-date parsing now follows native token precedence, the default 1969--2068 year window, month prefixes, mixed separators, date/clock normalization and the original integer calendar expression. The 99 native-valid rejections in issue #2, including the real RSSD FK epoch, now resolve to exact native values.
+- Reject integer clock/year ambiguities and malformed ISO forms exposed by seventeen additional native counterexamples; retain decimal-token distinctions.
+- Replace eight incorrectly classified rejection assumptions with independent native value checks for those same inputs. LSK and civil UTC validation remain strict and unchanged.
+- Synchronize the citation release date with this dated release.
+
+### Added
+
+- A 416-input independent C regression: 345 exact native binary64 values and 71 explicit rejections, plus preserved original captures, source provenance, rounding boundaries and red/green logs.
+- Documented parser limits and source attribution; complete TPARSE grammar conformance remains unclaimed.
+
 ## [0.1.27] - 2026-11-12
 
 ### Fixed

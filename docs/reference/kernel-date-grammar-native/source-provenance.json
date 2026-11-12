@@ -1,0 +1,10 @@
+{
+  "official_archive_sha256": "98d60b814b412fa55294aeaaeb7dab46d849cc87a8b709ffe835d08de17625dc",
+  "native_source_sha256": {
+    "tparse.c": "4e56c236a8ad8eb4ef01238cc47bf97b73b51e5b67030ba5bec41934aa21171a",
+    "tpartv.c": "d957cd2c504da35e44d5f1865b9a98a0f76c1e11a5ee67c10b6ac6f0c874d1fc",
+    "texpyr.c": "0c227390ad93a3bc6501dbb839ec0e4f124bff2b074b6bf436fc668012dc32c9",
+    "zzrvar.c": "26e3f437d6d6393ecf82d0ede3442b4d27fb2ec3b4d24cda8db02ff9a48d9bd8",
+    "nparsd.c": "2fe61837c8d3343842a4445c77beb0a38617864f10037191b0bbd6913b8feaad"
+  }
+}

@@ -128,7 +128,10 @@ arithmetic. It is a raw kernel constant:
 - no UTC, TT or TDB conversion is performed;
 - no leap-second kernel is required or consulted, so pre-1972 dates are
   ordinary values rather than `HistoricalUtcRequiresExplicitModel`;
-- a day past the end of its month rolls forward, as NAIF normalizes it;
+- calendar and clock overflow follow native normalization, with short-year
+  expansion over the default 1969--2068 interval;
+- mixed separators, Julian dates and exercised ISO ordinal productions
+  are supported; complete TPARSE grammar conformance is not claimed;
 - an unsupported literal returns `KernelDateUnsupported`, never a
   missing-kernel error and never a substitute epoch.
 

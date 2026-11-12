@@ -1,0 +1,9 @@
+   Compiling stkcraft-time v0.1.27 (C:\Users\stone\Documents\STKCraft-time)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.11s
+     Running tests\kernel_date_grammar_exact.rs (target\debug\deps\kernel_date_grammar_exact-b7553efb7f605e61.exe)
+
+running 1 test
+test native_kernel_date_grammar_and_bits_exact ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

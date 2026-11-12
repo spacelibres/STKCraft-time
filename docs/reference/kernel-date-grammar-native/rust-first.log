@@ -1,0 +1,30 @@
+   Compiling stkcraft-time v0.1.27 (C:\Users\stone\Documents\STKCraft-time)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.94s
+     Running tests\kernel_date_fractional_exact.rs (target\debug\deps\kernel_date_fractional_exact-7005eb361264e334.exe)
+
+running 1 test
+test native_fractional_kernel_dates_preserve_arithmetic_order ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\kernel_date_grammar_exact.rs (target\debug\deps\kernel_date_grammar_exact-b7553efb7f605e61.exe)
+
+running 1 test
+
+thread 'native_kernel_date_grammar_and_bits_exact' (872) panicked at tests\kernel_date_grammar_exact.rs:29:5:
+4 native mismatches:
+@2000-SEPT-1: unsupported kernel date literal; native 4174105400000000
+@2000-SEPTEMBER-1: unsupported kernel date literal; native 4174105400000000
+@2000-SEPTEMBE-1: unsupported kernel date literal; native 4174105400000000
+@2000-sept-1: unsupported kernel date literal; native 4174105400000000
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test native_kernel_date_grammar_and_bits_exact ... FAILED
+
+failures:
+
+failures:
+    native_kernel_date_grammar_and_bits_exact
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `--test kernel_date_grammar_exact`

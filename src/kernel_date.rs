@@ -6,25 +6,27 @@
 //! kernel constant: no UTC, TT or TDB conversion is implied, and no
 //! leap-second kernel is consulted.
 //!
-//! [`parse_kernel_date`] implements the literal forms a kernel actually
-//! carries. It never falls back to a missing value or to a default epoch:
+//! [`parse_kernel_date`] implements the documented kernel-literal grammar.
+//! It never falls back to a missing value or to a default epoch:
 //! a literal it cannot resolve returns [`TimeError::KernelDateUnsupported`].
 //! This distinction matters because a downstream reader must be able to
 //! tell an unsupported literal apart from a variable the kernel omitted.
 //!
 //! # Supported forms
 //!
-//! * Three date fields, then an optional time field. Fields are separated
-//!   by `-` or by `/`, but not by a mixture of both.
-//! * Date orders `Y-M-D`, `D-MON-Y`, and `MON-D-Y`, where the month may
-//!   be a three-letter abbreviation or a full English name in any case.
-//!   A month may also be numeric when the position is unambiguous.
-//! * Time of day is `HH:MM` or `HH:MM:SS[.fraction]`.
-//! * A day past the end of its month rolls forward exactly as NAIF does:
-//!   `@2001-FEB-29` is `2001-03-01`.
+//! * Named/numeric calendar dates, mixed dash/slash delimiters and native
+//!   month-name prefixes. Year selection follows TPARTV token categories.
+//! * Short years use N0067's default 1969--2068 expansion interval.
+//! * Time is `HH[:MM[:SS]]`, with a decimal permitted only in its final
+//!   component. Integer tokens at least 1000 are classified as years.
+//! * Month, day and clock overflow follow native normalization and the
+//!   original Muller-Wimberly integer expression.
+//! * Julian dates marked with `JD`, numeric ISO calendar/ordinal forms,
+//!   and year/day forms with a slash or explicit day-of-year marker.
 //!
-//! Two-digit years, ordinal day-of-year forms (`@2000-060`), empty
-//! literals, and free text are rejected.
+//! Standalone `@2000-060`, unrecognized text and unsupported grammar return
+//! an explicit error. Era/zone modifiers and a configurable TSETYR context
+//! are outside this resolver. Full TPARSE grammar conformance is not claimed.
 
 use alloc::vec::Vec;
 
@@ -76,217 +78,284 @@ pub fn parse_kernel_date(text: &str) -> Result<KernelDate, TimeError> {
     let body = text
         .strip_prefix('@')
         .ok_or(TimeError::KernelDateUnsupported)?;
-
-    if body.is_empty() || !body.is_ascii() {
+    if body.is_empty() || !body.is_ascii() || body.bytes().any(|x| x.is_ascii_whitespace()) {
         return Err(TimeError::KernelDateUnsupported);
     }
+    let upper = body.to_ascii_uppercase();
+    if let Some(number) = upper
+        .strip_prefix("JD")
+        .or_else(|| upper.strip_suffix("JD"))
+    {
+        let unsigned = number.strip_prefix('-').unwrap_or(number);
+        decimal(unsigned)?;
+        let jd = naif::parse_f64(number).ok_or(TimeError::KernelDateUnsupported)?;
+        let seconds = (jd - 2451545.0) * 86400.0;
+        return calendar_result(seconds, 0, [0.0, 0.0, 0.0], true);
+    }
 
-    let separator = date_separator(body)?;
-    let fields: Vec<&str> = body.split(separator).collect();
+    if let Some((date, time)) = upper
+        .split_once('T')
+        .filter(|(date, _)| date.bytes().all(|c| c.is_ascii_digit() || c == b'-'))
+    {
+        let fields: Vec<_> = date.split('-').collect();
+        if fields
+            .iter()
+            .skip(1)
+            .any(|field| integer(field).is_ok_and(|value| value >= 1000))
+        {
+            return Err(TimeError::KernelDateUnsupported);
+        }
+        let clock = clock(time)?;
+        let (year, month, day) = match fields.as_slice() {
+            [year, day] => (integer(year)?, 1, integer(day)?),
+            [year, month, day] => (integer(year)?, integer(month)?, integer(day)?),
+            _ => return Err(TimeError::KernelDateUnsupported),
+        };
+        return from_calendar(expand_year(year), month, day, clock);
+    }
+
+    for marker in ["//", "::"] {
+        if let Some((date, time)) = body.split_once(marker) {
+            let fields: Vec<_> = date.split(['-', '/']).collect();
+            if let [year, day] = fields.as_slice() {
+                return from_calendar(expand_year(integer(year)?), 1, integer(day)?, clock(time)?);
+            }
+            return Err(TimeError::KernelDateUnsupported);
+        }
+    }
+    let fields: Vec<_> = body.split(['-', '/']).collect();
     if fields.iter().any(|field| field.is_empty()) {
         return Err(TimeError::KernelDateUnsupported);
     }
-
-    let (date_fields, time_field) = split_time(&fields)?;
-    let (year_index, year) = find_year(date_fields)?;
-    let (month_index, month) = find_month(date_fields, year_index)?;
-    let day_index = 3 - year_index - month_index;
-    let day = parse_integer(date_fields[day_index])?;
-
-    if year_index == month_index || !(1..=12).contains(&month) || !(1..=31).contains(&day) {
-        return Err(TimeError::KernelDateUnsupported);
+    if fields.len() == 3 && fields[2].contains(':') {
+        // TPARTV's year/day/time slash production is distinct from a
+        // three-component calendar date and from a standalone YYYY-DDD.
+        let delimiter = body.rfind('/').ok_or(TimeError::KernelDateUnsupported)?;
+        if &body[delimiter + 1..] != fields[2] {
+            return Err(TimeError::KernelDateUnsupported);
+        }
+        return from_calendar(
+            expand_year(integer(fields[0])?),
+            1,
+            integer(fields[1])?,
+            clock(fields[2])?,
+        );
     }
-
-    let (hour, minute, second) = match time_field {
-        Some(field) => parse_time_of_day(field)?,
-        None => (0, 0, 0.0),
+    let (date, clock) = match fields.as_slice() {
+        [a, b, c] => ([*a, *b, *c], [0.0, 0.0, 0.0]),
+        [a, b, c, time] => ([*a, *b, *c], clock(time)?),
+        _ => return Err(TimeError::KernelDateUnsupported),
     };
-
-    // `gregorian_to_jdn` is affine in the day number, so a day beyond the
-    // end of its month carries into the following month. That is the NAIF
-    // normalization this parser must reproduce, not an accident.
-    let jdn = calendar::gregorian_to_jdn(year, month as u8, day as u8);
-    let (normalized_year, normalized_month, normalized_day) = calendar::jdn_to_gregorian(jdn);
-
-    // N0067 TPARSE adds the hour, minute and second separately to the
-    // noon-relative day offset. Grouping time of day first changes bits.
-    let seconds_past_j2000 = ((jdn - J2000_JDN) as f64 - 0.5) * 86_400.0
-        + hour as f64 * 3_600.0
-        + minute as f64 * 60.0
-        + second;
-
-    if !seconds_past_j2000.is_finite() {
+    // TPARTV permits a decimal only in the final numeric component.
+    if date[..2].iter().any(|field| field.contains('.'))
+        || (fields.len() == 4 && date[2].contains('.'))
+    {
         return Err(TimeError::KernelDateUnsupported);
     }
+    let named = date
+        .iter()
+        .enumerate()
+        .find_map(|(index, field)| month(field).map(|month| (index, month)));
+    let years: Vec<_> = date
+        .iter()
+        .enumerate()
+        .filter_map(|(index, field)| {
+            integer(field)
+                .ok()
+                .filter(|value| *value >= 1000)
+                .map(|value| (index, value))
+        })
+        .collect();
+    let year_index = match years.as_slice() {
+        [(index, _)] => *index,
+        [] => match named {
+            Some((0, _)) => 2,
+            Some(_) => 0,
+            None if fields.len() == 3 && body.contains('/') => 2,
+            None => return Err(TimeError::KernelDateUnsupported),
+        },
+        _ => return Err(TimeError::KernelDateUnsupported),
+    };
+    let month_index = match named {
+        Some((index, _)) => index,
+        None if year_index == 0 => 1,
+        None if year_index == 2 => 0,
+        None => return Err(TimeError::KernelDateUnsupported),
+    };
+    if year_index == month_index {
+        return Err(TimeError::KernelDateUnsupported);
+    }
+    let day_index = 3 - year_index - month_index;
+    let year = expand_year(integer(date[year_index])?);
+    let month = match named {
+        Some((_, month)) => month,
+        None => integer(date[month_index])?,
+    };
+    let day = libm::round(decimal(date[day_index])?);
+    if day > i32::MAX as f64 {
+        return Err(TimeError::KernelDateUnsupported);
+    }
+    from_calendar(year, month, day as i64, clock)
+}
 
+fn decimal(token: &str) -> Result<f64, TimeError> {
+    if !token.as_bytes().first().is_some_and(u8::is_ascii_digit)
+        || token.bytes().any(|c| !c.is_ascii_digit() && c != b'.')
+        || token.bytes().filter(|c| *c == b'.').count() > 1
+    {
+        return Err(TimeError::KernelDateUnsupported);
+    }
+    let value = naif::parse_f64(token).ok_or(TimeError::KernelDateUnsupported)?;
+    if !value.is_finite() {
+        return Err(TimeError::KernelDateUnsupported);
+    }
+    Ok(value)
+}
+
+fn integer(token: &str) -> Result<i64, TimeError> {
+    if token.is_empty() || !token.bytes().all(|c| c.is_ascii_digit()) {
+        return Err(TimeError::KernelDateUnsupported);
+    }
+    let value = token
+        .parse::<i64>()
+        .map_err(|_| TimeError::KernelDateUnsupported)?;
+    if value > i32::MAX as i64 {
+        return Err(TimeError::KernelDateUnsupported);
+    }
+    Ok(value)
+}
+
+fn expand_year(year: i64) -> i64 {
+    if year < 69 {
+        2000 + year
+    } else if year < 100 {
+        1900 + year
+    } else {
+        year
+    }
+}
+
+fn month(token: &str) -> Option<i64> {
+    if token.len() < 3 {
+        return None;
+    }
+    let token = token.to_ascii_uppercase();
+    [
+        "JANUARY",
+        "FEBRUARY",
+        "MARCH",
+        "APRIL",
+        "MAY",
+        "JUNE",
+        "JULY",
+        "AUGUST",
+        "SEPTEMBER",
+        "OCTOBER",
+        "NOVEMBER",
+        "DECEMBER",
+    ]
+    .iter()
+    .position(|name| name.starts_with(&token))
+    .map(|index| index as i64 + 1)
+}
+
+fn clock(token: &str) -> Result<[f64; 3], TimeError> {
+    let fields: Vec<_> = token.split(':').collect();
+    if fields.is_empty() || fields.len() > 3 {
+        return Err(TimeError::KernelDateUnsupported);
+    }
+    let mut result = [0.0; 3];
+    for (index, field) in fields.iter().enumerate() {
+        if index + 1 != fields.len() && field.contains('.') {
+            return Err(TimeError::KernelDateUnsupported);
+        }
+        // TPARTV promotes integer tokens >= 1000 to year tokens before
+        // resolving clocks. A decimal token remains a separate category.
+        if integer(field).is_ok_and(|value| value >= 1000) {
+            return Err(TimeError::KernelDateUnsupported);
+        }
+        result[index] = decimal(field)?;
+    }
+    Ok(result)
+}
+
+fn from_calendar(
+    year: i64,
+    month: i64,
+    day: i64,
+    clock: [f64; 3],
+) -> Result<KernelDate, TimeError> {
+    // N0067 TPARSE's Muller-Wimberly integer expression uses truncating
+    // division. Preserve it even for out-of-range month/day fields.
+    let days = year * 367
+        - (year + (month + 9) / 12) * 7 / 4
+        - ((year + (month - 9) / 7) / 100 + 1) * 3 / 4
+        + month * 275 / 9
+        + day
+        - 730516;
+    if days < i32::MIN as i64 || days > i32::MAX as i64 {
+        return Err(TimeError::KernelDateUnsupported);
+    }
+    let seconds = (days as f64 - 0.5) * 86400.0 + clock[0] * 3600.0 + clock[1] * 60.0 + clock[2];
+    calendar_result(seconds, days, clock, false)
+}
+
+fn calendar_result(
+    seconds: f64,
+    days: i64,
+    clock: [f64; 3],
+    julian: bool,
+) -> Result<KernelDate, TimeError> {
+    if !seconds.is_finite() {
+        return Err(TimeError::KernelDateUnsupported);
+    }
+    let (days, hour, minute, second) = if julian {
+        let midnight = seconds + 43200.0;
+        let days = libm::floor(midnight / 86400.0);
+        if days < i32::MIN as f64 || days > i32::MAX as f64 {
+            return Err(TimeError::KernelDateUnsupported);
+        }
+        let remainder = midnight - days * 86400.0;
+        let hour = libm::floor(remainder / 3600.0);
+        let minute = libm::floor((remainder - hour * 3600.0) / 60.0);
+        (
+            days as i64,
+            hour as u8,
+            minute as u8,
+            remainder - hour * 3600.0 - minute * 60.0,
+        )
+    } else {
+        let hours = libm::floor(clock[0]);
+        let minutes = clock[1] + (clock[0] - hours) * 60.0;
+        let whole_minutes = libm::floor(minutes);
+        let raw_seconds = clock[2] + (minutes - whole_minutes) * 60.0;
+        let second_carry = libm::floor(raw_seconds / 60.0);
+        let second = raw_seconds - second_carry * 60.0;
+        let minutes = whole_minutes + second_carry;
+        let hour_carry = libm::floor(minutes / 60.0);
+        let minute = minutes - hour_carry * 60.0;
+        let hours = hours + hour_carry;
+        let day_carry = libm::floor(hours / 24.0);
+        if day_carry > i32::MAX as f64 {
+            return Err(TimeError::KernelDateUnsupported);
+        }
+        (
+            days + day_carry as i64,
+            (hours - day_carry * 24.0) as u8,
+            minute as u8,
+            second,
+        )
+    };
+    let (year, month, day) = calendar::jdn_to_gregorian(J2000_JDN + days);
     Ok(KernelDate {
-        seconds_past_j2000,
-        year: normalized_year,
-        month: normalized_month,
-        day: normalized_day,
+        seconds_past_j2000: seconds,
+        year,
+        month,
+        day,
         hour,
         minute,
         second,
     })
-}
-
-fn date_separator(body: &str) -> Result<char, TimeError> {
-    let dash = body.contains('-');
-    let slash = body.contains('/');
-
-    match (dash, slash) {
-        (true, false) => Ok('-'),
-        (false, true) => Ok('/'),
-        _ => Err(TimeError::KernelDateUnsupported),
-    }
-}
-
-/// Splits three date fields plus an optional trailing time field.
-fn split_time<'a>(fields: &'a [&'a str]) -> Result<(&'a [&'a str], Option<&'a str>), TimeError> {
-    match fields.last() {
-        Some(last) if last.contains(':') => {
-            if fields.len() != 4 {
-                return Err(TimeError::KernelDateUnsupported);
-            }
-            Ok((&fields[..3], Some(*last)))
-        }
-        _ => {
-            if fields.len() != 3 {
-                return Err(TimeError::KernelDateUnsupported);
-            }
-            Ok((fields, None))
-        }
-    }
-}
-
-/// Finds the single four-digit year field.
-fn find_year(fields: &[&str]) -> Result<(usize, i32), TimeError> {
-    let mut found: Option<(usize, i32)> = None;
-
-    for (index, field) in fields.iter().enumerate() {
-        if let Some(year) = parse_year(field) {
-            if found.is_some() {
-                return Err(TimeError::KernelDateUnsupported);
-            }
-            found = Some((index, year));
-        }
-    }
-
-    found.ok_or(TimeError::KernelDateUnsupported)
-}
-
-/// The year must be four ASCII digits; a two-digit year is ambiguous.
-fn parse_year(token: &str) -> Option<i32> {
-    if token.len() != 4 || !token.bytes().all(|byte| byte.is_ascii_digit()) {
-        return None;
-    }
-
-    let year = token.parse::<i32>().ok()?;
-    if year >= 1000 {
-        Some(year)
-    } else {
-        None
-    }
-}
-
-/// Finds the month field and its numeric value.
-///
-/// A month name is unambiguous, so it wins wherever it appears. With only
-/// numbers, the remaining fields are taken in month-then-day order, which
-/// is the NAIF convention for both `Y-M-D` and `M-D-Y`.
-fn find_month(fields: &[&str], year_index: usize) -> Result<(usize, u32), TimeError> {
-    if let Some((index, month)) = fields
-        .iter()
-        .enumerate()
-        .find_map(|(index, field)| month_from_name(field).map(|month| (index, month)))
-    {
-        return Ok((index, month));
-    }
-
-    if year_index == 1 {
-        // Without a month name, a year in the middle would force a
-        // month-day-year reinterpretation that NAIF does not define.
-        return Err(TimeError::KernelDateUnsupported);
-    }
-
-    let month_index = if year_index == 0 { 1 } else { 0 };
-    let month = parse_integer(fields[month_index])?;
-    Ok((month_index, month))
-}
-
-fn month_from_name(token: &str) -> Option<u32> {
-    let month = match token.to_ascii_uppercase().as_str() {
-        "JAN" | "JANUARY" => 1,
-        "FEB" | "FEBRUARY" => 2,
-        "MAR" | "MARCH" => 3,
-        "APR" | "APRIL" => 4,
-        "MAY" => 5,
-        "JUN" | "JUNE" => 6,
-        "JUL" | "JULY" => 7,
-        "AUG" | "AUGUST" => 8,
-        "SEP" | "SEPT" | "SEPTEMBER" => 9,
-        "OCT" | "OCTOBER" => 10,
-        "NOV" | "NOVEMBER" => 11,
-        "DEC" | "DECEMBER" => 12,
-        _ => return None,
-    };
-
-    Some(month)
-}
-
-fn parse_time_of_day(field: &str) -> Result<(u8, u8, f64), TimeError> {
-    let parts: Vec<&str> = field.split(':').collect();
-    if parts.len() < 2 || parts.len() > 3 {
-        return Err(TimeError::KernelDateUnsupported);
-    }
-
-    let hour = parse_integer(parts[0])?;
-    let minute = parse_integer(parts[1])?;
-    if hour > 23 || minute > 59 {
-        return Err(TimeError::KernelDateUnsupported);
-    }
-
-    let second = if parts.len() == 3 {
-        parse_seconds(parts[2])?
-    } else {
-        0.0
-    };
-
-    Ok((hour as u8, minute as u8, second))
-}
-
-/// Parses an unsigned ASCII integer with no sign or exponent.
-fn parse_integer(token: &str) -> Result<u32, TimeError> {
-    if token.is_empty() || !token.bytes().all(|byte| byte.is_ascii_digit()) {
-        return Err(TimeError::KernelDateUnsupported);
-    }
-
-    token
-        .parse::<u32>()
-        .map_err(|_| TimeError::KernelDateUnsupported)
-}
-
-/// Parses `SS` or `SS.fraction` with NAIF decimal arithmetic.
-fn parse_seconds(token: &str) -> Result<f64, TimeError> {
-    if token.is_empty()
-        || !token
-            .bytes()
-            .all(|byte| byte.is_ascii_digit() || byte == b'.')
-        || !token.bytes().any(|byte| byte.is_ascii_digit())
-    {
-        return Err(TimeError::KernelDateUnsupported);
-    }
-
-    if token.bytes().filter(|byte| *byte == b'.').count() > 1 {
-        return Err(TimeError::KernelDateUnsupported);
-    }
-
-    let second = naif::parse_f64(token).ok_or(TimeError::KernelDateUnsupported)?;
-    if !(0.0..60.0).contains(&second) {
-        return Err(TimeError::KernelDateUnsupported);
-    }
-
-    Ok(second)
 }
 
 #[cfg(test)]
@@ -315,8 +384,8 @@ mod tests {
     }
 
     #[test]
-    fn mixed_separators_and_free_text_are_rejected() {
-        for text in ["@2000-01/01", "@2000/01-01", "@NOT_A_DATE", "@@2000-JAN-01"] {
+    fn free_text_and_duplicate_date_markers_are_rejected() {
+        for text in ["@NOT_A_DATE", "@@2000-JAN-01"] {
             assert!(parse_kernel_date(text).is_err(), "{text}");
         }
     }

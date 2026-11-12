@@ -12,7 +12,7 @@
 
 # `stkcraft-time` API guide
 
-This guide shows how to call the public API of `stkcraft-time` 0.1.27. It
+This guide shows how to call the public API of `stkcraft-time` 0.1.28. It
 is task-oriented: each section answers "which function do I call, and what
 data do I need to load first?" For item-level reference documentation,
 run:
@@ -59,13 +59,13 @@ replaces it.
 
 ```toml
 [dependencies]
-stkcraft-time = "0.1.27"
+stkcraft-time = "0.1.28"
 
 # no_std + alloc:
-# stkcraft-time = { version = "0.1.27", default-features = false }
+# stkcraft-time = { version = "0.1.28", default-features = false }
 
 # or pin the repository:
-# stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.27" }
+# stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.28" }
 ```
 
 The internal epoch representation is integer seconds plus nanoseconds;
@@ -123,9 +123,12 @@ assert_eq!((epoch.year, epoch.month, epoch.day), (2001, 3, 1));
 
 A month may be a three-letter abbreviation or a full English name in any
 case. A day past the end of its month rolls forward exactly as NAIF does
-(`@2001-FEB-29` is `2001-03-01`). Two-digit years, ordinal day-of-year
-forms (`@2000-060`), empty literals, and free text return
-`TimeError::KernelDateUnsupported`. That error is deliberately separate
+(`@2001-FEB-29` is `2001-03-01`). Short years use the native 1969--2068
+window; mixed separators, month prefixes, normalized month/clock fields,
+Julian dates and exercised ISO ordinal forms are supported. Standalone
+`@2000-060`, empty literals and unsupported grammar return
+`TimeError::KernelDateUnsupported`. See [the exact scope](reference/KERNEL_DATE_GRAMMAR.md);
+complete TPARSE grammar conformance is not claimed. That error is deliberately separate
 from `LskMissing`/`SclkMissing`: a present but unsupported literal must
 never be reported as an absent kernel variable.
 

@@ -1,0 +1,29 @@
+"""Independent native inputs for actual RSSD FK dates and numeric forms."""
+from pathlib import Path
+import json,subprocess,hashlib
+root=Path(__file__).resolve().parents[1];dest=root/'target/kernel-date-integration-forms-native';dest.mkdir(exist_ok=False)
+oracle=root/'target/frame-kernel-errors-native-0.1.9-extended/kernel-pool-oracle.exe'
+provenance=json.loads((root/'target/kernel-dates-expanded-native-0.1.25/capture.json').read_text());assert hashlib.sha256(oracle.read_bytes()).hexdigest()==provenance['oracle_sha256']
+literals=['@2000-JAN-1/12:00:00','@3/4/5','@3-4-5','@99/01/02','@99-01-02',
+ '@00-01-01','@001-01-01','@00/01/01','@1990/01/02','@01-02-1990',
+ '@2000-01-01T12:00:00','@2000-001t12:00:00','@00-001T12:00:00',
+ '@2000-01-01t12:00:00','@2000/001T12:00:00','@2000-001T12',
+ '@2000-001T12:00','@2000-001/12:00:00','@2000-001//12:00:00',
+ '@2000-001::12:00:00','@2000-JAN-1-12','@2000-JAN-1-12.5',
+ '@2000-JAN-1-12:30.5','@2000-JAN-1.5-12:00:00',
+ '@2000-JAN-1.5-12:00:00.5','@2000-01.5-1','@2000.5-JAN-1',
+ '@2000-JAN-1-12:00:0.5','@JD.5','@JD1.','@JD+1.25',
+ '@2000-JAN-1-12:00:59.9999999999','@2000-JAN-1-12:00:0000.5',
+ '@2000-JAN-1-12:00:60.0','@2000-JAN-1-12:00:600.0',
+ '@2000-jan-1/12:00:00','@2000-sep-1','@2000-sept-1']
+commands=[]
+for index,literal in enumerate(literals):
+ path=dest/f'date-{index:03}.tf';path.write_bytes(('KPL/FK\n\\begindata\nEPOCH='+literal+'\n\\begintext\n').encode('ascii'))
+ commands.extend(['C','L|'+str(path),'D|EPOCH'])
+data=('\n'.join(commands)+'\n').encode('ascii');native=subprocess.run([str(oracle)],input=data,capture_output=True)
+assert native.returncode==0 and native.stderr.startswith(b'CRT_FMA:1\r\n')
+for name,raw in [('stdin',data),('stdout',native.stdout),('stderr',native.stderr)]: (dest/('native-'+name+'.bin')).write_bytes(raw)
+replies=native.stdout.decode('ascii').splitlines();assert len(replies)==len(commands)
+records=[dict(literal=literal,load=replies[3*i+1],value=replies[3*i+2]) for i,literal in enumerate(literals)]
+(dest/'dates.json').write_text(json.dumps(records,indent=2)+'\n',encoding='ascii')
+print(json.dumps(dict(cases=len(records),native_accepted=sum(r['load']=='OK' for r in records))))

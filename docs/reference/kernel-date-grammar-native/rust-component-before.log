@@ -1,0 +1,36 @@
+   Compiling stkcraft-time v0.1.27 (C:\Users\stone\Documents\STKCraft-time)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.41s
+     Running tests\kernel_date_grammar_exact.rs (target\debug\deps\kernel_date_grammar_exact-b7553efb7f605e61.exe)
+
+running 1 test
+
+thread 'native_kernel_date_grammar_and_bits_exact' (14188) panicked at tests\kernel_date_grammar_exact.rs:29:5:
+17 native mismatches:
+@2000-JAN-1-1000: Ok(KernelDate { seconds_past_j2000: 3556800.0, year: 2000, month: 2, day: 11, hour: 16, minute: 0, second: 0.0 }); native E|SPICE(BADTIMESPEC)
+@2000-JAN-1-12:1000: Ok(KernelDate { seconds_past_j2000: 60000.0, year: 2000, month: 1, day: 2, hour: 4, minute: 40, second: 0.0 }); native E|SPICE(BADTIMESPEC)
+@2000-JAN-1-12:00:1000: Ok(KernelDate { seconds_past_j2000: 1000.0, year: 2000, month: 1, day: 1, hour: 12, minute: 16, second: 40.0 }); native E|SPICE(BADTIMESPEC)
+@00-001T1000: Ok(KernelDate { seconds_past_j2000: 3556800.0, year: 2000, month: 2, day: 11, hour: 16, minute: 0, second: 0.0 }); native E|SPICE(BADTIMESPEC)
+@00-1000T12:00:00: Ok(KernelDate { seconds_past_j2000: 86313600.0, year: 2002, month: 9, day: 26, hour: 12, minute: 0, second: 0.0 }); native E|SPICE(BADTIMESPEC)
+@2000-JAN-1-10000: Ok(KernelDate { seconds_past_j2000: 35956800.0, year: 2001, month: 2, day: 20, hour: 16, minute: 0, second: 0.0 }); native E|SPICE(BADTIMESPEC)
+@2000-JAN-1-12:10000: Ok(KernelDate { seconds_past_j2000: 600000.0, year: 2000, month: 1, day: 8, hour: 10, minute: 40, second: 0.0 }); native E|SPICE(BADTIMESPEC)
+@2000-JAN-1-12:00:10000: Ok(KernelDate { seconds_past_j2000: 10000.0, year: 2000, month: 1, day: 1, hour: 14, minute: 46, second: 40.0 }); native E|SPICE(BADTIMESPEC)
+@00-001T10000: Ok(KernelDate { seconds_past_j2000: 35956800.0, year: 2001, month: 2, day: 20, hour: 16, minute: 0, second: 0.0 }); native E|SPICE(BADTIMESPEC)
+@00-10000T12:00:00: Ok(KernelDate { seconds_past_j2000: 863913600.0, year: 2027, month: 5, day: 18, hour: 12, minute: 0, second: 0.0 }); native E|SPICE(BADTIMESPEC)
+@00-01-01/12:00:00: Ok(KernelDate { seconds_past_j2000: 29030400.0, year: 2000, month: 12, day: 2, hour: 12, minute: 0, second: 0.0 }); native E|SPICE(BADTIMESPEC)
+@0001-01-01/12:00:00: Ok(KernelDate { seconds_past_j2000: 31622400.0, year: 2001, month: 1, day: 1, hour: 12, minute: 0, second: 0.0 }); native E|SPICE(BADTIMESPEC)
+@01-02-1990T12:00:00: Ok(KernelDate { seconds_past_j2000: 206150400.0, year: 2006, month: 7, day: 14, hour: 12, minute: 0, second: 0.0 }); native E|SPICE(BADTIMESPEC)
+@3/4/5-12: Ok(KernelDate { seconds_past_j2000: 163209600.0, year: 2005, month: 3, day: 4, hour: 12, minute: 0, second: 0.0 }); native E|SPICE(BADTIMESPEC)
+@3/4/5/12:00:00: Ok(KernelDate { seconds_past_j2000: 163209600.0, year: 2005, month: 3, day: 4, hour: 12, minute: 0, second: 0.0 }); native E|SPICE(BADTIMESPEC)
+@99/1/2-12: Ok(KernelDate { seconds_past_j2000: 320544000.0, year: 2010, month: 2, day: 27, hour: 12, minute: 0, second: 0.0 }); native E|SPICE(BADTIMESPEC)
+@99/1/2/12:00:00: Ok(KernelDate { seconds_past_j2000: 320544000.0, year: 2010, month: 2, day: 27, hour: 12, minute: 0, second: 0.0 }); native E|SPICE(BADTIMESPEC)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test native_kernel_date_grammar_and_bits_exact ... FAILED
+
+failures:
+
+failures:
+    native_kernel_date_grammar_and_bits_exact
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `--test kernel_date_grammar_exact`

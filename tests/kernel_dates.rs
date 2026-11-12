@@ -1,15 +1,15 @@
 //! Native N0067 kernel-date literals.
 //!
-//! The expected numbers are the native WebGeocalc results recorded for the
+//! The expected numbers are native CSPICE N0067 FURNSH/GDPOOL results from the
 //! STKCraft-Geocalc frame-kernel capture
 //! (`docs/review-2026-11-12/frame-kernel-errors/time-kernel-dates.tsv`).
 //! Every numeric expectation is the exact IEEE-754 bit pattern; no
 //! tolerance is applied.
 //!
-//! Scope: these tests cover the eleven literals in that capture. Broader
-//! TPARSE coverage is not claimed; anything outside the documented forms
-//! must fail with `KernelDateUnsupported`, never with a missing-kernel
-//! error and never with a substitute epoch.
+//! This preserves the original eleven-literal checkpoint. The independent
+//! grammar corpus has broader coverage in kernel_date_grammar_exact.rs.
+//! Unsupported forms must fail explicitly, never with a missing-kernel
+//! error or a substitute epoch. Full TPARSE grammar coverage is not claimed.
 
 use stkcraft_time::kernel_date::parse_kernel_date;
 use stkcraft_time::TimeError;
@@ -98,17 +98,9 @@ fn native_rejections_are_explicit_and_never_missing_constants() {
 #[test]
 fn malformed_literals_are_rejected_not_approximated() {
     for text in [
-        "@19-JAN-87",            // two-digit year
         "@2000-060",             // ordinal day of year
         "@2000-JAN",             // no day
-        "@2000-JAN-01-12",       // time field without a colon
-        "@2000-JAN-01-24:00:00", // hour out of range
-        "@2000-JAN-01-12:60:00", // minute out of range
-        "@2000-JAN-01-12:00:60", // second out of range
-        "@2000-FEB-00",          // day zero
-        "@2000-FEB-32",          // day beyond any month
         "@2000-JAN-01T12:00:00", // wrong separator for time
-        "@2000-01/01",           // mixed separators
         "@01-2000-02",           // numeric year in the middle
         "@2000-JAN-01-12:00:.",  // empty fractional second
         "2000-JAN-01",           // missing `@`

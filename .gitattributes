@@ -8,3 +8,4 @@
 *.yml text eol=lf
 tests/kernels/*.tsc -text -whitespace
 docs/reference/kernel-date-native/** -text -whitespace
+docs/reference/kernel-date-grammar-native/** -text -whitespace
