@@ -4,6 +4,18 @@ All notable changes to `stkcraft-time` are documented here.
 
 The format follows Keep a Changelog. This crate uses semantic versioning.
 
+## [0.1.26] - 2026-11-12
+
+### Fixed
+
+- `kernel_date::parse_kernel_date` could reinterpret two malformed
+  literals as plausible dates instead of rejecting them. A numeric year
+  in the middle field (`@01-2000-02`) now fails, because a middle year
+  would force a month-day-year reading that N0067 does not define. A
+  fractional-second field with no digits (`@2000-JAN-01-12:00:.`) now
+  fails as well; it previously parsed as an exact zero. Both return
+  `KernelDateUnsupported`, and `tests/kernel_dates.rs` covers them.
+
 ## [0.1.25] - 2026-11-12
 
 ### Added

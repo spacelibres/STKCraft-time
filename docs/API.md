@@ -12,7 +12,7 @@
 
 # `stkcraft-time` API guide
 
-This guide shows how to call the public API of `stkcraft-time` 0.1.25. It
+This guide shows how to call the public API of `stkcraft-time` 0.1.26. It
 is task-oriented: each section answers "which function do I call, and what
 data do I need to load first?" For item-level reference documentation,
 run:
@@ -59,13 +59,13 @@ replaces it.
 
 ```toml
 [dependencies]
-stkcraft-time = "0.1.25"
+stkcraft-time = "0.1.26"
 
 # no_std + alloc:
-# stkcraft-time = { version = "0.1.25", default-features = false }
+# stkcraft-time = { version = "0.1.26", default-features = false }
 
 # or pin the repository:
-# stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.25" }
+# stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.26" }
 ```
 
 The internal epoch representation is integer seconds plus nanoseconds;

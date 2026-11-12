@@ -199,6 +199,12 @@ fn find_month(fields: &[&str], year_index: usize) -> Result<(usize, u32), TimeEr
         return Ok((index, month));
     }
 
+    if year_index == 1 {
+        // Without a month name, a year in the middle would force a
+        // month-day-year reinterpretation that NAIF does not define.
+        return Err(TimeError::KernelDateUnsupported);
+    }
+
     let month_index = if year_index == 0 { 1 } else { 0 };
     let month = parse_integer(fields[month_index])?;
     Ok((month_index, month))
@@ -262,6 +268,7 @@ fn parse_seconds(token: &str) -> Result<f64, TimeError> {
         || !token
             .bytes()
             .all(|byte| byte.is_ascii_digit() || byte == b'.')
+        || !token.bytes().any(|byte| byte.is_ascii_digit())
     {
         return Err(TimeError::KernelDateUnsupported);
     }

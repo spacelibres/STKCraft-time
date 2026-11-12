@@ -109,6 +109,8 @@ fn malformed_literals_are_rejected_not_approximated() {
         "@2000-FEB-32",          // day beyond any month
         "@2000-JAN-01T12:00:00", // wrong separator for time
         "@2000-01/01",           // mixed separators
+        "@01-2000-02",           // numeric year in the middle
+        "@2000-JAN-01-12:00:.",  // empty fractional second
         "2000-JAN-01",           // missing `@`
         "@ 2000-JAN-01",         // leading space
     ] {
