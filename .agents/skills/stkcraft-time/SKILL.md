@@ -137,7 +137,10 @@ cargo build --locked --no-default-features --target thumbv7em-none-eabi
 ## References
 
 - `docs/API.md` — full API guide and function index.
+- `docs/TIME_CONTRACT.md` — model contracts, units, origins and limits.
 - `docs/MCP.md` — MCP server tool reference.
+- [Project wiki](https://github.com/spacelibres/STKCraft-time/wiki) —
+  narrative explanations and the verification record.
 - `tests/naif_alignment.rs`, `tests/ut1.rs`, `tests/mcp.rs` — boundary and
   protocol tests.
 - `AGENTS.md` — repository rules.

@@ -1,6 +1,6 @@
 # `stkcraft-time` API guide
 
-This guide shows how to call the public API of `stkcraft-time` 0.1.21. It
+This guide shows how to call the public API of `stkcraft-time` 0.1.22. It
 is task-oriented: each section answers "which function do I call, and what
 data do I need to load first?" For item-level reference documentation,
 run:
@@ -20,11 +20,24 @@ Code snippets assume a function returning `Result<_, TimeError>` and that
 values introduced in earlier snippets (`lsk`, `eop`, `utc`, ...) are in
 scope unless the snippet redefines them.
 
+Three sources describe this crate, and they have distinct jobs:
+
+| Source | Role |
+|---|---|
+| This file | Authoritative in-repository API contract and call patterns |
+| [`TIME_CONTRACT.md`](TIME_CONTRACT.md) | Model contracts: units, origins, model bounds, reproducibility |
+| [Project wiki](https://github.com/spacelibres/STKCraft-time/wiki) | Narrative explanations and the verification record |
+
+If they ever disagree, this file and the source are correct; the wiki is
+the narrative view and is updated from the same facts.
+
 ## 1. Scope and features
 
 `stkcraft-time` is a `no_std`-capable library. It never performs network
-I/O and does not bundle mission data. The caller supplies the data files
-(leap seconds, spacecraft clock, EOP) at run time.
+I/O and does not bundle mission data. The caller supplies the mission data
+files (spacecraft clock, EOP) at run time; a `naif0012.tls` snapshot is
+compiled in as the default leap-second table, and an explicit LSK
+replaces it.
 
 | Cargo feature | Default | Effect |
 |---|---|---|
@@ -34,13 +47,13 @@ I/O and does not bundle mission data. The caller supplies the data files
 
 ```toml
 [dependencies]
-stkcraft-time = "0.1.21"
+stkcraft-time = "0.1.22"
 
 # no_std + alloc:
-# stkcraft-time = { version = "0.1.21", default-features = false }
+# stkcraft-time = { version = "0.1.22", default-features = false }
 
 # or pin the repository:
-# stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.21" }
+# stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.22" }
 ```
 
 The internal epoch representation is integer seconds plus nanoseconds;
@@ -442,6 +455,11 @@ let ticks_from_tai = sclk.tai_to_ticks(tai, &lsk)?;
   finite); the cumulative duration must also be finite. Cross-partition
   ordering is not required: NAIF lets a clock jump ahead or regress,
   which is exactly why a new partition starts.
+- [`SclkClock`] binds a parsed kernel to a leap-second table and
+  implements the [`SclkMap`] trait (`sclk_to_et`, `et_to_sclk`). It is a
+  convenience wrapper over the same calls; it does not add partition
+  support, so a partitioned clock still returns
+  `SclkPartitionsUnsupported` for string conversion.
 
 `DELTET/DELTA_AT` follows NAIF assignment rules: `=` replaces the
 accumulated table and `+=` extends it, so a kernel that restates the
@@ -763,7 +781,12 @@ pub fn sofa_delta_at(mjd: f64) -> Option<f64>;
 ```
 
 `lsk::parse_lsk(text)` and `lsk::builtin()` are equivalent module-level
-entry points.
+entry points:
+
+```rust
+pub fn parse_lsk(text: &str) -> Result<LeapSecondTable, TimeError>;
+pub fn builtin() -> Result<LeapSecondTable, TimeError>;
+```
 
 ### `convert`
 
@@ -865,6 +888,17 @@ impl SclkKernel {
     pub fn parse_string(&self, sclk: &str) -> Result<Vec<i64>, TimeError>;
     pub fn format_string(&self, fields: &[i64]) -> Result<String, TimeError>;
 }
+
+pub trait SclkMap {
+    fn sclk_to_et(&self, sclk: &str) -> Result<f64, TimeError>;
+    fn et_to_sclk(&self, et: f64) -> Result<String, TimeError>;
+}
+
+pub struct SclkClock<'a> {
+    pub kernel: &'a SclkKernel,
+    pub lsk: &'a LeapSecondTable,
+}
+impl SclkMap for SclkClock<'_>;
 ```
 
 ### `format`
@@ -903,6 +937,11 @@ impl Format {
 pub struct Formatter<'a> { /* private fields */ }
 impl<'a> Formatter<'a> {
     pub fn new(dt: &'a UtcDateTime, format: &'a Format) -> Self;
+    pub fn with_options(
+        dt: &'a UtcDateTime,
+        format: &'a Format,
+        options: &FormatOptions<'a>,
+    ) -> Self;
 }
 ```
 
@@ -931,8 +970,24 @@ pub fn tai_to_tdb(epoch: Epoch, lsk: &LeapSecondTable) -> f64;
 pub fn tdb_to_tai(tdb: f64, lsk: &LeapSecondTable) -> Epoch;
 
 pub fn dtdb_minus_tt(jd_tt: f64) -> f64;
+pub fn dtdb_minus_tt_split(jd1: f64, jd2: f64) -> f64;
+pub fn dtdb_minus_tt_at_observer(
+    jd1: f64,
+    jd2: f64,
+    ut1_fraction: f64,
+    east_longitude_radians: f64,
+    u_km: f64,
+    v_km: f64,
+) -> Result<f64, DtdbError>;
 pub fn tai_to_tdb_iau(epoch: Epoch, lsk: &LeapSecondTable) -> f64;
 pub fn tdb_iau_to_tai(tdb: f64, lsk: &LeapSecondTable) -> Epoch;
+
+pub enum DtdbError {
+    NonFiniteInput,
+    InvalidUt1Fraction,
+    InvalidObserverDistance,
+    OutsideModelRange,
+}
 ```
 
 ### `series` and `timescale`
@@ -949,3 +1004,107 @@ pub enum TimeScale {
     Utc, Tai, Tt, Et, Gps, Ut1, Tcg, Tcb,
 }
 ```
+
+### `contract`
+
+```rust
+pub enum CalculationProfile { NaifSpice, IauScientific }
+
+pub enum ContractError {
+    Time(TimeError),
+    Scientific(DtdbError),
+    NonFinite,
+    EpochOutOfRange,
+    HistoricalUtcRequiresExplicitModel,
+}
+
+pub struct NaifEt(/* private */);
+impl NaifEt {
+    pub fn from_seconds(seconds: f64) -> Result<Self, ContractError>;
+    pub fn seconds(self) -> f64;
+    pub fn profile(self) -> CalculationProfile;
+}
+
+pub struct NaifMetadata {
+    pub leap_entry_dates: (i64, i64),
+    pub leap_source: LeapSecondSource,
+    pub leap_policy: LeapSecondPolicy,
+    pub deltet: [f64; 5],
+}
+
+pub struct TimeContext<'a> { /* private fields */ }
+impl<'a> TimeContext<'a> {
+    pub fn new(lsk: &'a LeapSecondTable) -> Self;
+    pub fn profile(self) -> CalculationProfile;
+    pub fn metadata(self) -> NaifMetadata;
+    pub fn to_et(self, epoch: Epoch) -> Result<NaifEt, ContractError>;
+    pub fn utc_to_et(self, utc: &UtcDateTime, calendar: Calendar)
+        -> Result<NaifEt, ContractError>;
+    pub fn to_epoch(self, et: NaifEt) -> Result<Epoch, ContractError>;
+    pub fn et_to_utc(self, et: NaifEt, calendar: Calendar)
+        -> Result<UtcDateTime, ContractError>;
+}
+
+pub enum ScientificModel {
+    GeocentricFairheadBretagnon,
+    ObserverFairheadBretagnon,
+}
+
+pub struct IauTdb { /* private fields */ }
+impl IauTdb {
+    pub fn seconds(self) -> f64;
+    pub fn model(self) -> ScientificModel;
+    pub fn profile(self) -> CalculationProfile;
+}
+
+pub struct ScientificContext;
+impl ScientificContext {
+    pub fn new() -> Self;
+    pub fn tt_seconds(self, epoch: Epoch) -> Result<f64, ContractError>;
+    pub fn to_tdb(self, epoch: Epoch) -> Result<IauTdb, ContractError>;
+    pub fn to_tdb_at_observer(
+        self,
+        epoch: Epoch,
+        ut1_fraction: f64,
+        longitude: f64,
+        u_km: f64,
+        v_km: f64,
+    ) -> Result<IauTdb, ContractError>;
+}
+```
+
+There is no `From<IauTdb>` for `NaifEt`: crossing between the two models
+requires an explicit decision. See [`TIME_CONTRACT.md`](TIME_CONTRACT.md).
+
+### `error`
+
+```rust
+pub enum TimeError {
+    InvalidDate { year: i32, month: u8, day: u8 },
+    InvalidTime { hour: u8, minute: u8 },
+    InvalidSecond,
+    InvalidFormat,
+    EopMissing,
+    EopParse,
+    SclkParse,
+    SclkMissing(&'static str),
+    SclkUnsupported,
+    SclkPartitionsUnsupported,
+    Ut1OutOfRange,
+    InvalidLeapSecond,
+    UtcOutOfRange,
+    LskParse,
+    LskMissing(&'static str),
+    Overflow,
+}
+```
+
+### `mcp` (`--features mcp`)
+
+```rust
+pub fn run_stdio() -> std::io::Result<()>;
+pub fn handle_message(line: &str) -> Option<String>;
+```
+
+`handle_message` is the transport-independent entry point used by the
+tests; `run_stdio` reads newline-delimited JSON-RPC from stdin.

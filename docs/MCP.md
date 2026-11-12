@@ -69,9 +69,11 @@ rejected.
 
 ## Tools
 
-All tools accept an optional `lsk_path`. When it is omitted, the server
-uses the bundled `naif0012.tls` snapshot (last leap second `2017-01-01`).
-UTC tools accept `calendar`: `gregorian` (default), `julian`, or `mixed`.
+UTC, TAI↔ET/TT and SCLK tools accept an optional `lsk_path`. When it is
+omitted, the server uses the bundled `naif0012.tls` snapshot (last leap
+second `2017-01-01`). GPS tools and `etcal` need no leap-second kernel and
+have no `lsk_path` argument. UTC tools accept `calendar`: `gregorian`
+(default), `julian`, or `mixed`.
 
 | Tool | Required arguments | Returns |
 |---|---|---|
@@ -176,10 +178,12 @@ block):
 - Non-finite EOP samples are rejected with `EopParse`.
 - UT1 requires bracketing EOP samples around the UTC day; the last
   sample day is not usable as an epoch boundary.
-- SCLK support is limited to type-1 clocks. Partitions are parsed but not
-  applied; field/string conversion returns
+- SCLK support is limited to type-1 clocks. Partition durations bound the
+  accepted encoded ticks: a value before the first coefficient or beyond
+  the cumulative partition duration is rejected. Partitions are parsed but
+  not applied to strings; field/string conversion returns
   `SclkPartitionsUnsupported` for partitioned clocks, while encoded
-  ticks↔ET/TAI remain available.
+  ticks↔ET/TAI remain available inside that domain.
 - Tool arguments are JSON numbers/strings. To pass a leap-second label,
   use `"second": 60.5`; do not pass a formatted string as a number.
 

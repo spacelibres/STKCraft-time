@@ -4,6 +4,41 @@ All notable changes to `stkcraft-time` are documented here.
 
 The format follows Keep a Changelog. This crate uses semantic versioning.
 
+## [0.1.22] - 2026-11-12
+
+### Fixed
+
+- `docs/API.md` claimed the crate bundles no leap-second data while also
+  documenting the compiled-in `naif0012.tls` snapshot. The scope section
+  now states that the snapshot is bundled and that mission SCLK and EOP
+  data are not.
+- `README.md` listed `fmod` among the `libm` functions used by `no_std`
+  builds. The crate uses `sin`, `cos`, `floor` and `round`; the list is now
+  correct.
+- `docs/MCP.md` and the MCP skill stated that every tool accepts
+  `lsk_path`. GPS tools and `etcal` take no leap-second kernel; the text
+  now says which tools accept it.
+- `docs/MCP.md` and the MCP skill did not mention that SCLK tools bound
+  encoded ticks by the cumulative partition duration.
+
+### Added
+
+- The `docs/API.md` index now covers the `contract` module (`TimeContext`,
+  `ScientificContext`, `NaifEt`, `IauTdb`, `NaifMetadata`, `ContractError`),
+  the `error` and `mcp` modules, `lsk::parse_lsk`, `SclkClock`/`SclkMap`,
+  `DtdbError` and the observer `dtdb` functions, and
+  `Formatter::with_options`.
+- `docs/API.md` names the three documentation sources and their roles, so
+  the in-repository contract, the model contracts and the wiki cannot drift
+  silently.
+
+### Notes
+
+- No library, kernel-format or numerical change. The SCLK figures in the
+  wiki now match the committed fixtures: 10 871 bit-exact CSPICE cases
+  across the MRO and JUICE kernels, not the earlier 64-sample tolerance
+  check.
+
 ## [0.1.21] - 2026-11-12
 
 ### Added

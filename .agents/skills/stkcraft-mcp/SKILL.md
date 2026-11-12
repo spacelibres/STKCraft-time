@@ -65,8 +65,9 @@ return `-32600`. The server advertises only protocol version
 | `etcal` | `et` |
 
 UTC tools accept `calendar` = `gregorian` (default), `julian` or `mixed`.
-All tools accept an optional `lsk_path`; omit it to use the bundled
-`naif0012.tls`. EOP tools also accept `eop_series` (`a`, `b`, `final`) and
+UTC, TAI↔ET/TT and SCLK tools accept an optional `lsk_path`; omit it to use
+the bundled `naif0012.tls`. GPS tools and `etcal` take no leap-second
+kernel. EOP tools also accept `eop_series` (`a`, `b`, `final`) and
 `observed_only`. `precision` is limited to `0..=9`. TAI tools accept
 `tai_seconds`, or exact `sec` + `nanos`. SCLK tools accept continuous
 ticks; `fields` and `clock_string` are `null` for non-integral ticks.
@@ -112,7 +113,10 @@ cargo clippy --all-targets --features mcp -- -D warnings
 ## Security and limits
 
 - Reads only caller-supplied local paths; no network I/O.
-- Only type-1 SCLK kernels are supported.
+- Only type-1 SCLK kernels are supported. Encoded ticks are bounded by
+  the cumulative partition duration and the first coefficient; ticks
+  outside that domain are rejected. Partition-aware string conversion is
+  not implemented (`SclkPartitionsUnsupported`).
 - `23:59:60.x` without a positive leap second and `23:59:59.x` on a
   shortened day are rejected.
 - Non-finite EOP samples are rejected with `EopParse`.
