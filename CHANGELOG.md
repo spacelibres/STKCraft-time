@@ -4,6 +4,21 @@ All notable changes to `stkcraft-time` are documented here.
 
 The format follows Keep a Changelog. This crate uses semantic versioning.
 
+## [0.1.24] - 2026-11-12
+
+### Added
+
+- `docs/API.md`, `docs/MCP.md` and `docs/TIME_CONTRACT.md` now open with
+  the project mark and a link row (crates.io, API reference, source, wiki,
+  STKCraft), so a reader who lands on a single guide page can still reach
+  the registry and the full documentation set.
+
+### Notes
+
+- No library, kernel-format or numerical change. The project wiki uses the
+  SVG brand mark on its home page, the raster mark in the sidebar, and the
+  same link set in a footer.
+
 ## [0.1.23] - 2026-11-12
 
 ### Added

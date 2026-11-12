@@ -1,3 +1,15 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/spacelibres/STKCraft_web/main/public/brand/albatross.png" alt="STKCraft — Albatross" width="72">
+</p>
+
+<p align="center">
+  <a href="https://crates.io/crates/stkcraft-time">crates.io</a> ·
+  <a href="https://docs.rs/stkcraft-time">API reference</a> ·
+  <a href="https://github.com/spacelibres/STKCraft-time">source</a> ·
+  <a href="https://github.com/spacelibres/STKCraft-time/wiki">wiki</a> ·
+  <a href="https://www.stkcraft.com">STKCraft</a>
+</p>
+
 # `stkcraft-mcp` — MCP server
 
 `stkcraft-mcp` exposes the `stkcraft-time` API as a
