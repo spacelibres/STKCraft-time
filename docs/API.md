@@ -1,6 +1,6 @@
 # `stkcraft-time` API guide
 
-This guide shows how to call the public API of `stkcraft-time` 0.1.22. It
+This guide shows how to call the public API of `stkcraft-time` 0.1.23. It
 is task-oriented: each section answers "which function do I call, and what
 data do I need to load first?" For item-level reference documentation,
 run:
@@ -47,13 +47,13 @@ replaces it.
 
 ```toml
 [dependencies]
-stkcraft-time = "0.1.22"
+stkcraft-time = "0.1.23"
 
 # no_std + alloc:
-# stkcraft-time = { version = "0.1.22", default-features = false }
+# stkcraft-time = { version = "0.1.23", default-features = false }
 
 # or pin the repository:
-# stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.22" }
+# stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.23" }
 ```
 
 The internal epoch representation is integer seconds plus nanoseconds;
@@ -628,6 +628,11 @@ ERFA source is checked against its pinned SHA-256, so a mirror cannot
 change the result silently.
 
 ## 14. Public API index
+
+This list is enforced, not illustrative: `tests/api_index.rs` parses every
+`pub fn`/`struct`/`enum`/`const`/`type`/`trait` in `src/` and fails the
+build when an item is missing from this section, or when a name here no
+longer exists.
 
 ### `calendar`
 

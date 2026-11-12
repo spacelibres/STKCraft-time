@@ -4,6 +4,21 @@ All notable changes to `stkcraft-time` are documented here.
 
 The format follows Keep a Changelog. This crate uses semantic versioning.
 
+## [0.1.23] - 2026-11-12
+
+### Added
+
+- `tests/api_index.rs` keeps the public API index in `docs/API.md`
+  complete. It parses every `pub fn`/`struct`/`enum`/`const`/`type`/`trait`
+  in `src/` and fails with the exact names when an item is missing from the
+  index, or when the index lists a name that no longer exists. Crate-private
+  and test-only items are ignored. `CONTRIBUTING.md` and the index heading
+  now state that the list is enforced.
+
+### Notes
+
+- No library, kernel-format or numerical change.
+
 ## [0.1.22] - 2026-11-12
 
 ### Fixed

@@ -33,7 +33,10 @@ RUSTDOCFLAGS="-D warnings" cargo doc --no-deps
 - Add regression tests for boundary conditions, especially leap seconds,
   EOP validation, UT1 coverage and SCLK parsing.
 - Update the API guide in `docs/API.md` and the MCP guide in
-  `docs/MCP.md` when the public surface changes.
+  `docs/MCP.md` when the public surface changes. `tests/api_index.rs`
+  fails the build when a `pub` item in `src/` is missing from the
+  `docs/API.md` index, or when the index names an item that no longer
+  exists.
 - Update `CHANGELOG.md` under a new dated version section. Do not use
   `[Unreleased]`.
 - Increment the patch version in `Cargo.toml`, `Cargo.lock` and the
