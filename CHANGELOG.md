@@ -4,6 +4,29 @@ All notable changes to `stkcraft-time` are documented here.
 
 The format follows Keep a Changelog. This crate uses semantic versioning.
 
+## [0.1.30] - 2026-11-12
+
+### Added
+
+- Explicit `TimeContext::et_to_spice_julian_utc` and checked `NaifJulianUtc`
+  for native historical packet epochs without integer Epoch/civil-calendar
+  quantization. Preserve N0067's historical offset, formal leap-second
+  behavior, paired-table validation, operation order and 140-entry selection.
+- Independent C captures and exact regressions for all 13 original
+  integration inputs, 18,493 native values and 185 native error symbols.
+  Preserve another 185 malformed-table records as earlier typed-constructor
+  rejections, without claiming native symbol equivalence for that path.
+- Explicit raw-model and invalid-native-table contract errors, with native
+  source/capture provenance and an exact scope record.
+
+### Changed
+
+- Document the direct native JDUTC API, checked type and Agent Skill call
+  path. Preserve existing strict civil/scientific APIs and their model
+  separation; reject SOFA/frozen policies on the new raw-kernel path.
+- Keep broader TTRANS representations, malformed raw-pool inputs and
+  GeoCalc historical SPK10 integration outside this time-layer claim.
+
 ## [0.1.29] - 2026-11-12
 
 ### Changed

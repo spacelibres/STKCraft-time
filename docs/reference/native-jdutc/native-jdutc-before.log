@@ -1,0 +1,16 @@
+   Compiling stkcraft-time v0.1.29 (C:\Users\stone\.codex\worktrees\naif-historical-utc\STKCraft-time)
+error[E0599]: no method named `et_to_spice_julian_utc` found for struct `TimeContext<'a>` in the current scope
+  --> tests\native_jdutc_exact.rs:22:68
+   |
+22 |                 let result=TimeContext::new(lsk.as_ref().unwrap()).et_to_spice_julian_utc(NaifEt::from_seconds(number(f[2])).unwrap());
+   |                                                                    ^^^^^^^^^^^^^^^^^^^^^^ method not found in `TimeContext<'_>`
+
+error[E0599]: no method named `et_to_spice_julian_utc` found for struct `TimeContext<'a>` in the current scope
+  --> tests\native_jdutc_exact.rs:42:43
+   |
+42 |         let result=TimeContext::new(&lsk).et_to_spice_julian_utc(NaifEt::from_seconds(number(f[0])).unwrap()).unwrap();
+   |                                           ^^^^^^^^^^^^^^^^^^^^^^ method not found in `TimeContext<'_>`
+
+For more information about this error, try `rustc --explain E0599`.
+error: could not compile `stkcraft-time` (test "native_jdutc_exact") due to 2 previous errors
+warning: build failed, waiting for other jobs to finish...

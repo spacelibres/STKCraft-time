@@ -167,3 +167,13 @@ above applies. Production does not link CSPICE. Selected sources were
 byte-checked against the same official archive identified above; hashes
 are in `docs/reference/kernel-date-grammar-native/source-provenance.json`.
 The captured C oracle and its toolchain profile are independent references.
+
+## `src/naif/utc.rs`
+
+The explicit ET-to-JDUTC path preserves N0067 TTRANS's paired TAI/day
+tables, 140-entry selection, RMAIND operation order and formal leap-second
+behavior. TT/TAI conversion retains the existing UNITIM implementation.
+The original NAIF disclaimer above applies. The independent C wrapper
+links the unmodified N0067 static library; production does not link it.
+Source hashes, raw inputs/outputs and the original 13-input blocker are
+retained in `docs/reference/native-jdutc/`.

@@ -44,6 +44,10 @@ pub enum ContractError {
     EpochOutOfRange,
     /// Historical SOFA UTC is a separate convention from this NAIF contract.
     HistoricalUtcRequiresExplicitModel,
+    /// The raw N0067 Julian UTC path requires an unmodified kernel policy.
+    NaifKernelModelRequired,
+    /// N0067 TTRANS rejects a non-increasing paired TAI leap table.
+    InvalidNaifLeapSeconds,
 }
 
 impl From<TimeError> for ContractError {
@@ -68,6 +72,10 @@ impl fmt::Display for ContractError {
             Self::HistoricalUtcRequiresExplicitModel => {
                 f.write_str("historical UTC requires the explicit SOFA conversion API")
             }
+            Self::NaifKernelModelRequired => {
+                f.write_str("native Julian UTC requires an IERS-only, table-driven LSK model")
+            }
+            Self::InvalidNaifLeapSeconds => f.write_str("SPICE(BADLEAPSECONDS)"),
         }
     }
 }
@@ -81,6 +89,27 @@ impl std::error::Error for ContractError {}
 /// accuracy. [`Self::seconds`] is the explicit boundary to legacy SPICE APIs.
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub struct NaifEt(f64);
+
+/// Formal Julian UTC returned by N0067 TTRANS's explicitly selected model.
+///
+/// Before the first LSK entry this uses native's constant-offset convention,
+/// not physically realized historical UTC. During a positive leap second
+/// the formal value stands still. It cannot implicitly become ET:
+///
+/// ```compile_fail
+/// use stkcraft_time::contract::{NaifEt, NaifJulianUtc};
+/// fn geometry_epoch(_: NaifEt) {}
+/// fn wrong_scale(value: NaifJulianUtc) { geometry_epoch(value); }
+/// ```
+#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
+pub struct NaifJulianUtc(f64);
+
+impl NaifJulianUtc {
+    /// Unrounded native Julian days, for an explicitly chosen JDUTC consumer.
+    pub fn days(self) -> f64 {
+        self.0
+    }
+}
 
 impl NaifEt {
     /// Accepts an explicitly declared ET input, rejecting NaN/infinity.
@@ -157,6 +186,23 @@ impl<'a> TimeContext<'a> {
     /// Selects NAIF ET, with no scientific-model fallback.
     pub fn new(lsk: &'a LeapSecondTable) -> Self {
         Self { lsk }
+    }
+    /// Native TTRANS ET-to-JDUTC, including its historical LSK convention.
+    ///
+    /// This explicit path bypasses integer Epoch and civil-calendar
+    /// quantization. It requires IERS-only/TableDriven kernel settings;
+    /// scientific SOFA and frozen future policies are separate choices.
+    /// N0067 uses the first 140 entries, holds a formal JD during positive
+    /// leap seconds, and assumes the first offset minus one before its
+    /// first entry. This is not a scientific historical UTC realization.
+    /// Existing `et_to_utc` retains its post-1972 coverage contract.
+    pub fn et_to_spice_julian_utc(self, et: NaifEt) -> Result<NaifJulianUtc, ContractError> {
+        if self.lsk.source() != LeapSecondSource::IersOnly
+            || self.lsk.policy() != LeapSecondPolicy::TableDriven
+        {
+            return Err(ContractError::NaifKernelModelRequired);
+        }
+        naif::utc::julian_utc(et.seconds(), self.lsk).map(NaifJulianUtc)
     }
     /// The default calculation convention.
     pub fn profile(self) -> CalculationProfile {

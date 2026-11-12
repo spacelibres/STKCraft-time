@@ -220,7 +220,9 @@ impl LeapSecondTable {
     /// leap-second dates present in this table, as Julian Day Numbers.
     ///
     /// The first value is where the kernel's leap-second data starts;
-    /// UTC dates before it are rejected rather than guessed. The second
+    /// Civil UTC conversions reject dates before it. The explicitly named
+    /// native JDUTC path selects TTRANS's separate historical convention.
+    /// The second
     /// value is the most recent leap-second date the kernel knows about.
     ///
     /// After `last_jdn` the last `TAI - UTC` value is held constant.

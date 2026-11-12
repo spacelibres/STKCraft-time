@@ -56,10 +56,15 @@ the original parallel time rather than detouring through an integer Epoch.
 Their inverse follows native reciprocal-rate evaluation order, which matters
 for nonbinary clock moduli and zero-tolerance CK queries.
 
-NAIF context UTC conversion supports the post-1972 LSK convention.
-Historical UTC must be selected through the explicit low-level SOFA
-source API; it is not silently mixed into the geometry contract. Numeric
-ET before 1972 is still representable if supplied explicitly.
+NAIF context civil UTC conversion supports the post-1972 LSK convention.
+Physical historical UTC uses the explicit low-level SOFA source API.
+The separately named `TimeContext::et_to_spice_julian_utc` instead selects
+N0067 TTRANS's scalar formal-JDUTC convention, including the native
+pre-first-entry offset. It returns checked `NaifJulianUtc` directly from
+ET and a raw IERS-only/TableDriven LSK. It does not change existing civil
+coverage or infer a scientific historical model. See
+[the exact native scope](reference/NATIVE_JDUTC.md) before consuming formal
+Julian UTC at leap seconds or historical epochs.
 
 ## Scientific convention
 

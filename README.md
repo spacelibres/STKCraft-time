@@ -36,13 +36,13 @@ NPARSD operation order; see [ATTRIBUTION.md](ATTRIBUTION.md) for provenance.
 - **Reference:** `cargo doc --open`
 
 **Install:** `cargo add stkcraft-time`, or add
-`stkcraft-time = "0.1.29"` to `[dependencies]`. With `no_std`, use `default-features = false`.
+`stkcraft-time = "0.1.30"` to `[dependencies]`. With `no_std`, use `default-features = false`.
 
 ## Project status
 
-- Latest release: **v0.1.29** on GitHub Releases, including release-mode
+- Latest release: **v0.1.30** on GitHub Releases, including release-mode
   binaries for Linux, macOS (x86_64 and arm64) and Windows.
-- Published on crates.io as **`stkcraft-time` 0.1.29**, with API docs on
+- Published on crates.io as **`stkcraft-time` 0.1.30**, with API docs on
   [docs.rs](https://docs.rs/stkcraft-time).
 - Minimum supported Rust version: **1.75**.
 - The library is `no_std` compatible with `alloc`; the optional MCP server
@@ -56,13 +56,13 @@ cargo add stkcraft-time
 
 ```toml
 [dependencies]
-stkcraft-time = "0.1.29"
+stkcraft-time = "0.1.30"
 ```
 
 `no_std` plus `alloc`:
 
 ```toml
-stkcraft-time = { version = "0.1.29", default-features = false }
+stkcraft-time = { version = "0.1.30", default-features = false }
 ```
 
 The MCP server and the validation binaries are optional:
@@ -74,7 +74,7 @@ cargo install stkcraft-time --features mcp --bin stkcraft-mcp
 To track the repository instead of a crates.io release, pin a tag:
 
 ```toml
-stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.29" }
+stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.30" }
 ```
 
 ## Releases
@@ -141,8 +141,9 @@ after a leap second if two kernels disagree about that leap second.
   a privileged source of truth.
 - `LeapSecondTable::coverage()` returns the `(first, last)` effective
   dates the kernel actually covers.
-- UTC dates **before** the first kernel entry are rejected
-  (`UtcOutOfRange`); nothing is guessed.
+- Civil UTC dates **before** the first kernel entry are rejected
+  (`UtcOutOfRange`). The explicitly named native JDUTC path below selects
+  N0067's separate historical convention.
 - UTC dates **after** the last entry hold the last `TAI - UTC` value.
   This is NAIF's documented behaviour, not data invented here: a kernel
   cannot know about a leap second announced after it was released.
@@ -356,6 +357,15 @@ returns typed `NaifEt`. `ScientificContext` is an explicit TT(TAI)/ERFA
 scientific path returning a separate `IauTdb`, with geocentric or supplied
 observer-dependent terms. Existing low-level APIs retain their behavior.
 
+Native consumers needing historical scalar JDUTC, such as SPK type-10
+initialization, can explicitly call
+`TimeContext::et_to_spice_julian_utc` and use `NaifJulianUtc::days()`.
+This preserves TTRANS's raw arithmetic, historical offset and formal
+leap-second behavior without an integer Epoch/civil-calendar round trip.
+It requires IERS-only/TableDriven LSK settings; see
+[the exact native scope](docs/reference/NATIVE_JDUTC.md). It is distinct
+from a physically realized historical UTC/SOFA model.
+
 Implemented:
 
 - Gregorian, Julian and Mixed calendars
@@ -459,7 +469,7 @@ NAIF document that establishes it. This crate does not encode such a
 date.
 
 Before 1972, UTC seconds were not SI seconds. The default
-`LeapSecondSource::IersOnly` matches the NAIF LSK and rejects pre-1972
+`LeapSecondSource::IersOnly` civil path matches the NAIF LSK and rejects pre-1972
 UTC. Selecting `LeapSecondSource::Sofa` additionally enables the IAU
 SOFA `iauDat` drift model for 1960-1972, including positive and negative
 mini-leaps in the final minute and fractional `TAI - UTC`. Historical
@@ -723,7 +733,7 @@ python tools/wgc2_compare.py        # live WGC2 (CSPICE front-end) check
 The library is `no_std` compatible with `alloc`:
 
 ```toml
-stkcraft-time = { version = "0.1.29", default-features = false }
+stkcraft-time = { version = "0.1.30", default-features = false }
 ```
 
 In `no_std` builds, `libm` supplies `sin`, `cos`, `floor` and `round`;

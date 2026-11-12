@@ -12,7 +12,7 @@
 
 # `stkcraft-time` API guide
 
-This guide shows how to call the public API of `stkcraft-time` 0.1.29. It
+This guide shows how to call the public API of `stkcraft-time` 0.1.30. It
 is task-oriented: each section answers "which function do I call, and what
 data do I need to load first?" For item-level reference documentation,
 run:
@@ -59,13 +59,13 @@ replaces it.
 
 ```toml
 [dependencies]
-stkcraft-time = "0.1.29"
+stkcraft-time = "0.1.30"
 
 # no_std + alloc:
-# stkcraft-time = { version = "0.1.29", default-features = false }
+# stkcraft-time = { version = "0.1.30", default-features = false }
 
 # or pin the repository:
-# stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.29" }
+# stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.30" }
 ```
 
 The internal epoch representation is integer seconds plus nanoseconds;
@@ -221,7 +221,8 @@ let lsk = LeapSecondTable::from_lsk(&text)?
 ```
 
 - `LeapSecondSource::IersOnly` (default) matches the NAIF LSK and handles
-  integer leap seconds from 1972 onward. UTC before 1972 is rejected.
+  integer leap seconds from 1972 onward for civil conversions. Earlier
+  civil UTC is rejected; explicit native formal JDUTC is described below.
 - `LeapSecondSource::Sofa` adds the IAU SOFA `iauDat` drift model for
   1960–1972 and returns fractional `TAI - UTC`.
 - `LeapSecondPolicy::TableDriven` (default) keeps the last table entry in
@@ -338,6 +339,25 @@ TDB, returning a separate `IauTdb` type. There is no implicit conversion
 between those types. The scientific context ignores mutable LSK constants
 and guards the model's 1950-2050 date interval. See
 [Time contracts](TIME_CONTRACT.md) for units, origins, metadata and limits.
+
+For native SPK10 initialization or another explicitly selected TTRANS
+JDUTC consumer, use the direct checked scalar path. With the original
+unmodified `naif0012.tls` already loaded as IERS-only/TableDriven `lsk`,
+inside a function returning `Result<_, stkcraft_time::contract::ContractError>`:
+
+```rust
+use stkcraft_time::contract::{NaifEt, TimeContext};
+let et = NaifEt::from_seconds(-1_000_000_000.0)?;
+let utc_jd = TimeContext::new(&lsk).et_to_spice_julian_utc(et)?;
+assert_eq!(utc_jd.days().to_bits(), 0x41429d9176751ee9);
+```
+
+The native historical convention and formal leap-second behavior are
+distinct from physical historical UTC. SOFA/frozen policies are rejected
+by this method; `et_to_utc` keeps its existing civil coverage. It preserves
+native operation order and the first 140 leap entries without passing
+through integer Epoch or civil calendar fields. See
+[native JDUTC evidence and limits](reference/NATIVE_JDUTC.md).
 
 | API | Model | Use when |
 |---|---|---|
@@ -1092,12 +1112,15 @@ pub enum TimeScale {
 ```rust
 pub enum CalculationProfile { NaifSpice, IauScientific }
 
+#[non_exhaustive]
 pub enum ContractError {
     Time(TimeError),
     Scientific(DtdbError),
     NonFinite,
     EpochOutOfRange,
     HistoricalUtcRequiresExplicitModel,
+    NaifKernelModelRequired,
+    InvalidNaifLeapSeconds,
 }
 
 pub struct NaifEt(/* private */);
@@ -1114,6 +1137,11 @@ pub struct NaifMetadata {
     pub deltet: [f64; 5],
 }
 
+pub struct NaifJulianUtc(/* private */);
+impl NaifJulianUtc {
+    pub fn days(self) -> f64;
+}
+
 pub struct TimeContext<'a> { /* private fields */ }
 impl<'a> TimeContext<'a> {
     pub fn new(lsk: &'a LeapSecondTable) -> Self;
@@ -1125,6 +1153,8 @@ impl<'a> TimeContext<'a> {
     pub fn to_epoch(self, et: NaifEt) -> Result<Epoch, ContractError>;
     pub fn et_to_utc(self, et: NaifEt, calendar: Calendar)
         -> Result<UtcDateTime, ContractError>;
+    pub fn et_to_spice_julian_utc(self, et: NaifEt)
+        -> Result<NaifJulianUtc, ContractError>;
 }
 
 pub enum ScientificModel {

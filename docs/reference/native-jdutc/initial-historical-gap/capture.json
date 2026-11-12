@@ -1,0 +1,38 @@
+{
+  "archive_sha256": "98d60b814b412fa55294aeaaeb7dab46d849cc87a8b709ffe835d08de17625dc",
+  "cspice_lib_sha256": "114dc34aea8533bcdd452997b9096219c3697234a00dfe59a4ba1d87731a9650",
+  "static_ucrt_sha256": "ea2ffa5d9b1ebc3fa76f34c364471750db8951b341dbccbc1bef628ef1a20e39",
+  "source_sha256": "8933ff2a244f67a34c2e2def421bc33bf1078ff46b40fd7ad7ae1f84b082bdbb",
+  "generator_sha256": "f24a52e545bfef64779dc25a394d8664d1cbe3f8c0d41550fa4693109ae3e8e0",
+  "compiler_sha256": "315a654ea116864516a1674858e587e535e3bc3045ff32ed2f2739a2c1ec5640",
+  "linked_libraries": [
+    {
+      "path": "C:\\Program Files (x86)\\Windows Kits\\10\\Lib\\10.0.26100.0\\ucrt\\x64\\libucrt.lib",
+      "sha256": "ea2ffa5d9b1ebc3fa76f34c364471750db8951b341dbccbc1bef628ef1a20e39"
+    },
+    {
+      "path": "C:\\Users\\stone\\.codex\\worktrees\\dsk-models-parity\\STKCraft-Geocalc\\target\\reference\\n0067\\cspice\\lib\\cspice.lib",
+      "sha256": "114dc34aea8533bcdd452997b9096219c3697234a00dfe59a4ba1d87731a9650"
+    }
+  ],
+  "imports": [
+    "KERNEL32.dll"
+  ],
+  "native_source_sha256": {
+    "pool.c": "ad1e1f04decc8b17e01d147bdfb1919e653ec65020d3017a8c3e78c7b3c85ada",
+    "zzrvar.c": "26e3f437d6d6393ecf82d0ede3442b4d27fb2ec3b4d24cda8db02ff9a48d9bd8",
+    "zzcln.c": "b0f3b62f344e3ab62b393b289d845c28eda53bcf76e7c918fab8ecf0728a1724",
+    "nparsd.c": "2fe61837c8d3343842a4445c77beb0a38617864f10037191b0bbd6913b8feaad",
+    "tparse.c": "4e56c236a8ad8eb4ef01238cc47bf97b73b51e5b67030ba5bec41934aa21171a",
+    "tkfram.c": "b8893e5fd7cb66f8d2dcc10a55c9630df8938bbbac28819bce8d2027fa2f28d8",
+    "framex.c": "7a63ead49da551912eac67a7471b33dfcb4d957ae47f05104f64463b2ff11593",
+    "zznamfrm.c": "2ba4ac88331091466519d035803884abcb4c6da0ef9dab03a4f8a599ed13b9e4",
+    "getfov_c.c": "5e6b1feeeb84cc7400ab2eed88b5c8f291fee99da30a87dd558ae42912c259cf",
+    "bodvrd_c.c": "f6af678c333a2c6de580d1b596e180bff20a27518aba1eaa7a458d3b4815188d"
+  },
+  "executable_sha256": "b83533c915c8e9bc1cdf6763b7da73f79187a315d1c22bf8778db374d98f7b0d",
+  "captured_utc": "2026-11-12T04:18:18.821954+00:00",
+  "stdout_sha256": "c7015629cf68ca4c08ecc0e5416955d1d9127fae666b04507a88a5a0a405fcf9",
+  "lsk_sha256": "678e32bdb5a744117a467cd9601cd6b373f0e9bc9bbde1371d5eee39600a039b",
+  "ttrans_sha256": "9644a008c0dd12349b873eefb46821d444b224c24f9e26cb6e617bb95ec1d57d"
+}

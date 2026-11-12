@@ -53,6 +53,13 @@ cargo build --locked --no-default-features --target thumbv7em-none-eabi
   It returns checked `NaifEt`; only `.seconds()` crosses into legacy f64
   geometry APIs. Scientific TDB is an explicit `ScientificContext` with a
   distinct `IauTdb` type and no implicit conversion to NAIF ET.
+- For a native SPK10 packet epoch, use
+  `TimeContext::new(&lsk).et_to_spice_julian_utc(et)?.days()` to obtain
+  TTRANS JDUTC directly. This explicit path requires IERS-only/TableDriven
+  LSK settings, preserves native historical extrapolation and formal
+  leap-second behavior, and returns checked `NaifJulianUtc`. Do not detour
+  through integer Epoch, civil-calendar fields or SOFA. Read
+  `docs/reference/NATIVE_JDUTC.md` for the exact corpus and error boundaries.
 - The checked UTC path follows pinned TTRANS/UNITIM arithmetic. Validate it
   against STR2ET; validate supplied numeric TAI against UNITIM. Those inputs
   can quantize differently, so do not compare every representation against
@@ -69,8 +76,10 @@ cargo build --locked --no-default-features --target thumbv7em-none-eabi
   `LeapSecondTable::builtin()` is a snapshot of `naif0012.tls` and stops at
   the `2017-01-01` leap second.
 - Every conversion is a pure function of the supplied kernel.
-  `coverage()` reports the trusted range; dates before the first entry are
-  rejected, dates after the last entry keep the last `TAI - UTC`.
+  `coverage()` reports the trusted range for civil UTC conversions; dates
+  before the first entry are rejected there. The explicit native JDUTC
+  path selects a separate N0067 historical convention. Dates after the
+  last entry keep the last `TAI - UTC`.
 - Use `LeapSecondPolicy::FrozenAfter` only when the caller explicitly
   chooses a future policy. The default `TableDriven` policy infers
   nothing from a date.
@@ -133,7 +142,7 @@ cargo build --locked --no-default-features --target thumbv7em-none-eabi
   mini-leap or lose a fractional second; validate against that day's jump.
 - `23:59:59.x` does not exist on a shortened (86399-second) day and must
   return `InvalidLeapSecond`, not alias the next day's `00:00:00`.
-- Pre-1972 UTC requires `LeapSecondSource::Sofa`; the default
+- Physical historical civil UTC requires `LeapSecondSource::Sofa`; the default
   `IersOnly` source returns `UtcOutOfRange`.
 - Historical inverse conversion keeps split integer epoch arithmetic and
   actual midnight ownership. SOFA drift/mini-leap scaling has few-nanosecond

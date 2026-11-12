@@ -1,0 +1,11 @@
+   Compiling stkcraft-time v0.1.29 (C:\Users\stone\.codex\worktrees\naif-historical-utc\STKCraft-time)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.30s
+     Running tests\native_jdutc_exact.rs (target\debug\deps\native_jdutc_exact-239e83ae9f1de2ce.exe)
+
+running 3 tests
+test native_jdutc_requires_explicit_raw_lsk_model ... ok
+test native_jdutc_original_lsk_historical_gap_exact ... ok
+test native_jdutc_constructible_profiles_and_boundaries_exact ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s
+

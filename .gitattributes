@@ -3,9 +3,12 @@
 *.toml text eol=lf
 *.md text eol=lf
 *.py text eol=lf
+*.c text eol=lf
 *.csv text eol=lf
 *.tls text eol=lf
 *.yml text eol=lf
 tests/kernels/*.tsc -text -whitespace
 docs/reference/kernel-date-native/** -text -whitespace
 docs/reference/kernel-date-grammar-native/** -text -whitespace
+docs/reference/native-jdutc/** -text -whitespace
+tests/reference/native-jdutc/** -text -whitespace
