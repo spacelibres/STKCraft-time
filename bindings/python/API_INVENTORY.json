@@ -1,0 +1,1619 @@
+[
+  {
+    "core": "bdt::TAI_MINUS_BDT_SECONDS",
+    "python": "TAI_MINUS_BDT_SECONDS",
+    "status": "wrapped",
+    "source": "src/bdt.rs:23",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "bdt::GPS_MINUS_BDT_SECONDS",
+    "python": "GPS_MINUS_BDT_SECONDS",
+    "status": "wrapped",
+    "source": "src/bdt.rs:28",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "bdt::ORIGIN_TAI_SECONDS",
+    "python": "ORIGIN_TAI_SECONDS",
+    "status": "wrapped",
+    "source": "src/bdt.rs:32",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "bdt::NANOSECONDS_PER_WEEK",
+    "python": "NANOSECONDS_PER_WEEK",
+    "status": "wrapped",
+    "source": "src/bdt.rs:34",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "bdt::Bdt",
+    "python": "Bdt",
+    "status": "wrapped",
+    "source": "src/bdt.rs:42",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "bdt::Bdt::checked_from_parts",
+    "python": "Bdt",
+    "status": "wrapped",
+    "source": "src/bdt.rs:49",
+    "reason": "Checked core constructor; raises instead of returning Rust Option."
+  },
+  {
+    "core": "bdt::Bdt::checked_from_nanoseconds",
+    "python": "Bdt.from_nanoseconds",
+    "status": "wrapped",
+    "source": "src/bdt.rs:54",
+    "reason": "Checked core constructor; raises instead of returning Rust Option."
+  },
+  {
+    "core": "bdt::Bdt::checked_from_seconds",
+    "python": "Bdt.from_seconds",
+    "status": "wrapped",
+    "source": "src/bdt.rs:69",
+    "reason": "Checked core constructor; raises instead of returning Rust Option."
+  },
+  {
+    "core": "bdt::Bdt::sec",
+    "python": "Bdt.sec",
+    "status": "wrapped",
+    "source": "src/bdt.rs:78",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "bdt::Bdt::nanos",
+    "python": "Bdt.nanos",
+    "status": "wrapped",
+    "source": "src/bdt.rs:83",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "bdt::Bdt::seconds",
+    "python": "Bdt.seconds",
+    "status": "wrapped",
+    "source": "src/bdt.rs:88",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "bdt::Bdt::total_nanoseconds",
+    "python": "Bdt.total_nanoseconds",
+    "status": "wrapped",
+    "source": "src/bdt.rs:93",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "bdt::Bdt::from_epoch",
+    "python": "Bdt.from_epoch",
+    "status": "wrapped",
+    "source": "src/bdt.rs:98",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "bdt::Bdt::to_epoch",
+    "python": "Bdt.to_epoch",
+    "status": "wrapped",
+    "source": "src/bdt.rs:105",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "bdt::Bdt::from_week_nanoseconds",
+    "python": "Bdt.from_week_nanoseconds",
+    "status": "wrapped",
+    "source": "src/bdt.rs:118",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "bdt::Bdt::week_nanoseconds",
+    "python": "Bdt.week_nanoseconds",
+    "status": "wrapped",
+    "source": "src/bdt.rs:129",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "bdt::Bdt::from_utc",
+    "python": "Bdt.from_utc",
+    "status": "wrapped",
+    "source": "src/bdt.rs:142",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "bdt::Bdt::to_utc",
+    "python": "Bdt.to_utc",
+    "status": "wrapped",
+    "source": "src/bdt.rs:159",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "bdt::Bdt::from_et",
+    "python": "Bdt.from_et",
+    "status": "wrapped",
+    "source": "src/bdt.rs:184",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "bdt::Bdt::to_et",
+    "python": "Bdt.to_et",
+    "status": "wrapped",
+    "source": "src/bdt.rs:189",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "calendar::J2000_JDN",
+    "python": "J2000_JDN",
+    "status": "wrapped",
+    "source": "src/calendar.rs:12",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "calendar::GPS_EPOCH_JDN",
+    "python": "GPS_EPOCH_JDN",
+    "status": "wrapped",
+    "source": "src/calendar.rs:15",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "calendar::GREGORIAN_SWITCH_JDN",
+    "python": "GREGORIAN_SWITCH_JDN",
+    "status": "wrapped",
+    "source": "src/calendar.rs:19",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "calendar::Calendar",
+    "python": "Calendar",
+    "status": "wrapped",
+    "source": "src/calendar.rs:23",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "calendar::is_gregorian_leap",
+    "python": "is_gregorian_leap",
+    "status": "wrapped",
+    "source": "src/calendar.rs:33",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "calendar::is_julian_leap",
+    "python": "is_julian_leap",
+    "status": "wrapped",
+    "source": "src/calendar.rs:38",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "calendar::days_in_month",
+    "python": "days_in_month",
+    "status": "wrapped",
+    "source": "src/calendar.rs:43",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "calendar::gregorian_to_jdn",
+    "python": "gregorian_to_jdn",
+    "status": "wrapped",
+    "source": "src/calendar.rs:66",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "calendar::julian_to_jdn",
+    "python": "julian_to_jdn",
+    "status": "wrapped",
+    "source": "src/calendar.rs:76",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "calendar::jdn_to_gregorian",
+    "python": "jdn_to_gregorian",
+    "status": "wrapped",
+    "source": "src/calendar.rs:84",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "calendar::jdn_to_julian",
+    "python": "jdn_to_julian",
+    "status": "wrapped",
+    "source": "src/calendar.rs:98",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "calendar::jdn_to_calendar",
+    "python": "jdn_to_calendar",
+    "status": "wrapped",
+    "source": "src/calendar.rs:110",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "calendar::calendar_to_jdn",
+    "python": "calendar_to_jdn",
+    "status": "wrapped",
+    "source": "src/calendar.rs:125",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "calendar::calendar_to_jd",
+    "python": "calendar_to_jd",
+    "status": "wrapped",
+    "source": "src/calendar.rs:153",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "calendar::jd_to_mjd",
+    "python": "jd_to_mjd",
+    "status": "wrapped",
+    "source": "src/calendar.rs:173",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "calendar::mjd_to_jd",
+    "python": "mjd_to_jd",
+    "status": "wrapped",
+    "source": "src/calendar.rs:179",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "contract::NaifDeltet",
+    "python": "NaifDeltet",
+    "status": "wrapped",
+    "source": "src/contract/naif_utc.rs:7",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "contract::NaifUtcContext",
+    "python": "NaifUtcContext",
+    "status": "wrapped",
+    "source": "src/contract/naif_utc.rs:35",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "contract::NaifUtcContext::from_raw_parts",
+    "python": "NaifUtcContext.from_raw_parts",
+    "status": "wrapped",
+    "source": "src/contract/naif_utc.rs:60",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "contract::NaifUtcContext::et_to_spice_julian_utc",
+    "python": "NaifUtcContext.et_to_spice_julian_utc",
+    "status": "wrapped",
+    "source": "src/contract/naif_utc.rs:77",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "contract::CalculationProfile",
+    "python": "CalculationProfile",
+    "status": "wrapped",
+    "source": "src/contract.rs:28",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "contract::ContractError",
+    "python": "ContractError",
+    "status": "wrapped",
+    "source": "src/contract.rs:39",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "contract::NaifEt",
+    "python": "NaifEt",
+    "status": "wrapped",
+    "source": "src/contract.rs:94",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "contract::NaifJulianUtc",
+    "python": "NaifJulianUtc",
+    "status": "wrapped",
+    "source": "src/contract.rs:108",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "contract::NaifJulianUtc::days",
+    "python": "NaifJulianUtc.days",
+    "status": "wrapped",
+    "source": "src/contract.rs:112",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "contract::NaifEt::from_seconds",
+    "python": "NaifEt.from_seconds",
+    "status": "wrapped",
+    "source": "src/contract.rs:119",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "contract::NaifEt::seconds",
+    "python": "NaifEt.seconds",
+    "status": "wrapped",
+    "source": "src/contract.rs:127",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "contract::NaifEt::profile",
+    "python": "NaifEt.profile",
+    "status": "wrapped",
+    "source": "src/contract.rs:131",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "contract::ScientificModel",
+    "python": "ScientificModel",
+    "status": "wrapped",
+    "source": "src/contract.rs:138",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "contract::IauTdb",
+    "python": "IauTdb",
+    "status": "wrapped",
+    "source": "src/contract.rs:149",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "contract::IauTdb::seconds",
+    "python": "IauTdb.seconds",
+    "status": "wrapped",
+    "source": "src/contract.rs:156",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "contract::IauTdb::model",
+    "python": "IauTdb.model",
+    "status": "wrapped",
+    "source": "src/contract.rs:160",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "contract::IauTdb::profile",
+    "python": "IauTdb.profile",
+    "status": "wrapped",
+    "source": "src/contract.rs:164",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "contract::NaifMetadata",
+    "python": "NaifMetadata",
+    "status": "wrapped",
+    "source": "src/contract.rs:171",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "contract::TimeContext",
+    "python": "TimeContext",
+    "status": "wrapped",
+    "source": "src/contract.rs:184",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "contract::TimeContext::new",
+    "python": "TimeContext",
+    "status": "wrapped",
+    "source": "src/contract.rs:190",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "contract::TimeContext::et_to_spice_julian_utc",
+    "python": "TimeContext.et_to_spice_julian_utc",
+    "status": "wrapped",
+    "source": "src/contract.rs:202",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "contract::TimeContext::profile",
+    "python": "TimeContext.profile",
+    "status": "wrapped",
+    "source": "src/contract.rs:221",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "contract::TimeContext::metadata",
+    "python": "TimeContext.metadata",
+    "status": "wrapped",
+    "source": "src/contract.rs:225",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "contract::TimeContext::to_et",
+    "python": "TimeContext.to_et",
+    "status": "wrapped",
+    "source": "src/contract.rs:240",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "contract::TimeContext::utc_to_et",
+    "python": "TimeContext.utc_to_et",
+    "status": "wrapped",
+    "source": "src/contract.rs:254",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "contract::TimeContext::to_epoch",
+    "python": "TimeContext.to_epoch",
+    "status": "wrapped",
+    "source": "src/contract.rs:289",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "contract::TimeContext::et_to_utc",
+    "python": "TimeContext.et_to_utc",
+    "status": "wrapped",
+    "source": "src/contract.rs:298",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "contract::ScientificContext",
+    "python": "ScientificContext",
+    "status": "wrapped",
+    "source": "src/contract.rs:316",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "contract::ScientificContext::new",
+    "python": "ScientificContext",
+    "status": "wrapped",
+    "source": "src/contract.rs:320",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "contract::ScientificContext::tt_seconds",
+    "python": "ScientificContext.tt_seconds",
+    "status": "wrapped",
+    "source": "src/contract.rs:324",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "contract::ScientificContext::to_tdb",
+    "python": "ScientificContext.to_tdb",
+    "status": "wrapped",
+    "source": "src/contract.rs:347",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "contract::ScientificContext::to_tdb_at_observer",
+    "python": "ScientificContext.to_tdb_at_observer",
+    "status": "wrapped",
+    "source": "src/contract.rs:359",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "convert::utc_to_tai",
+    "python": "compat.utc_to_tai",
+    "status": "wrapped",
+    "source": "src/convert.rs:17",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "convert::tai_to_utc",
+    "python": "compat.tai_to_utc",
+    "status": "wrapped",
+    "source": "src/convert.rs:117",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "convert::tai_to_et",
+    "python": "compat.tai_to_et",
+    "status": "wrapped",
+    "source": "src/convert.rs:254",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "convert::et_to_tai",
+    "python": "compat.et_to_tai",
+    "status": "wrapped",
+    "source": "src/convert.rs:273",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "convert::tai_to_tt",
+    "python": "compat.tai_to_tt",
+    "status": "wrapped",
+    "source": "src/convert.rs:281",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "convert::tt_to_tai",
+    "python": "compat.tt_to_tai",
+    "status": "wrapped",
+    "source": "src/convert.rs:286",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "convert::tai_to_gps",
+    "python": "compat.tai_to_gps",
+    "status": "wrapped",
+    "source": "src/convert.rs:291",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "convert::gps_to_tai",
+    "python": "compat.gps_to_tai",
+    "status": "wrapped",
+    "source": "src/convert.rs:296",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "convert::utc_to_et",
+    "python": "compat.utc_to_et",
+    "status": "wrapped",
+    "source": "src/convert.rs:301",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "convert::et_to_utc",
+    "python": "compat.et_to_utc",
+    "status": "wrapped",
+    "source": "src/convert.rs:310",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "convert::ut1_minus_utc",
+    "python": "compat.ut1_minus_utc",
+    "status": "wrapped",
+    "source": "src/convert.rs:366",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "convert::tai_to_ut1",
+    "python": "compat.tai_to_ut1",
+    "status": "wrapped",
+    "source": "src/convert.rs:428",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "convert::ut1_to_tai",
+    "python": "compat.ut1_to_tai",
+    "status": "wrapped",
+    "source": "src/convert.rs:439",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "convert::utc_to_ut1",
+    "python": "compat.utc_to_ut1",
+    "status": "wrapped",
+    "source": "src/convert.rs:527",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "convert::ut1_to_utc",
+    "python": "compat.ut1_to_utc",
+    "status": "wrapped",
+    "source": "src/convert.rs:538",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "coord::L_G",
+    "python": "L_G",
+    "status": "wrapped",
+    "source": "src/coord.rs:44",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "coord::L_B",
+    "python": "L_B",
+    "status": "wrapped",
+    "source": "src/coord.rs:47",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "coord::TDB0",
+    "python": "TDB0",
+    "status": "wrapped",
+    "source": "src/coord.rs:52",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "coord::tcg_minus_tt",
+    "python": "compat.tcg_minus_tt",
+    "status": "wrapped",
+    "source": "src/coord.rs:83",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "coord::tai_to_tcg",
+    "python": "compat.tai_to_tcg",
+    "status": "wrapped",
+    "source": "src/coord.rs:95",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "coord::tcg_to_tai",
+    "python": "compat.tcg_to_tai",
+    "status": "wrapped",
+    "source": "src/coord.rs:101",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "coord::tcb_minus_tdb",
+    "python": "tcb_minus_tdb",
+    "status": "wrapped",
+    "source": "src/coord.rs:109",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "coord::tai_to_tcb",
+    "python": "compat.tai_to_tcb",
+    "status": "wrapped",
+    "source": "src/coord.rs:121",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "coord::tcb_to_tai",
+    "python": "compat.tcb_to_tai",
+    "status": "wrapped",
+    "source": "src/coord.rs:128",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "dtdb::dtdb_minus_tt",
+    "python": "dtdb_minus_tt",
+    "status": "wrapped",
+    "source": "src/dtdb.rs:57",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "dtdb::dtdb_minus_tt_split",
+    "python": "dtdb_minus_tt_split",
+    "status": "wrapped",
+    "source": "src/dtdb.rs:67",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "dtdb::DtdbError",
+    "python": "DtdbError",
+    "status": "wrapped",
+    "source": "src/dtdb.rs:111",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "dtdb::dtdb_minus_tt_at_observer",
+    "python": "dtdb_minus_tt_at_observer",
+    "status": "wrapped",
+    "source": "src/dtdb.rs:161",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "dtdb::tai_to_tdb_iau",
+    "python": "compat.tai_to_tdb_iau",
+    "status": "wrapped",
+    "source": "src/dtdb.rs:225",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "dtdb::tdb_iau_to_tai",
+    "python": "compat.tdb_iau_to_tai",
+    "status": "wrapped",
+    "source": "src/dtdb.rs:235",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "duration::Duration",
+    "python": "Duration",
+    "status": "wrapped",
+    "source": "src/duration.rs:18",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "duration::Duration::ZERO",
+    "python": "Duration.ZERO",
+    "status": "wrapped",
+    "source": "src/duration.rs:25",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "duration::Duration::NANOSECOND",
+    "python": "Duration.NANOSECOND",
+    "status": "wrapped",
+    "source": "src/duration.rs:27",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "duration::Duration::SECOND",
+    "python": "Duration.SECOND",
+    "status": "wrapped",
+    "source": "src/duration.rs:29",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "duration::Duration::from_parts",
+    "python": "Duration",
+    "status": "wrapped",
+    "source": "src/duration.rs:33",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "duration::Duration::checked_from_parts",
+    "python": "Duration",
+    "status": "wrapped",
+    "source": "src/duration.rs:38",
+    "reason": "Checked core constructor; raises instead of returning Rust Option."
+  },
+  {
+    "core": "duration::Duration::from_nanoseconds",
+    "python": "Duration.from_nanoseconds",
+    "status": "wrapped",
+    "source": "src/duration.rs:46",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "duration::Duration::from_seconds_f64",
+    "python": "Duration.from_seconds_f64",
+    "status": "wrapped",
+    "source": "src/duration.rs:59",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "duration::Duration::checked_from_seconds_f64",
+    "python": "Duration.from_seconds_f64",
+    "status": "wrapped",
+    "source": "src/duration.rs:64",
+    "reason": "Checked core constructor; raises instead of returning Rust Option."
+  },
+  {
+    "core": "duration::Duration::sec",
+    "python": "Duration.sec",
+    "status": "wrapped",
+    "source": "src/duration.rs:79",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "duration::Duration::nanos",
+    "python": "Duration.nanos",
+    "status": "wrapped",
+    "source": "src/duration.rs:84",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "duration::Duration::total_nanoseconds",
+    "python": "Duration.total_nanoseconds",
+    "status": "wrapped",
+    "source": "src/duration.rs:89",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "duration::Duration::seconds_f64",
+    "python": "Duration.seconds_f64",
+    "status": "wrapped",
+    "source": "src/duration.rs:95",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "duration::Duration::is_zero",
+    "python": "Duration.is_zero",
+    "status": "wrapped",
+    "source": "src/duration.rs:100",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "duration::Duration::signum",
+    "python": "Duration.signum",
+    "status": "wrapped",
+    "source": "src/duration.rs:105",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "duration::Duration::abs",
+    "python": "Duration.abs",
+    "status": "wrapped",
+    "source": "src/duration.rs:116",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "duration::Duration::checked_neg",
+    "python": "Duration.checked_neg",
+    "status": "wrapped",
+    "source": "src/duration.rs:125",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "duration::Duration::checked_add",
+    "python": "Duration.checked_add",
+    "status": "wrapped",
+    "source": "src/duration.rs:130",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "duration::Duration::checked_sub",
+    "python": "Duration.checked_sub",
+    "status": "wrapped",
+    "source": "src/duration.rs:138",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "duration::Duration::checked_mul_i64",
+    "python": "Duration.checked_mul_i64",
+    "status": "wrapped",
+    "source": "src/duration.rs:146",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "duration::Duration::floor",
+    "python": "Duration.floor",
+    "status": "wrapped",
+    "source": "src/duration.rs:152",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "duration::Duration::ceil",
+    "python": "Duration.ceil",
+    "status": "wrapped",
+    "source": "src/duration.rs:159",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "duration::Duration::round",
+    "python": "Duration.round",
+    "status": "wrapped",
+    "source": "src/duration.rs:173",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "eop::EopSample",
+    "python": "EopSample",
+    "status": "wrapped",
+    "source": "src/eop.rs:60",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "eop::EopSeries",
+    "python": "EopSeries",
+    "status": "wrapped",
+    "source": "src/eop.rs:73",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "eop::EopTable",
+    "python": "EopTable",
+    "status": "wrapped",
+    "source": "src/eop.rs:86",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "eop::EopTable::new",
+    "python": "EopTable",
+    "status": "wrapped",
+    "source": "src/eop.rs:93",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "eop::EopTable::from_finals2000a",
+    "python": "EopTable.from_finals2000a",
+    "status": "wrapped",
+    "source": "src/eop.rs:118",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "eop::EopTable::from_finals2000a_series",
+    "python": "EopTable.from_finals2000a_series",
+    "status": "wrapped",
+    "source": "src/eop.rs:129",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "eop::EopTable::observed_only",
+    "python": "EopTable.observed_only",
+    "status": "wrapped",
+    "source": "src/eop.rs:201",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "eop::EopTable::ut1_minus_utc",
+    "python": "EopTable.ut1_minus_utc",
+    "status": "wrapped",
+    "source": "src/eop.rs:216",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "eop::EopTable::range",
+    "python": "EopTable.range",
+    "status": "wrapped",
+    "source": "src/eop.rs:249",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "eop::EopTable::samples",
+    "python": "EopTable.samples",
+    "status": "wrapped",
+    "source": "src/eop.rs:257",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "eop::EopTable::len",
+    "python": "EopTable.__len__",
+    "status": "wrapped",
+    "source": "src/eop.rs:262",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "eop::EopTable::is_empty",
+    "python": "EopTable.is_empty",
+    "status": "wrapped",
+    "source": "src/eop.rs:270",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "epoch::Epoch",
+    "python": "Epoch",
+    "status": "wrapped",
+    "source": "src/epoch.rs:14",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "epoch::Epoch::from_parts",
+    "python": "Epoch",
+    "status": "wrapped",
+    "source": "src/epoch.rs:25",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "epoch::Epoch::checked_from_parts",
+    "python": "Epoch",
+    "status": "wrapped",
+    "source": "src/epoch.rs:30",
+    "reason": "Checked core constructor; raises instead of returning Rust Option."
+  },
+  {
+    "core": "epoch::Epoch::from_tai_seconds",
+    "python": "Epoch.from_tai_seconds",
+    "status": "wrapped",
+    "source": "src/epoch.rs:41",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "epoch::Epoch::checked_from_tai_seconds",
+    "python": "Epoch.from_tai_seconds",
+    "status": "wrapped",
+    "source": "src/epoch.rs:46",
+    "reason": "Checked core constructor; raises instead of returning Rust Option."
+  },
+  {
+    "core": "epoch::Epoch::tai_seconds",
+    "python": "Epoch.tai_seconds",
+    "status": "wrapped",
+    "source": "src/epoch.rs:60",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "epoch::Epoch::sec",
+    "python": "Epoch.sec",
+    "status": "wrapped",
+    "source": "src/epoch.rs:65",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "epoch::Epoch::nanos",
+    "python": "Epoch.nanos",
+    "status": "wrapped",
+    "source": "src/epoch.rs:70",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "epoch::Epoch::checked_add",
+    "python": "Epoch.checked_add",
+    "status": "wrapped",
+    "source": "src/epoch.rs:75",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "epoch::Epoch::checked_sub",
+    "python": "Epoch.checked_sub",
+    "status": "wrapped",
+    "source": "src/epoch.rs:83",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "epoch::UtcDateTime",
+    "python": "UtcDateTime",
+    "status": "wrapped",
+    "source": "src/epoch.rs:112",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "epoch::UtcDateTime::new",
+    "python": "UtcDateTime",
+    "status": "wrapped",
+    "source": "src/epoch.rs:131",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "error::TimeError",
+    "python": "TimeError",
+    "status": "wrapped",
+    "source": "src/error.rs:7",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "format::FormatOptions",
+    "python": "FormatOptions",
+    "status": "wrapped",
+    "source": "src/format.rs:31",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "format::FormatOptions::new",
+    "python": "FormatOptions",
+    "status": "wrapped",
+    "source": "src/format.rs:39",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "format::FormatOptions::with_calendar",
+    "python": "FormatOptions.with_calendar",
+    "status": "wrapped",
+    "source": "src/format.rs:48",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "format::FormatOptions::with_leap_seconds",
+    "python": "FormatOptions.with_leap_seconds",
+    "status": "wrapped",
+    "source": "src/format.rs:54",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "format::FormatOptions::precision",
+    "python": "FormatOptions.precision",
+    "status": "wrapped",
+    "source": "src/format.rs:60",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "format::FormatOptions::calendar",
+    "python": "FormatOptions.calendar",
+    "status": "wrapped",
+    "source": "src/format.rs:65",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "format::iso8601",
+    "python": "iso8601",
+    "status": "wrapped",
+    "source": "src/format.rs:109",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "format::iso8601_with",
+    "python": "iso8601_with",
+    "status": "wrapped",
+    "source": "src/format.rs:114",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "format::spice_calendar",
+    "python": "spice_calendar",
+    "status": "wrapped",
+    "source": "src/format.rs:129",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "format::spice_calendar_with",
+    "python": "spice_calendar_with",
+    "status": "wrapped",
+    "source": "src/format.rs:135",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "format::etcal",
+    "python": "etcal",
+    "status": "wrapped",
+    "source": "src/format.rs:151",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "format::jd_to_calendar",
+    "python": "jd_to_calendar",
+    "status": "wrapped",
+    "source": "src/format.rs:174",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "format::rfc3339",
+    "python": "rfc3339",
+    "status": "wrapped",
+    "source": "src/format.rs:198",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "format::rfc3339_with",
+    "python": "rfc3339_with",
+    "status": "wrapped",
+    "source": "src/format.rs:203",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "format::rfc2822",
+    "python": "rfc2822",
+    "status": "wrapped",
+    "source": "src/format.rs:218",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "format::Format",
+    "python": "Format",
+    "status": "wrapped",
+    "source": "src/format.rs:233",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "format::Format::parse",
+    "python": "Format.parse",
+    "status": "wrapped",
+    "source": "src/format.rs:263",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "format::Formatter",
+    "python": "Formatter",
+    "status": "wrapped",
+    "source": "src/format.rs:310",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "format::Formatter::new",
+    "python": "Formatter",
+    "status": "wrapped",
+    "source": "src/format.rs:318",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "format::Formatter::with_options",
+    "python": "Formatter.with_options",
+    "status": "wrapped",
+    "source": "src/format.rs:327",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "format::strftime",
+    "python": "strftime",
+    "status": "wrapped",
+    "source": "src/format.rs:378",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "format::strftime_with",
+    "python": "strftime_with",
+    "status": "wrapped",
+    "source": "src/format.rs:384",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "kernel_date::KernelDate",
+    "python": "KernelDate",
+    "status": "wrapped",
+    "source": "src/kernel_date.rs:39",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "kernel_date::parse_kernel_date",
+    "python": "parse_kernel_date",
+    "status": "wrapped",
+    "source": "src/kernel_date.rs:77",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "leap::DELTA_T_A",
+    "python": "DELTA_T_A",
+    "status": "wrapped",
+    "source": "src/leap.rs:14",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "leap::K",
+    "python": "K",
+    "status": "wrapped",
+    "source": "src/leap.rs:16",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "leap::EB",
+    "python": "EB",
+    "status": "wrapped",
+    "source": "src/leap.rs:18",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "leap::M0",
+    "python": "M0",
+    "status": "wrapped",
+    "source": "src/leap.rs:20",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "leap::M1",
+    "python": "M1",
+    "status": "wrapped",
+    "source": "src/leap.rs:22",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "leap::JDN_1960",
+    "python": "JDN_1960",
+    "status": "wrapped",
+    "source": "src/leap.rs:26",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "leap::JDN_1972",
+    "python": "JDN_1972",
+    "status": "wrapped",
+    "source": "src/leap.rs:29",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "leap::LeapEntry",
+    "python": "LeapEntry",
+    "status": "wrapped",
+    "source": "src/leap.rs:33",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "leap::LeapSecondSource",
+    "python": "LeapSecondSource",
+    "status": "wrapped",
+    "source": "src/leap.rs:43",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "leap::LeapSecondPolicy",
+    "python": "LeapSecondPolicy",
+    "status": "wrapped",
+    "source": "src/leap.rs:54",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "leap::LeapSecondPolicy::frozen_after",
+    "python": "LeapSecondPolicy.frozen_after",
+    "status": "wrapped",
+    "source": "src/leap.rs:66",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "leap::LeapSecondTable",
+    "python": "LeapSecondTable",
+    "status": "wrapped",
+    "source": "src/leap.rs:75",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "leap::LeapSecondTable::new",
+    "python": "LeapSecondTable",
+    "status": "wrapped",
+    "source": "src/leap.rs:99",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "leap::LeapSecondTable::with_constants",
+    "python": "LeapSecondTable.with_constants",
+    "status": "wrapped",
+    "source": "src/leap.rs:143",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "leap::LeapSecondTable::builtin",
+    "python": "LeapSecondTable.builtin",
+    "status": "wrapped",
+    "source": "src/leap.rs:158",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "leap::LeapSecondTable::from_lsk",
+    "python": "LeapSecondTable.from_lsk",
+    "status": "wrapped",
+    "source": "src/leap.rs:169",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "leap::LeapSecondTable::with_source",
+    "python": "LeapSecondTable.with_source",
+    "status": "wrapped",
+    "source": "src/leap.rs:174",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "leap::LeapSecondTable::source",
+    "python": "LeapSecondTable.source",
+    "status": "wrapped",
+    "source": "src/leap.rs:180",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "leap::LeapSecondTable::with_policy",
+    "python": "LeapSecondTable.with_policy",
+    "status": "wrapped",
+    "source": "src/leap.rs:185",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "leap::LeapSecondTable::policy",
+    "python": "LeapSecondTable.policy",
+    "status": "wrapped",
+    "source": "src/leap.rs:191",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "leap::LeapSecondTable::delta_at_f64",
+    "python": "LeapSecondTable.delta_at_f64",
+    "status": "wrapped",
+    "source": "src/leap.rs:198",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "leap::LeapSecondTable::entries",
+    "python": "LeapSecondTable.entries",
+    "status": "wrapped",
+    "source": "src/leap.rs:215",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "leap::LeapSecondTable::coverage",
+    "python": "LeapSecondTable.coverage",
+    "status": "wrapped",
+    "source": "src/leap.rs:234",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "leap::LeapSecondTable::delta_at_for_jdn",
+    "python": "LeapSecondTable.delta_at_for_jdn",
+    "status": "wrapped",
+    "source": "src/leap.rs:279",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "leap::sofa_delta_at",
+    "python": "sofa_delta_at",
+    "status": "wrapped",
+    "source": "src/leap.rs:319",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "lsk::parse_lsk",
+    "python": "LeapSecondTable.from_lsk",
+    "status": "wrapped",
+    "source": "src/lsk.rs:18",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "lsk::builtin",
+    "python": "LeapSecondTable.builtin",
+    "status": "wrapped",
+    "source": "src/lsk.rs:126",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "mcp::run_stdio",
+    "python": null,
+    "status": "unavailable",
+    "source": "src/mcp.rs:32",
+    "reason": "MCP is an optional stdio transport, not a scientific binding capability."
+  },
+  {
+    "core": "mcp::handle_message",
+    "python": null,
+    "status": "unavailable",
+    "source": "src/mcp.rs:54",
+    "reason": "MCP is an optional stdio transport, not a scientific binding capability."
+  },
+  {
+    "core": "sclk::SclkTimeSystem",
+    "python": "SclkTimeSystem",
+    "status": "wrapped",
+    "source": "src/sclk.rs:53",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "sclk::SclkCoefficient",
+    "python": "SclkCoefficient",
+    "status": "wrapped",
+    "source": "src/sclk.rs:64",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "sclk::SclkKernel",
+    "python": "SclkKernel",
+    "status": "wrapped",
+    "source": "src/sclk.rs:75",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "sclk::SclkKernel::parse",
+    "python": "SclkKernel.parse",
+    "status": "wrapped",
+    "source": "src/sclk.rs:95",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "sclk::SclkKernel::spacecraft_id",
+    "python": "SclkKernel.spacecraft_id",
+    "status": "wrapped",
+    "source": "src/sclk.rs:223",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "sclk::SclkKernel::data_type",
+    "python": "SclkKernel.data_type",
+    "status": "wrapped",
+    "source": "src/sclk.rs:228",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "sclk::SclkKernel::time_system",
+    "python": "SclkKernel.time_system",
+    "status": "wrapped",
+    "source": "src/sclk.rs:233",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "sclk::SclkKernel::n_fields",
+    "python": "SclkKernel.n_fields",
+    "status": "wrapped",
+    "source": "src/sclk.rs:238",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "sclk::SclkKernel::moduli",
+    "python": "SclkKernel.moduli",
+    "status": "wrapped",
+    "source": "src/sclk.rs:243",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "sclk::SclkKernel::offsets",
+    "python": "SclkKernel.offsets",
+    "status": "wrapped",
+    "source": "src/sclk.rs:248",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "sclk::SclkKernel::coefficients",
+    "python": "SclkKernel.coefficients",
+    "status": "wrapped",
+    "source": "src/sclk.rs:253",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "sclk::SclkKernel::partitions",
+    "python": "SclkKernel.partitions",
+    "status": "wrapped",
+    "source": "src/sclk.rs:258",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "sclk::SclkKernel::ticks_per_msb",
+    "python": "SclkKernel.ticks_per_msb",
+    "status": "wrapped",
+    "source": "src/sclk.rs:263",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "sclk::SclkKernel::ticks_from_fields",
+    "python": "SclkKernel.ticks_from_fields",
+    "status": "wrapped",
+    "source": "src/sclk.rs:272",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "sclk::SclkKernel::fields_from_ticks",
+    "python": "SclkKernel.fields_from_ticks",
+    "status": "wrapped",
+    "source": "src/sclk.rs:303",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "sclk::SclkKernel::parallel_seconds",
+    "python": "SclkKernel.parallel_seconds",
+    "status": "wrapped",
+    "source": "src/sclk.rs:331",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "sclk::SclkKernel::ticks_from_parallel",
+    "python": "SclkKernel.ticks_from_parallel",
+    "status": "wrapped",
+    "source": "src/sclk.rs:341",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "sclk::SclkKernel::ticks_to_et",
+    "python": "SclkKernel.ticks_to_et",
+    "status": "wrapped",
+    "source": "src/sclk.rs:356",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "sclk::SclkKernel::et_to_ticks",
+    "python": "SclkKernel.et_to_ticks",
+    "status": "wrapped",
+    "source": "src/sclk.rs:365",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "sclk::SclkKernel::ticks_to_tai",
+    "python": "SclkKernel.ticks_to_tai",
+    "status": "wrapped",
+    "source": "src/sclk.rs:373",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "sclk::SclkKernel::tai_to_ticks",
+    "python": "SclkKernel.tai_to_ticks",
+    "status": "wrapped",
+    "source": "src/sclk.rs:382",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "sclk::SclkKernel::parse_string",
+    "python": "SclkKernel.parse_string",
+    "status": "wrapped",
+    "source": "src/sclk.rs:391",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "sclk::SclkKernel::format_string",
+    "python": "SclkKernel.format_string",
+    "status": "wrapped",
+    "source": "src/sclk.rs:408",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "sclk::SclkClock",
+    "python": "SclkClock",
+    "status": "wrapped",
+    "source": "src/sclk.rs:476",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "sclk::SclkMap",
+    "python": "SclkClock",
+    "status": "protocol",
+    "source": "src/sclk.rs:499",
+    "reason": "Owned SclkClock represents SclkMap; Python structural methods replace Rust trait/lifetimes."
+  },
+  {
+    "core": "series::TimeSeries",
+    "python": "TimeSeries",
+    "status": "wrapped",
+    "source": "src/series.rs:12",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "series::TimeSeries::inclusive",
+    "python": "TimeSeries.inclusive",
+    "status": "wrapped",
+    "source": "src/series.rs:21",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "series::TimeSeries::exclusive",
+    "python": "TimeSeries.exclusive",
+    "status": "wrapped",
+    "source": "src/series.rs:31",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "tdb::tdb_minus_tt_seconds",
+    "python": "tdb_minus_tt_seconds",
+    "status": "wrapped",
+    "source": "src/tdb.rs:31",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "tdb::tai_to_tdb",
+    "python": "compat.tai_to_tdb",
+    "status": "wrapped",
+    "source": "src/tdb.rs:38",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "tdb::tdb_to_tai",
+    "python": "compat.tdb_to_tai",
+    "status": "wrapped",
+    "source": "src/tdb.rs:45",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  },
+  {
+    "core": "timescale::TimeScale",
+    "python": "TimeScale",
+    "status": "wrapped",
+    "source": "src/timescale.rs:10",
+    "reason": "Direct core delegation; integer narrowing and finite checks occur at the boundary."
+  }
+]

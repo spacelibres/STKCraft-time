@@ -36,13 +36,13 @@ NPARSD operation order; see [ATTRIBUTION.md](ATTRIBUTION.md) for provenance.
 - **Reference:** `cargo doc --open`
 
 **Install:** `cargo add stkcraft-time`, or add
-`stkcraft-time = "0.1.31"` to `[dependencies]`. With `no_std`, use `default-features = false`.
+`stkcraft-time = "0.1.32"` to `[dependencies]`. With `no_std`, use `default-features = false`.
 
 ## Project status
 
-- Latest release: **v0.1.31** on GitHub Releases, including release-mode
+- Latest release: **v0.1.32** on GitHub Releases, including release-mode
   binaries for Linux, macOS (x86_64 and arm64) and Windows.
-- Published on crates.io as **`stkcraft-time` 0.1.31**, with API docs on
+- Published on crates.io as **`stkcraft-time` 0.1.32**, with API docs on
   [docs.rs](https://docs.rs/stkcraft-time).
 - Minimum supported Rust version: **1.75**.
 - The library is `no_std` compatible with `alloc`; the optional MCP server
@@ -56,13 +56,13 @@ cargo add stkcraft-time
 
 ```toml
 [dependencies]
-stkcraft-time = "0.1.31"
+stkcraft-time = "0.1.32"
 ```
 
 `no_std` plus `alloc`:
 
 ```toml
-stkcraft-time = { version = "0.1.31", default-features = false }
+stkcraft-time = { version = "0.1.32", default-features = false }
 ```
 
 The MCP server and the validation binaries are optional:
@@ -74,7 +74,7 @@ cargo install stkcraft-time --features mcp --bin stkcraft-mcp
 To track the repository instead of a crates.io release, pin a tag:
 
 ```toml
-stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.31" }
+stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.32" }
 ```
 
 ## Releases
@@ -742,7 +742,7 @@ python tools/wgc2_compare.py        # live WGC2 (CSPICE front-end) check
 The library is `no_std` compatible with `alloc`:
 
 ```toml
-stkcraft-time = { version = "0.1.31", default-features = false }
+stkcraft-time = { version = "0.1.32", default-features = false }
 ```
 
 In `no_std` builds, `libm` supplies `sin`, `cos`, `floor` and `round`;
@@ -842,3 +842,14 @@ stop leap seconds can use `LeapSecondPolicy::frozen_after(year, month,
 day)` (or the `FrozenAfter { jdn }` variant); from that date onward,
 later table entries are ignored and the last value is kept. No future
 date is hard-coded in the default path.
+
+
+## Python, JavaScript and BeiDou interfaces
+
+Independent Python and WASM/JavaScript/TypeScript adapters call this same
+Rust kernel. See [language interfaces and support matrix](docs/BINDINGS.md)
+for installation artifacts, exact-integer transport, model selection,
+verification and release status. [BeiDou BDT](src/bdt.rs) provides checked
+integer parts and full-week coordinates without changing existing NAIF
+calls. The [Cortex-M example](examples/cortex-m-utc-et/README.md) demonstrates
+bare-metal linking and provides an on-target cycle-measurement harness.

@@ -4,6 +4,39 @@ All notable changes to `stkcraft-time` are documented here.
 
 The format follows Keep a Changelog. This crate uses semantic versioning.
 
+## [0.1.32] - 2026-11-12
+
+### Added
+
+- Exact nominal BeiDou `Bdt` coordinates with checked integer parts, total
+  nanoseconds, full signed weeks, UTC/LSK and checked ET conversion. Independent
+  ERFA references cover the BDT origin, leap seconds and fractional boundaries.
+  The existing public `TimeScale` enum and native NAIF algorithms are unchanged.
+- Independent Python extension and WASM/JavaScript/TypeScript packages exposing
+  owned time/kernel objects, exact integer transport, typed model selection,
+  structured errors, formatting, EOP/UT1, SCLK, BDT, batches and lazy series.
+  Public API inventories document language mappings and foreign-input limits.
+- Wheel/sdist, Node/browser/Worker, TypeScript, bundler and clean-consumer
+  verification jobs. Tagged releases verify binding artifacts before publication
+  and attach wheels, the source distribution and npm tarball with checksums.
+- A standalone Cortex-M4 UTC/ET example with independent reference checks,
+  allocator setup, board memory layout and an on-target DWT cycle harness.
+  Cross-linking and host checks do not claim board execution or hardware timing.
+
+### Fixed
+
+- The isolated Geocalc validator patches registry time dependencies to the
+  selected local core, preventing duplicate Epoch/LSK types without rewriting
+  the developing Geocalc checkout or lockfile.
+
+### Changed
+
+- Binding dependencies and their newer build-toolchain requirements are isolated
+  from core Rust 1.75 and no_std dependencies. Exact integers use Python int and
+  JS bigint; low-level floating compatibility paths remain explicitly named.
+- Registry publication is conditional on configured PyPI/npm credentials;
+  missing access is reported explicitly and does not imply published packages.
+
 ## [0.1.31] - 2026-11-12
 
 ### Added

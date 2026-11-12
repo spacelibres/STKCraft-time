@@ -1,0 +1,46 @@
+{
+  "name": "@stkcraft/time",
+  "version": "0.1.32",
+  "type": "module",
+  "description": "Checked NAIF/SPICE and scientific astronomical time via WebAssembly",
+  "license": "MIT",
+  "engines": {
+    "node": ">=24"
+  },
+  "exports": {
+    ".": {
+      "types": "./js/index.d.ts",
+      "default": "./js/index.js"
+    },
+    "./node": {
+      "types": "./js/node.d.ts",
+      "default": "./js/node.js"
+    }
+  },
+  "files": [
+    "js",
+    "pkg",
+    "README.md",
+    "API_INVENTORY.md",
+    "LICENSE",
+    "ATTRIBUTION.md"
+  ],
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node --test tests/node.test.mjs",
+    "test:types": "tsc --noEmit --strict --target ES2022 --module nodenext tests/types.ts",
+    "test:browser": "node tests/browser.mjs",
+    "test:consumer": "node tests/consumer.mjs",
+    "test:node": "node --test tests/node.test.mjs"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3",
+    "playwright": "1.58.2",
+    "esbuild": "0.27.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/spacelibres/STKCraft-time.git",
+    "directory": "bindings/wasm"
+  }
+}

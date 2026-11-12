@@ -1,0 +1,13 @@
+import {execFileSync} from 'node:child_process';
+import {mkdtemp,readFile,writeFile} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
+import {fileURLToPath} from 'node:url';
+const root=fileURLToPath(new URL('..',import.meta.url));
+const npmCli=process.env.npm_execpath; if(!npmCli)throw Error('Run via npm run test:consumer');
+const call=(args,cwd)=>execFileSync(process.execPath,[npmCli,...args],{cwd,encoding:'utf8'});
+const packed=JSON.parse(call(['pack','--json'],root))[0];
+const files=packed.files.map(x=>x.path);for(const p of ['pkg/stkcraft_time_bg.wasm','js/index.d.ts','LICENSE','ATTRIBUTION.md'])if(!files.includes(p))throw Error('Missing package asset '+p);
+const dir=await mkdtemp(join(tmpdir(),'stkcraft-npm-consumer-'));await writeFile(join(dir,'package.json'),JSON.stringify({private:true,type:'module'}));call(['install','--ignore-scripts',join(root,packed.filename)],dir);
+await writeFile(join(dir,'check.mjs'),`import {init,Epoch,TimeContext,UtcDateTime} from '@stkcraft/time/node';await init();if(new Epoch(9007199254740993n).seconds!==9007199254740993n)throw Error('exact bigint lost');if(new TimeContext().utcToEt(new UtcDateTime(2000,1,1,12)).seconds!==64.18392728473108)throw Error('UTC vector failed');console.log('Clean installed npm consumer passed');`);
+console.log(execFileSync(process.execPath,['check.mjs'],{cwd:dir,encoding:'utf8'}));console.log(JSON.stringify({tarball:packed.filename,sha512:packed.integrity,consumer:dir,files:files.length}));

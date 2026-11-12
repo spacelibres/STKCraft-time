@@ -66,6 +66,7 @@
 
 extern crate alloc;
 
+pub mod bdt;
 pub mod calendar;
 pub mod contract;
 pub mod convert;
@@ -93,6 +94,7 @@ mod naif;
 #[cfg(kani)]
 mod verification;
 
+pub use bdt::Bdt;
 pub use calendar::Calendar;
 pub use duration::Duration;
 pub use eop::{EopSample, EopSeries, EopTable};

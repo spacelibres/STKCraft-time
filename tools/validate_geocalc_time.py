@@ -187,14 +187,21 @@ def reference_rows(samples, spice):
     return expected
 
 
+def client_manifest(geocalc):
+    """Use one local time crate even when Geocalc depends on crates.io."""
+    return ('[package]\nname="geocalc-time-validation"\nversion="0.0.0"\nedition="2021"\n'
+                '[workspace]\n[dependencies]\n'
+                f'stkcraft-time = {{ path = {json.dumps(ROOT.as_posix())} }}\n'
+                f'stkcraft-geocalc = {{ path = {json.dumps(geocalc.as_posix())} }}\n'
+                '[patch.crates-io]\n'
+                f'stkcraft-time = {{ path = {json.dumps(ROOT.as_posix())} }}\n')
+
+
 def run_client(geocalc, lsk, spk, samples):
     import os
     with tempfile.TemporaryDirectory(prefix="stkcraft-geocalc-time-") as directory:
         project = Path(directory)
-        manifest = ('[package]\nname="geocalc-time-validation"\nversion="0.0.0"\nedition="2021"\n'
-                    '[workspace]\n[dependencies]\n'
-                    f'stkcraft-time = {{ path = {json.dumps(ROOT.as_posix())} }}\n'
-                    f'stkcraft-geocalc = {{ path = {json.dumps(geocalc.as_posix())} }}\n')
+        manifest = client_manifest(geocalc)
         (project / "Cargo.toml").write_text(manifest, encoding="utf-8")
         (project / "src").mkdir()
         (project / "src/main.rs").write_text(CLIENT, encoding="utf-8")

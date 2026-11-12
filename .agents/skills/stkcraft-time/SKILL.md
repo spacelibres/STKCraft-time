@@ -175,3 +175,17 @@ cargo build --locked --no-default-features --target thumbv7em-none-eabi
 - `tests/naif_alignment.rs`, `tests/ut1.rs`, `tests/mcp.rs` — boundary and
   protocol tests.
 - `AGENTS.md` — repository rules.
+
+
+## Language bindings and BeiDou
+
+- Keep Python and WASM dependencies in their independent bindings/ workspaces;
+  do not add PyO3/wasm-bindgen to the core graph or change NAIF math to satisfy
+  a foreign-language test. Run actual installed-wheel and real WASM tests.
+- Preserve NaifEt versus IauTdb selection and literal legacy compatibility paths.
+  Validate before narrowing and reject expected overflow rather than trapping.
+- Bdt is an exact nominal coordinate from 2006-01-01 UTC; its 33-second TAI
+  offset does not model physical clock errors. GPS/BDT elapsed epochs differ.
+- Preserve the existing TimeScale enum for downstream exhaustive matches.
+- The Cortex-M example has a real DWT harness; never report target timing from
+  a host or cross-build result. Consult docs/BINDINGS.md and adapter inventories.

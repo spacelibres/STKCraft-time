@@ -1,6 +1,6 @@
 [package]
 name = "stkcraft-time"
-version = "0.1.31"
+version = "0.1.32"
 edition = "2021"
 rust-version = "1.75"
 authors = ["STKCraft"]
@@ -10,6 +10,7 @@ repository = "https://github.com/spacelibres/STKCraft-time"
 homepage = "https://www.stkcraft.com"
 documentation = "https://docs.rs/stkcraft-time"
 readme = "README.md"
+exclude = ["bindings/**", "examples/cortex-m-utc-et/**"]
 keywords = ["time", "spice", "naif", "astronomy", "utc"]
 categories = ["aerospace", "date-and-time", "science", "no-std", "parsing"]
 

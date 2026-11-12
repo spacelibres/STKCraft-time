@@ -113,6 +113,12 @@ class ValidationTests(unittest.TestCase):
             self.assertEqual(result["status"], "passed")
             self.assertEqual(len(result["results"]), len(self.validator.DEFAULT_UTC) * 6)
 
+    def test_consumer_patches_registry_time_to_the_local_core(self):
+        """Dependency identity check, not a numerical oracle."""
+        manifest = self.validator.client_manifest(Path("geocalc"))
+        self.assertIn("[patch.crates-io]\n", manifest)
+        self.assertEqual(manifest.count("stkcraft-time = { path ="), 2)
+
 
 if __name__ == "__main__":
     unittest.main()

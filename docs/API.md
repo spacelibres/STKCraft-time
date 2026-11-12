@@ -12,7 +12,7 @@
 
 # `stkcraft-time` API guide
 
-This guide shows how to call the public API of `stkcraft-time` 0.1.31. It
+This guide shows how to call the public API of `stkcraft-time` 0.1.32. It
 is task-oriented: each section answers "which function do I call, and what
 data do I need to load first?" For item-level reference documentation,
 run:
@@ -59,13 +59,13 @@ replaces it.
 
 ```toml
 [dependencies]
-stkcraft-time = "0.1.31"
+stkcraft-time = "0.1.32"
 
 # no_std + alloc:
-# stkcraft-time = { version = "0.1.31", default-features = false }
+# stkcraft-time = { version = "0.1.32", default-features = false }
 
 # or pin the repository:
-# stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.31" }
+# stkcraft-time = { git = "https://github.com/spacelibres/STKCraft-time", tag = "v0.1.32" }
 ```
 
 The internal epoch representation is integer seconds plus nanoseconds;
@@ -1266,3 +1266,45 @@ pub fn handle_message(line: &str) -> Option<String>;
 
 `handle_message` is the transport-independent entry point used by the
 tests; `run_stdio` reads newline-delimited JSON-RPC from stdin.
+
+
+## 15. BeiDou and language interfaces
+
+The additive `bdt::Bdt` type implements nominal continuous BDT coordinates
+from 2006-01-01 UTC. It provides checked integer parts, total nanoseconds,
+full signed week coordinates, UTC conversion with an explicit LSK and ET
+conversion through `TimeContext`. Its nominal TAI/BDT offset is not a model
+of physical satellite clock corrections. The existing `TimeScale` enum is
+unchanged to preserve exhaustive downstream matches.
+
+[Python/WASM/JS support and verification](BINDINGS.md) describes the owned
+language objects, precise transport, explicit scientific models, inventory
+and packaging. Adapter build requirements are separate from core Rust 1.75.
+
+
+### `bdt`
+
+```rust
+pub const TAI_MINUS_BDT_SECONDS: i64;
+pub const GPS_MINUS_BDT_SECONDS: i64;
+pub const ORIGIN_TAI_SECONDS: i64;
+pub const NANOSECONDS_PER_WEEK: u64;
+pub struct Bdt { /* private fields */ }
+impl Bdt {
+    pub fn checked_from_parts(sec: i64, nanos: i64) -> Option<Self>;
+    pub fn checked_from_seconds(seconds: f64) -> Option<Self>;
+    pub fn checked_from_nanoseconds(total: i128) -> Option<Self>;
+    pub fn sec(self) -> i64;
+    pub fn nanos(self) -> u32;
+    pub fn seconds(self) -> f64;
+    pub fn total_nanoseconds(self) -> i128;
+    pub fn from_epoch(epoch: Epoch) -> Result<Self, TimeError>;
+    pub fn to_epoch(self) -> Result<Epoch, TimeError>;
+    pub fn from_week_nanoseconds(week: i64, nanos: u64) -> Result<Self, TimeError>;
+    pub fn week_nanoseconds(self) -> (i64, u64);
+    pub fn from_utc(utc: &UtcDateTime, calendar: Calendar, lsk: &LeapSecondTable) -> Result<Self, TimeError>;
+    pub fn to_utc(self, calendar: Calendar, lsk: &LeapSecondTable) -> Result<UtcDateTime, TimeError>;
+    pub fn from_et(et: NaifEt, context: TimeContext<'_>) -> Result<Self, ContractError>;
+    pub fn to_et(self, context: TimeContext<'_>) -> Result<NaifEt, ContractError>;
+}
+```
