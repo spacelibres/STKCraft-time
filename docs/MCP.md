@@ -81,10 +81,10 @@ rejected.
 
 ## Tools
 
-UTC, TAI↔ET/TT and SCLK tools accept an optional `lsk_path`. When it is
-omitted, the server uses the bundled `naif0012.tls` snapshot (last leap
-second `2017-01-01`). GPS tools and `etcal` need no leap-second kernel and
-have no `lsk_path` argument. UTC tools accept `calendar`: `gregorian`
+UTC, TAI↔ET/TT, SCLK, and WGC GPS and calendar tools accept an optional `lsk_path`.
+When omitted, the server uses the bundled `naif0012.tls` snapshot (last leap
+second `2017-01-01`). The legacy `tai_to_gps`, `gps_to_tai` and `etcal`
+tools have no `lsk_path` argument. UTC tools accept `calendar`: `gregorian`
 (default), `julian`, or `mixed`.
 
 | Tool | Required arguments | Returns |

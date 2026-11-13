@@ -4,6 +4,18 @@ All notable changes to `stkcraft-time` are documented here.
 
 The format follows Keep a Changelog. This crate uses semantic versioning.
 
+## [0.2.1] - 2026-11-13
+
+### Fixed
+
+- Correct the language support matrix: Python and JavaScript both expose the
+  implemented native partition-aware SCLK and WGC GPS week/TOW paths.
+- Clarify that WGC GPS and calendar MCP tools accept an LSK, while legacy GPS
+  conversions and `etcal` have no LSK argument. Users can select the kernel
+  required for reproducible WGC conversions.
+- Add a regression check for these documentation discrepancies and update
+  release metadata and adapter versions together.
+
 ## [0.2.0] - 2026-11-13
 
 ### Added

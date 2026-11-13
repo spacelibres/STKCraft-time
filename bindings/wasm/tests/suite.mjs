@@ -3,7 +3,7 @@ export async function run(m,load){
  let count=0;const eq=(a,b,msg='')=>{count++;if(a!==b)throw Error(`${msg}: ${a} !== ${b}`)};
  const throws=(f,code)=>{count++;try{f()}catch(e){if(e instanceof WebAssembly.RuntimeError||typeof e.code!=='string')throw e;if(code&&e.code!==code)throw e;return}throw Error(`Expected error ${code}`)};
  const bits=x=>{const a=new DataView(new ArrayBuffer(8));a.setFloat64(0,x);return a.getBigUint64(0).toString(16).padStart(16,'0')};
- eq(m.version(),'0.2.0');
+ eq(m.version(),'0.2.1');
  for(const v of [-(1n<<63n),(1n<<63n)-1n,9007199254740993n]){const e=new Epoch(v);eq(e.seconds,v);eq(Epoch.fromJSON(JSON.parse(JSON.stringify(e))).seconds,v);e.free();throws(()=>e.seconds,'Disposed');}
  throws(()=>new Epoch(1n<<63n),'Overflow');throws(()=>new Epoch(-(1n<<63n)-1n),'Overflow');throws(()=>new Epoch(1),'Type');throws(()=>new Epoch(0n,1n<<64n),'Overflow');
  const e=new Epoch(0n,-1n);eq(e.seconds,-1n);eq(e.nanoseconds,999999999);eq(e.add(new Duration(1n)).seconds,0n);

@@ -738,7 +738,7 @@ fn legacy_to(e: &NativeEpoch, l: &NativeLsk, scale: &str) -> PyResult<f64> {
         _ => return Err(err("InvalidScale")),
     })
 }
-// VALIDATION ONLY, tied to the exact =0.2.0 std core dependency. These
+// VALIDATION ONLY, tied to the exact =0.2.1 std core dependency. These
 // discarded f64 intermediates mirror convert/tdb/dtdb/coord inverse order to
 // check the argument before their infallible Epoch constructor. Every returned
 // scientific result still comes from the original public core function below.

@@ -16,9 +16,9 @@ or the NAIF/LSK/SCLK arithmetic used by Geocalc.
 | Node >=24 | @stkcraft/time/node | The same WASM module, not an independent JS time engine |
 | Embedded Rust | default-features=false | [Cortex-M example](../examples/cortex-m-utc-et/README.md) |
 
-The JavaScript binding does not yet expose native partition-aware SCLK string
-conversion or WGC GPS week/TOW output. Python exposes the corresponding Rust
-paths.
+JavaScript and Python both expose native partition-aware SCLK string
+conversion and WGC GPS week/TOW paths. Consult each inventory for exact
+method names, error handling and the limits of the reference cases.
 
 Inventories classify public capabilities and document language protocols in
 place of Rust borrowing and traits. MCP transport internals are outside the

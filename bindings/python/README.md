@@ -43,7 +43,7 @@ absolute days <=700,000,000,000; `etcal` supports absolute ET <=1e16 seconds.
 Precision is accepted through 18 and follows the core's nine-digit clamp.
 Legacy inverse adapters preflight the actual inverse Epoch-constructor input;
 values that would panic, overflow, wrap years, or produce NaN are errors.
-This validation mirrors the exact operation order of the pinned 0.2.0 core
+This validation mirrors the exact operation order of the pinned 0.2.1 core
 convert/tdb/dtdb/coord implementations (including std sine and fixed-point
 iteration). Its result is discarded; the original core converter supplies
 every accepted return value. Review these guards whenever the core pin changes.
